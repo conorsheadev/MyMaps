@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "942704595500",
+    "project_id": "mymaps-gapi-project",
+    "storage_bucket": "mymaps-gapi-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:942704595500:android:23e7da7b622c4e6ac37789",
+        "android_client_info": {
+          "package_name": "com.csws.mymaps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCax6aFXZGv4SHepM9qhvZUZ8i3Pik-wnE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,47 @@
+package com.csws.mymaps.map;
+
+import com.csws.mymaps.data.LocationItem;
+import com.csws.mymaps.data.LocationRepository;
+
+import java.util.List;
+import java.util.UUID;
+
+public class LocationManager {
+    private final LocationRepository repository;
+    private List<LocationItem> locations;
+
+    public LocationManager(LocationRepository repository) {
+        this.repository = repository;
+        this.locations = repository.loadLocations();
+    }
+    public List<LocationItem> getLocations() {
+        return locations;
+    }
+
+    public LocationItem addLocation(String name, double lat, double lng, String type) {
+
+        LocationItem item = new LocationItem(
+                UUID.randomUUID().toString(),
+                name,
+                lat,
+                lng,
+                type
+        );
+        return addLocation(item);
+    }
+    public LocationItem addLocation(LocationItem item) {
+        locations.add(item);
+        repository.saveLocations(locations);
+        return item;
+    }
+    public void removeLocation(String id) {
+        locations.removeIf(loc -> loc.id.equals(id));
+        repository.saveLocations(locations);
+    }
+    public LocationItem getLocationById(String id) {
+        for (LocationItem loc : locations) {
+            if (loc.id.equals(id)) return loc;
+        }
+        return null;
+    }
+}
