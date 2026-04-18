@@ -1,7 +1,11 @@
-package com.csws.mymaps.map;
+package com.csws.mymaps.map.tasks_and_locations;
 
-import com.csws.mymaps.data.LocationItem;
-import com.csws.mymaps.data.LocationRepository;
+import android.util.Log;
+
+import com.csws.mymaps.data.locations.LocationItem;
+import com.csws.mymaps.data.locations.LocationRepository;
+import com.csws.mymaps.data.locations.MarkerConfig;
+import com.csws.mymaps.data.locations.PolygonConfig;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,17 +19,19 @@ public class LocationManager {
         this.locations = repository.loadLocations();
     }
     public List<LocationItem> getLocations() {
+        Log.d("LocationManager","LocationRepository returned:"+locations.stream().count());
         return locations;
     }
 
-    public LocationItem addLocation(String name, double lat, double lng, String type) {
+    public LocationItem addLocation(String name, double lat, double lng, String type, PolygonConfig polygonConfig, MarkerConfig markerConfig) {
 
         LocationItem item = new LocationItem(
                 UUID.randomUUID().toString(),
                 name,
                 lat,
                 lng,
-                type
+                polygonConfig,
+                markerConfig
         );
         return addLocation(item);
     }

@@ -1,4 +1,4 @@
-package com.csws.mymaps.map;
+package com.csws.mymaps.map.googleplaces;
 
 import android.content.Intent;
 
@@ -6,7 +6,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.csws.mymaps.data.LocationItem;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -15,7 +14,6 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 public class PlacesController {
     public interface PlacesResultListener {

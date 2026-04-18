@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/fab_add_location"
+        android:title="Add Location"
+        android:icon="@drawable/add_location_24px"/>
+
+    <item
+        android:id="@+id/fab_add_task"
+        android:title="Add Task"
+        android:icon="@drawable/add_task_24px"/>
+</menu>
