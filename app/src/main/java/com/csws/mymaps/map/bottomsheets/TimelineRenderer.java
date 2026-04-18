@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.csws.mymaps.data.tasks.TaskItem;
 import com.google.android.material.card.MaterialCardView;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class TimelineRenderer {
@@ -51,8 +52,8 @@ public class TimelineRenderer {
         }
     }
     private void drawTask(TaskItem task) {
-        int startMinutes = getStart(task.startTimeMillis);
-        int endMinutes = getStart(task.endTimeMillis);
+        int startMinutes = getMinutesFromStartOfTimeline(task.startTimeMillis);
+        int endMinutes = getMinutesFromStartOfTimeline(task.endTimeMillis);
         Log.d("TimelineRenderer", "Task start: " + task.startTimeMillis + ", end: " + task.endTimeMillis);
         Log.d("TimelineRenderer", "Task start: " + startMinutes + ", end: " + endMinutes);
         int top = (startMinutes * HOUR_HEIGHT) / 60;
@@ -67,7 +68,21 @@ public class TimelineRenderer {
 
         timelineContainer.addView(taskView, params);
     }
-    private int getStart(Long time) {return (int) ((time)/1);}
+    private int getMinutesFromStartOfTimeline(long millis) {
+        int minutesOfDay = getMinutesOfDay(millis);
+        int timelineStartMinutes = START_HOUR * 60;
+
+        return minutesOfDay - timelineStartMinutes;
+    }
+    private int getMinutesOfDay(long millis) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(millis);
+
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int minute = cal.get(Calendar.MINUTE);
+
+        return (hour * 60) + minute;
+    }
     //UI CREATION
     private View createTaskBlock(TaskItem task) {
 

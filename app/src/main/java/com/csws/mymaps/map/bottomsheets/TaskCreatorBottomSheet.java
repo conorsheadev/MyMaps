@@ -5,14 +5,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.csws.mymaps.R;
 import com.csws.mymaps.data.tasks.TaskItem;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class TaskCreatorBottomSheet {
     public interface Listener {
@@ -49,7 +59,7 @@ public class TaskCreatorBottomSheet {
         // --- Dropdown Setup ---
         String[] types = {"BASIC", "SCHEDULED", "LOCATION_BASED", "UNIVERSITY"};
         typeSelector.setSimpleItems(types);
-        typeSelector.setText("BASIC", false);
+        typeSelector.setText("SCHEDULED", false);
 
         String[] travelModes = {"WALKING", "DRIVING"};
         travelModeSelector.setSimpleItems(travelModes);
@@ -70,17 +80,19 @@ public class TaskCreatorBottomSheet {
             }
         });
 
-        // --- Time Pickers (simple version) ---
+        // --- Time Pickers ---
         startTimeButton.setOnClickListener(v -> {
-            long now = System.currentTimeMillis();
-            startTimeMillis[0] = now; // TODO: replace with proper picker
-            startTimeButton.setText("Start: Selected");
+            pickDateTime(result -> {
+                startTimeMillis[0] = result;
+                startTimeButton.setText("Start: " + formatDateTime(result));
+            });
         });
 
         endTimeButton.setOnClickListener(v -> {
-            long now = System.currentTimeMillis();
-            endTimeMillis[0] = now;
-            endTimeButton.setText("End: Selected");
+            pickDateTime(result -> {
+                endTimeMillis[0] = result;
+                endTimeButton.setText("End: " + formatDateTime(result));
+            });
         });
 
         // --- Confirm ---
@@ -139,5 +151,46 @@ public class TaskCreatorBottomSheet {
 
         dialog.setContentView(view);
         dialog.show();
+    }
+    private String formatDateTime(long millis) {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, HH:mm", Locale.getDefault());
+        return sdf.format(new Date(millis));
+    }
+    private void pickDateTime(Consumer<Long> onResult) {
+
+        // --- Date Picker ---
+        MaterialDatePicker<Long> datePicker =
+                MaterialDatePicker.Builder.datePicker()
+                        .setTitleText("Select date")
+                        .build();
+
+        datePicker.addOnPositiveButtonClickListener(date -> {
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(date);
+
+            // --- Time Picker ---
+            MaterialTimePicker timePicker =
+                    new MaterialTimePicker.Builder()
+                            .setTimeFormat(TimeFormat.CLOCK_24H)
+                            .setHour(calendar.get(Calendar.HOUR_OF_DAY))
+                            .setMinute(calendar.get(Calendar.MINUTE))
+                            .setTitleText("Select time")
+                            .build();
+
+            timePicker.addOnPositiveButtonClickListener(v -> {
+
+                calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                calendar.set(Calendar.MINUTE, timePicker.getMinute());
+                calendar.set(Calendar.SECOND, 0);
+
+                onResult.accept(calendar.getTimeInMillis());
+            });
+
+            timePicker.show(((AppCompatActivity) context).getSupportFragmentManager(), "TIME_PICKER");
+
+        });
+
+        datePicker.show(((AppCompatActivity) context).getSupportFragmentManager(), "DATE_PICKER");
     }
 }
