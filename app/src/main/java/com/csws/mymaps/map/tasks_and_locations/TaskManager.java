@@ -14,6 +14,9 @@ public class TaskManager {
         this.repository = repository;
         this.tasks = repository.loadTasks();
     }
+    public List<TaskItem> getAllTasks(){
+        return tasks;
+    }
 
     public List<TaskItem> getTasksForLocation(String locationId) {
         List<TaskItem> result = new ArrayList<>();

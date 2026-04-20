@@ -1,4 +1,4 @@
-package com.csws.mymaps.map.bottomsheets;
+package com.csws.mymaps.map;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -16,28 +16,42 @@ import java.util.Calendar;
 import java.util.List;
 
 public class TimelineRenderer {
-    private static final int HOUR_HEIGHT = 120; // px per hour
-    private static final int START_HOUR = 6;
-    private static final int END_HOUR = 22;
+
+    public static class Config {
+        public int startHour = 6;
+        public int endHour = 22;
+        public int hourHeight = 120;
+        public int leftPadding = 100;
+    }
 
     private final Context context;
-    private final RelativeLayout timelineContainer;
-    public TimelineRenderer(Context context, RelativeLayout timeLineContainer)
-    {
+    private final RelativeLayout container;
+    private final Config config;
+
+    public TimelineRenderer(Context context, RelativeLayout container, Config config) {
         this.context = context;
-        this.timelineContainer = timeLineContainer;
+        this.container = container;
+        this.config = config;
     }
 
-    public void renderTasks(List<TaskItem> tasks) {
-        timelineContainer.removeAllViews();
+    public void render(List<TaskItem> tasks) {
+        container.removeAllViews();
+
         drawTimeline();
-        for(TaskItem task : tasks){
-            drawTask(task);
+
+        for (TaskItem task : tasks) {
+            if (shouldRender(task)) {
+                drawTask(task);
+            }
         }
     }
+    private boolean shouldRender(TaskItem task) {
+        return task.startTimeMillis > 0 && task.endTimeMillis > 0;
+    }
+
     // --- TIMELINE CREATION ---
     private void drawTimeline(){
-        for (int hour = START_HOUR; hour <= END_HOUR; hour++) {
+        for (int hour = config.startHour; hour <= config.endHour; hour++) {
 
             TextView label = new TextView(context);
             label.setText(String.format("%02d:00", hour));
@@ -46,9 +60,9 @@ public class TimelineRenderer {
                     WRAP_CONTENT, WRAP_CONTENT
             );
 
-            params.topMargin = (hour - START_HOUR) * HOUR_HEIGHT;
+            params.topMargin = (hour - config.startHour) * config.hourHeight;
 
-            timelineContainer.addView(label, params);
+            container.addView(label, params);
         }
     }
     private void drawTask(TaskItem task) {
@@ -56,8 +70,8 @@ public class TimelineRenderer {
         int endMinutes = getMinutesFromStartOfTimeline(task.endTimeMillis);
         Log.d("TimelineRenderer", "Task start: " + task.startTimeMillis + ", end: " + task.endTimeMillis);
         Log.d("TimelineRenderer", "Task start: " + startMinutes + ", end: " + endMinutes);
-        int top = (startMinutes * HOUR_HEIGHT) / 60;
-        int height = ((endMinutes - startMinutes) * HOUR_HEIGHT) / 60;
+        int top = (startMinutes * config.hourHeight) / 60;
+        int height = ((endMinutes - startMinutes) * config.hourHeight) / 60;
 
         View taskView = createTaskBlock(task);
 
@@ -66,23 +80,16 @@ public class TimelineRenderer {
         params.topMargin = top;
         params.leftMargin = 100;
 
-        timelineContainer.addView(taskView, params);
+        container.addView(taskView, params);
     }
     private int getMinutesFromStartOfTimeline(long millis) {
-        int minutesOfDay = getMinutesOfDay(millis);
-        int timelineStartMinutes = START_HOUR * 60;
-
-        return minutesOfDay - timelineStartMinutes;
-    }
-    private int getMinutesOfDay(long millis) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(millis);
 
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minute = cal.get(Calendar.MINUTE);
-
-        return (hour * 60) + minute;
+        int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
+        return minutes - (config.startHour * 60);
     }
+
     //UI CREATION
     private View createTaskBlock(TaskItem task) {
 

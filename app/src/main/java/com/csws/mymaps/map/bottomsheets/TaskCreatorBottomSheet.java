@@ -1,14 +1,20 @@
 package com.csws.mymaps.map.bottomsheets;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.data.tasks.TaskItem;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -29,17 +35,19 @@ public class TaskCreatorBottomSheet {
         void onTaskCreated(TaskItem task);
     }
 
-    private final Context context;
-    private BottomSheetDialog dialog;
+    private final AppCompatActivity activity;
+    private Dialog dialog;
 
-    public TaskCreatorBottomSheet(Context context) {
-        this.context = context;
+    public TaskCreatorBottomSheet(AppCompatActivity activity) {
+        this.activity = activity;
     }
 
     public void show(String locationId, Listener listener) {
 
-        dialog = new BottomSheetDialog(context);
-        View view = LayoutInflater.from(context)
+        dialog = new Dialog(activity);
+        //dialog.getWindow().getDecorView().setBackgroundColor(Color.RED);
+
+        View view = LayoutInflater.from(activity)
                 .inflate(R.layout.bottom_sheet_task_create, null);
 
         // --- Views ---
@@ -151,6 +159,20 @@ public class TaskCreatorBottomSheet {
 
         dialog.setContentView(view);
         dialog.show();
+
+        if (view == null) Log.e("TaskSheet", "View is NULL");
+        Log.d("TaskSheet", "dialog.show() called");
+
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setDimAmount(0.8f);
+            window.setLayout(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT
+            );
+        }
+
+
     }
     private String formatDateTime(long millis) {
         SimpleDateFormat sdf = new SimpleDateFormat("EEE, HH:mm", Locale.getDefault());
@@ -187,10 +209,10 @@ public class TaskCreatorBottomSheet {
                 onResult.accept(calendar.getTimeInMillis());
             });
 
-            timePicker.show(((AppCompatActivity) context).getSupportFragmentManager(), "TIME_PICKER");
+            timePicker.show(activity.getSupportFragmentManager(), "TIME_PICKER");
 
         });
 
-        datePicker.show(((AppCompatActivity) context).getSupportFragmentManager(), "DATE_PICKER");
+        datePicker.show(activity.getSupportFragmentManager(), "DATE_PICKER");
     }
 }

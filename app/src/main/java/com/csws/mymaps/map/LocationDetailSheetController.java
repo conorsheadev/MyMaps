@@ -1,9 +1,7 @@
-package com.csws.mymaps.map.bottomsheets;
+package com.csws.mymaps.map;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -31,7 +29,7 @@ public class LocationDetailSheetController {
         title = sheetView.findViewById(R.id.locationTitle);
         timeLineContainer = sheetView.findViewById(R.id.timelineContainer);
 
-        timelineRenderer = new TimelineRenderer(context, timeLineContainer);
+        timelineRenderer = new TimelineRenderer(context, timeLineContainer,new TimelineRenderer.Config());
     }
     public void show(LocationItem location, List<TaskItem> tasks) {
 
@@ -45,6 +43,6 @@ public class LocationDetailSheetController {
         behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
     private void renderTasks(List<TaskItem> tasks) {
-        timelineRenderer.renderTasks(tasks);
+        timelineRenderer.render(tasks);
     }
 }

@@ -1,11 +1,13 @@
 package com.csws.mymaps.map;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,7 +23,6 @@ import com.csws.mymaps.data.locations.PolygonConfig;
 import com.csws.mymaps.data.tasks.TaskItem;
 import com.csws.mymaps.data.tasks.TaskRepository;
 import com.csws.mymaps.map.bottomsheets.LocationCreatorBottomSheet;
-import com.csws.mymaps.map.bottomsheets.LocationDetailSheetController;
 import com.csws.mymaps.map.bottomsheets.TaskCreatorBottomSheet;
 import com.csws.mymaps.map.googleplaces.PlacesController;
 import com.csws.mymaps.map.mapcontroller.MapController;
@@ -46,6 +47,7 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
     private LocationManager locationManager;
     private TaskManager taskManager;
     private PlacesController placesController;
+    private DayPlannerController dayPlannerController;
 
 
     @Override
@@ -59,6 +61,7 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
         FloatingActionButton fab = findViewById(R.id.mapFab);
         FrameLayout fabContainer = findViewById(R.id.fabContainer);
         View sheetView = findViewById(R.id.locationSheet);
+        //RelativeLayout plannerContainer = findViewById(R.id.plannerTimelineContainer);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         //Controllers
@@ -69,7 +72,10 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
         locationManager = new LocationManager(repo);
         TaskRepository taskRepo = new TaskRepository(this);
         taskManager = new TaskManager(taskRepo);
+        //dayPlannerController = new DayPlannerController(this, plannerContainer);
+        //dayPlannerController.showDay(taskManager.getAllTasks());
         placesController = new PlacesController(this);
+
 
         mapController = new MapController(this, this,taskManager);
         mapFragment.getMapAsync(mapController);
@@ -85,10 +91,10 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
     LocationItem lastLocationClicked = null;
     @Override
     public void onLocationSelected(LocationItem location) {
-        List<TaskItem> tasks = taskManager.getTasksForLocation(location.id);
         uiController.showLocationActions(location);
 
         if(lastLocationClicked != null && lastLocationClicked.equals(location)){
+            List<TaskItem> tasks = taskManager.getTasksForLocation(location.id);
             sheetController.show(location, tasks);
         }
         else{lastLocationClicked = location;}
@@ -103,17 +109,20 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
     // --- Location Action Listeners ---
     @Override
     public void onAddTaskToLocation(LocationItem location) {
-        TaskCreatorBottomSheet sheet = new TaskCreatorBottomSheet(this);
-        sheet.show(location.id, (task) -> {
-            taskManager.addTask(task);
-            mapController.refreshInfoWindows();
+        this.runOnUiThread(() -> {
+            if (!this.isFinishing() && !this.isDestroyed()) {
+                //TaskCreatorBottomSheet sheet = new TaskCreatorBottomSheet(this);
+                //sheet.show(location.id, task -> {Log.d("MapViewActivity", "call backrecieved");});
+            }
         });
     }
 
     // --- UI Listeners ---
     @Override
     public void onAddLocationClicked() {
-        placesController.launchPlacePicker();
+        this.runOnUiThread(()-> {
+            placesController.launchPlacePicker();
+        });
     }
     @Override
     public void onAddTaskClicked() {
