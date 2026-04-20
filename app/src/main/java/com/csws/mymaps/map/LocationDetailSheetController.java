@@ -25,14 +25,15 @@ public class LocationDetailSheetController {
         this.sheetView = sheetView;
 
         behavior = BottomSheetBehavior.from(sheetView);
-        behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        behavior.setHideable(true);
         title = sheetView.findViewById(R.id.locationTitle);
         timeLineContainer = sheetView.findViewById(R.id.timelineContainer);
 
         timelineRenderer = new TimelineRenderer(context, timeLineContainer,new TimelineRenderer.Config());
     }
     public void show(LocationItem location, List<TaskItem> tasks) {
-
+        sheetView.setVisibility(View.VISIBLE);
         title.setText(location.name);
 
         renderTasks(tasks);
@@ -41,6 +42,7 @@ public class LocationDetailSheetController {
     }
     public void hide() {
         behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        sheetView.setVisibility(View.GONE);
     }
     private void renderTasks(List<TaskItem> tasks) {
         timelineRenderer.render(tasks);

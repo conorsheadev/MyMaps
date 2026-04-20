@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyMaps" >
+        android:theme="@style/AppTheme" >
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCL0FPqe4IgRy-QQO42y1P5xCg09LwHLuc"/>
@@ -37,7 +37,8 @@
 
         <activity
             android:name=".map.MapViewActivity"
-            android:exported="false"/>
+            android:exported="false"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
     </application>
 
 </manifest>

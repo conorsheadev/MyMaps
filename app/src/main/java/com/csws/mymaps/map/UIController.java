@@ -72,10 +72,10 @@ public class UIController {
                 int id = item.getItemId();
 
                 if(id == R.id.action_add_location){
-                    listener.onAddLocationClicked();
+                    toolbar.post(() -> listener.onAddLocationClicked());
                     return true;
                 } else if (id == R.id.action_add_task) {
-                    listener.onAddTaskClicked();
+                    toolbar.post(() -> listener.onAddTaskClicked());
                     return true;
                 }
             }
@@ -187,7 +187,7 @@ public class UIController {
             polygonListener.onCancelPolygon();
         }
 
-        toggleFabMenu(); // collapse after action
+        //toggleFabMenu(); // collapse after action
     }
 
 }

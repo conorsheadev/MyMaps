@@ -1,13 +1,14 @@
 package com.csws.mymaps.map;
 
 import android.Manifest;
-import android.app.Dialog;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,8 +24,9 @@ import com.csws.mymaps.data.locations.PolygonConfig;
 import com.csws.mymaps.data.tasks.TaskItem;
 import com.csws.mymaps.data.tasks.TaskRepository;
 import com.csws.mymaps.map.bottomsheets.LocationCreatorBottomSheet;
+import com.csws.mymaps.map.LocationDetailSheetController;
 import com.csws.mymaps.map.bottomsheets.TaskCreatorBottomSheet;
-import com.csws.mymaps.map.googleplaces.PlacesController;
+import com.csws.mymaps.map.googleplaces.PlacesDialogFragment;
 import com.csws.mymaps.map.mapcontroller.MapController;
 import com.csws.mymaps.map.tasks_and_locations.LocationManager;
 import com.csws.mymaps.map.tasks_and_locations.TaskManager;
@@ -38,7 +40,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.List;
 import java.util.UUID;
 
-public class MapViewActivity extends AppCompatActivity implements UIController.ToolbarListener, UIController.LocationActionsListener, UIController.PolygonActionsListener, PlacesController.PlacesResultListener, MapController.MarkerClickListener {
+public class MapViewActivity extends AppCompatActivity implements UIController.ToolbarListener, UIController.LocationActionsListener, UIController.PolygonActionsListener, PlacesDialogFragment.PlacesResultListener, MapController.MarkerClickListener {
 
     private static final int LOCATION_PERMISSION_REQUEST = 1;
     private MapController mapController;
@@ -46,8 +48,6 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
     private LocationDetailSheetController sheetController;
     private LocationManager locationManager;
     private TaskManager taskManager;
-    private PlacesController placesController;
-    private DayPlannerController dayPlannerController;
 
 
     @Override
@@ -61,7 +61,6 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
         FloatingActionButton fab = findViewById(R.id.mapFab);
         FrameLayout fabContainer = findViewById(R.id.fabContainer);
         View sheetView = findViewById(R.id.locationSheet);
-        //RelativeLayout plannerContainer = findViewById(R.id.plannerTimelineContainer);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         //Controllers
@@ -72,10 +71,6 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
         locationManager = new LocationManager(repo);
         TaskRepository taskRepo = new TaskRepository(this);
         taskManager = new TaskManager(taskRepo);
-        //dayPlannerController = new DayPlannerController(this, plannerContainer);
-        //dayPlannerController.showDay(taskManager.getAllTasks());
-        placesController = new PlacesController(this);
-
 
         mapController = new MapController(this, this,taskManager);
         mapFragment.getMapAsync(mapController);
@@ -85,22 +80,34 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
 
         // Load and display
         mapController.displayLocations(locationManager.getLocations());
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("TEST")
+                .setMessage("If you see this, androidx appcompat is working")
+                .setPositiveButton("OK", null)
+                .show();
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("SYSTEM DIALOG")
+                .setMessage("If this shows, system dialogs work")
+                .setPositiveButton("OK", null)
+                .show();
     }
 
     // --- Map Interaction Listeners ---
     LocationItem lastLocationClicked = null;
     @Override
     public void onLocationSelected(LocationItem location) {
+        List<TaskItem> tasks = taskManager.getTasksForLocation(location.id);
         uiController.showLocationActions(location);
 
         if(lastLocationClicked != null && lastLocationClicked.equals(location)){
-            List<TaskItem> tasks = taskManager.getTasksForLocation(location.id);
             sheetController.show(location, tasks);
         }
         else{lastLocationClicked = location;}
     }
     @Override
     public void onMapClicked() {
+        Log.d("MapClicked", "onMapClicked() called");
         sheetController.hide();
         lastLocationClicked = null;
         uiController.showDefaultFab();
@@ -109,20 +116,27 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
     // --- Location Action Listeners ---
     @Override
     public void onAddTaskToLocation(LocationItem location) {
-        this.runOnUiThread(() -> {
-            if (!this.isFinishing() && !this.isDestroyed()) {
-                //TaskCreatorBottomSheet sheet = new TaskCreatorBottomSheet(this);
-                //sheet.show(location.id, task -> {Log.d("MapViewActivity", "call backrecieved");});
-            }
+        TaskCreatorBottomSheet sheet = new TaskCreatorBottomSheet(this);
+        sheet.show(location.id, (task) -> {
+            taskManager.addTask(task);
+            mapController.refreshInfoWindows();
         });
     }
 
     // --- UI Listeners ---
     @Override
     public void onAddLocationClicked() {
-        this.runOnUiThread(()-> {
-            placesController.launchPlacePicker();
-        });
+        Log.d("Test","clickRecieved");
+        //PlacesDialogFragment dialog = PlacesDialogFragment.newInstance();
+        //dialog.setListener(this);
+        //dialog.show(getSupportFragmentManager(), "PlacesDialog");
+        sheetController.hide();
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("TEST")
+                    .setMessage("VISIBLE?")
+                    .setPositiveButton("OK", null)
+                    .show();
+
     }
     @Override
     public void onAddTaskClicked() {
