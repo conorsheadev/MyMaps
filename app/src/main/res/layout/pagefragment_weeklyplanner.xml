@@ -1,0 +1,16 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- WEEKLY CAROUSEL -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/plannerCarousel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:overScrollMode="never"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

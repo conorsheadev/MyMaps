@@ -10,64 +10,40 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <!-- MAIN CONTENT -->
-        <LinearLayout
+
+        <!-- MAP CONTAINER -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="match_parent" />
 
-            <!-- TOOLBAR -->
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/topAppBar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:title="Map View"
-                app:navigationIcon="@drawable/menu_24px"
-                app:menu="@menu/toolbar_menu"/>
+        <!-- TOOLBAR -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Map View"
+            app:navigationIcon="@drawable/menu_24px"
+            app:menu="@menu/toolbar_menu"/>
 
-            <!-- MAP CONTAINER -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+        <!-- FAB MENU CONTAINER -->
+        <FrameLayout
+            android:id="@+id/fabContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp">
 
-                <fragment
-                    android:id="@+id/map"
-                    android:name="com.google.android.gms.maps.SupportMapFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    map:cameraTargetLat="-33.796923"
-                    map:cameraTargetLng="150.922433"
-                    map:cameraTilt="60"
-                    map:cameraZoom="13"
-                    map:mapType="normal"
-                    map:uiCompass="false"
-                    map:uiRotateGestures="true"
-                    map:uiScrollGestures="true"
-                    map:uiTiltGestures="true"
-                    map:uiZoomControls="false"
-                    map:uiZoomGestures="true"
-                    tools:context="com.csws.mymaps.map.MapViewActivity"/>
+            <!-- Main FAB -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/mapFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Main action"
+                app:srcCompat="@drawable/add_24px"/>
 
-                <!-- FAB MENU CONTAINER -->
-                <FrameLayout
-                    android:id="@+id/fabContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="16dp">
+        </FrameLayout>
 
-                    <!-- Main FAB -->
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/mapFab"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="Main action"
-                        app:srcCompat="@drawable/add_24px"/>
-
-                </FrameLayout>
-            </FrameLayout>
-
-        </LinearLayout>
         <!-- BOTTOM SHEET CONTAINER -->
         <FrameLayout
             android:id="@+id/locationSheet"
@@ -84,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="8dp"
+                app:cardElevation="0dp"
                 app:cardBackgroundColor="?attr/colorSurface">
 
                 <LinearLayout
