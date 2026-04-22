@@ -1,5 +1,9 @@
 package com.csws.mymaps.model.tasks;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 public class TaskItem {
@@ -11,6 +15,7 @@ public class TaskItem {
     public String id;// UUID
     public String title;
     public String description;
+
     // Extended info
     public String locationId;
     public TaskType type;
@@ -34,5 +39,10 @@ public class TaskItem {
         this.locationId = locationId;
         this.type = type;
         this.state = TaskState.WAITING;
+    }
+
+    public LocalDate toLocalDate(){return toLocalDate(startTimeMillis);}
+    private LocalDate toLocalDate(long millis){
+        return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate();
     }
 }
