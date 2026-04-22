@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
 import com.csws.mymaps.model.tasks.TaskItem;
-import com.csws.mymaps.viewmodel.TaskManager;
+import com.csws.mymaps.viewmodel.TaskViewModel;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
@@ -19,12 +19,12 @@ import java.util.List;
 
 public class MapController_InfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
-    private final TaskManager taskManager;
+    private final TaskViewModel taskViewModel;
     private final Context context;
 
-    public MapController_InfoWindowAdapter(Context context, TaskManager taskManager) {
+    public MapController_InfoWindowAdapter(Context context, TaskViewModel taskViewModel) {
         this.context = context;
-        this.taskManager = taskManager;
+        this.taskViewModel = taskViewModel;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class MapController_InfoWindowAdapter implements GoogleMap.InfoWindowAdap
         title.setText(location.name);
 
         // --- Get tasks ---
-        List<TaskItem> tasks = taskManager.getTasksForLocation(location.id);
+        List<TaskItem> tasks = taskViewModel.getTasksForLocation(location.id);
 
         if (tasks == null || tasks.isEmpty()) {
             tasksView.setText("No tasks yet");

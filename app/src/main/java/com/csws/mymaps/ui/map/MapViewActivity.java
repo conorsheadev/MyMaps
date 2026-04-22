@@ -12,10 +12,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
-import com.csws.mymaps.data.LocationRepository;
 import com.csws.mymaps.model.locations.PolygonConfig;
 import com.csws.mymaps.model.tasks.TaskItem;
 import com.csws.mymaps.data.TaskRepository;
@@ -23,8 +23,8 @@ import com.csws.mymaps.ui.map.bottomsheets.LocationCreatorBottomSheet;
 import com.csws.mymaps.ui.map.bottomsheets.TaskCreatorBottomSheet;
 import com.csws.mymaps.ui.map.googleplaces.PlacesDialogFragment;
 import com.csws.mymaps.ui.map.mapcontroller.MapController;
-import com.csws.mymaps.viewmodel.LocationManager;
-import com.csws.mymaps.viewmodel.TaskManager;
+import com.csws.mymaps.viewmodel.LocationViewModel;
+import com.csws.mymaps.viewmodel.TaskViewModel;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -43,8 +43,8 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
     private MapController mapController;
     private UIController uiController;
     private LocationDetailSheetController sheetController;
-    private LocationManager locationManager;
-    private TaskManager taskManager;
+    private LocationViewModel locationViewModel;
+    private TaskViewModel taskViewModel;
 
     MapView mapView;
 
@@ -72,12 +72,16 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
         uiController = new UIController(this, drawerLayout, toolbar, fab, fabContainer);
         uiController.init();
         //sheetController = new LocationDetailSheetController(this,sheetView);
-        LocationRepository repo = new LocationRepository(this);
-        locationManager = new LocationManager(repo);
-        TaskRepository taskRepo = new TaskRepository(this);
-        taskManager = new TaskManager(taskRepo);
-        mapController = new MapController(this, this,taskManager);
+
+        taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
+        mapController = new MapController(this, this, taskViewModel);
         mapFragment.getMapAsync(mapController);
+
+        //ViewModel
+        locationViewModel = new LocationViewModel(this.getApplication());
+        locationViewModel.getLocations().observe(this, locations -> {
+            mapController.displayLocations(locations);
+        });
 
         //Activity Permissions
         checkLocationPermissions();
@@ -87,8 +91,6 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
         Log.d("CTX_CHECK", "appContext = " + getApplicationContext());
 
         // Load and display
-        mapController.displayLocations(locationManager.getLocations());
-
         Toast.makeText(MapViewActivity.this, "ACTIVITY CONTEXT", Toast.LENGTH_LONG).show();
         Toast.makeText(getApplicationContext(), "APP CONTEXT", Toast.LENGTH_LONG).show();
 
@@ -98,7 +100,7 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
     LocationItem lastLocationClicked = null;
     @Override
     public void onLocationSelected(LocationItem location) {
-        List<TaskItem> tasks = taskManager.getTasksForLocation(location.id);
+        List<TaskItem> tasks = taskViewModel.getTasksForLocation(location.id);
         uiController.showLocationActions(location);
 
         if(lastLocationClicked != null && lastLocationClicked.equals(location)){
@@ -121,7 +123,7 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
     public void onAddTaskToLocation(LocationItem location) {
         TaskCreatorBottomSheet sheet = new TaskCreatorBottomSheet(this);
         sheet.show(location.id, (task) -> {
-            taskManager.addTask(task);
+            taskViewModel.addTask(task);
             mapController.refreshInfoWindows();
         });
     }
@@ -203,11 +205,9 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
                     markerConfig
             );
 
-            locationManager.addLocation(item);
+            locationViewModel.addLocation(item);
 
             resetDrawingState();
-
-            mapController.displayLocations(locationManager.getLocations());
         });
     }
     @Override

@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
-import com.csws.mymaps.viewmodel.TaskManager;
+import com.csws.mymaps.viewmodel.TaskViewModel;
 import com.csws.mymaps.utils.Utilities;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -46,10 +46,10 @@ public class MapController implements OnMapReadyCallback {
     private GoogleMap map;
     private final FusedLocationProviderClient fusedLocationClient;
 
-    public MapController(Context context, MarkerClickListener listener, TaskManager taskManager) {
+    public MapController(Context context, MarkerClickListener listener, TaskViewModel taskViewModel) {
         this.context = context;
         this.listener = listener;
-        this.infoWindowAdapter = new MapController_InfoWindowAdapter(context, taskManager);
+        this.infoWindowAdapter = new MapController_InfoWindowAdapter(context, taskViewModel);
         this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
     }
 
