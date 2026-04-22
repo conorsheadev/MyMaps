@@ -1,5 +1,6 @@
 package com.csws.mymaps.ui.planner;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,39 +8,52 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.ui.map.MapViewActivity;
 import com.csws.mymaps.ui.planner.weekview_fragment.PlannerCollectionAdapter;
 import com.csws.mymaps.viewmodel.LocationViewModel;
 import com.csws.mymaps.viewmodel.TaskViewModel;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 public class PlannerViewActivity extends AppCompatActivity {
 
-    private LocationViewModel locationViewModel;
-    private TaskViewModel taskViewModel;
-
-    ViewPager2 viewPager;
-    TabLayout tabLayout;
+    private MaterialToolbar toolbar;
+    private TabLayout tabLayout;
+    private ViewPager2 viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plannerview);
 
-        //Init View Models
-        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
-        taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
-
         //Init UI
-        viewPager = findViewById(R.id.viewPager);
+        toolbar = findViewById(R.id.topAppBar);
         tabLayout = findViewById(R.id.tabLayout);
+        viewPager = findViewById(R.id.viewPager);
 
+
+        setupToolbar();
         setupViewPager();
         setupTabs();
+    }
 
+    // --- USER ACTIONS ---
+    private void openMap(){
+        Intent intent = new Intent(this, MapViewActivity.class);
+        startActivity(intent);
     }
 
     // --- SETUP ---
+    private void setupToolbar() {
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_open_map) {
+                openMap();
+                return true; //Consume Click
+            }
+            return false; //Do nothing
+        });
+    }
     private void setupViewPager() {
         PlannerCollectionAdapter adapter = new PlannerCollectionAdapter(this);
         viewPager.setAdapter(adapter);

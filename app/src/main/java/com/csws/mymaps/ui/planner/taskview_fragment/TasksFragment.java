@@ -1,6 +1,7 @@
 package com.csws.mymaps.ui.planner.taskview_fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +62,7 @@ public class TasksFragment extends Fragment {
     }
 
     private void updateUI() {
+        Log.d("TasksFragment", "Updating UI");
         onDataChanged(currentLocations, currentTasks);
     }
 
