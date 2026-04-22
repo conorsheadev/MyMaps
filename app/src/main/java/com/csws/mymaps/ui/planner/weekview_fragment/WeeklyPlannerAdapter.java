@@ -1,9 +1,8 @@
-package com.csws.mymaps.ui.planner;
+package com.csws.mymaps.ui.planner.weekview_fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -12,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.planner.PlannerDay;
-import com.csws.mymaps.model.tasks.TaskItem;
+import com.csws.mymaps.ui.map.TimelineRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,27 +45,27 @@ public class WeeklyPlannerAdapter extends RecyclerView.Adapter<WeeklyPlannerAdap
 
     static class DayViewHolder extends RecyclerView.ViewHolder {
 
-        TextView dateText;
-        RelativeLayout taskContainer;
+        TextView dayTitle, dayDate, taskCount;
+        RelativeLayout timelineContainer;
 
 
         public DayViewHolder(@NonNull View itemView) {
             super(itemView);
-            dateText = itemView.findViewById(R.id.dayTitle);
-            taskContainer = itemView.findViewById(R.id.taskContainer);
+            dayTitle = itemView.findViewById(R.id.dayTitle);
+            dayDate = itemView.findViewById(R.id.dayDate);
+            taskCount = itemView.findViewById(R.id.taskCount);
+            timelineContainer = itemView.findViewById(R.id.timelineContainer);
         }
 
         void bind(PlannerDay day) {
 
-            dateText.setText(day.date.getDayOfWeek() + "\n" + day.date);
+            dayTitle.setText(day.getDayName());
+            dayDate.setText(day.getFormattedDate());
+            taskCount.setText(day.getTasks().size() + " tasks");
 
-            taskContainer.removeAllViews();
-
-            for (TaskItem task : day.tasks) {
-                TextView tv = new TextView(itemView.getContext());
-                tv.setText(task.title);
-                taskContainer.addView(tv);
-            }
+            TimelineRenderer.Config config = new TimelineRenderer.Config();
+            TimelineRenderer renderer = new TimelineRenderer(itemView.getContext(), timelineContainer, config);
+            renderer.render(day.getTasks());
         }
     }
 }

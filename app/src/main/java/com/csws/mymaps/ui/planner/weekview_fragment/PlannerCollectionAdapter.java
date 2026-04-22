@@ -1,9 +1,12 @@
-package com.csws.mymaps.ui.planner;
+package com.csws.mymaps.ui.planner.weekview_fragment;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import com.csws.mymaps.ui.planner.ConfigFragment;
+import com.csws.mymaps.ui.planner.taskview_fragment.TasksFragment;
 
 import java.util.Arrays;
 import java.util.List;
