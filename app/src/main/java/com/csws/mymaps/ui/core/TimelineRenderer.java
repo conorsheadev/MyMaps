@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.map;
+package com.csws.mymaps.ui.core;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;

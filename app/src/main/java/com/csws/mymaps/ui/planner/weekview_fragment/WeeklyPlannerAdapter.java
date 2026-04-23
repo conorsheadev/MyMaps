@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.planner.PlannerDay;
-import com.csws.mymaps.ui.map.TimelineRenderer;
+import com.csws.mymaps.ui.core.TimelineRenderer;
 
 import java.util.ArrayList;
 import java.util.List;

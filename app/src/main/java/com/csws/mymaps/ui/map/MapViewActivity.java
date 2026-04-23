@@ -11,22 +11,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
 import com.csws.mymaps.model.locations.PolygonConfig;
 import com.csws.mymaps.model.tasks.TaskItem;
-import com.csws.mymaps.data.TaskRepository;
-import com.csws.mymaps.ui.map.bottomsheets.LocationCreatorBottomSheet;
-import com.csws.mymaps.ui.map.bottomsheets.TaskCreatorBottomSheet;
-import com.csws.mymaps.ui.map.googleplaces.PlacesDialogFragment;
-import com.csws.mymaps.ui.map.mapcontroller.MapController;
+import com.csws.mymaps.ui.core.actions.ActionFlowController;
+import com.csws.mymaps.ui.core.actions.flows.CreateLocationFlow;
+import com.csws.mymaps.ui.map.deprecated.ActivityActions;
+import com.csws.mymaps.ui.map.deprecated.bottomsheets.LocationCreatorBottomSheet;
 import com.csws.mymaps.viewmodel.LocationViewModel;
 import com.csws.mymaps.viewmodel.TaskViewModel;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
@@ -37,12 +34,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.List;
 import java.util.UUID;
 
-public class MapViewActivity extends AppCompatActivity implements UIController.ToolbarListener, UIController.LocationActionsListener, UIController.PolygonActionsListener, PlacesDialogFragment.PlacesResultListener, MapController.MarkerClickListener {
+import kotlinx.coroutines.scheduling.Task;
+
+public class MapViewActivity extends AppCompatActivity implements ActivityActions, MapFabController.DefaultActionsListener, MapFabController.LocationActionsListener, MapController.MapCallbacks {
 
     private static final int LOCATION_PERMISSION_REQUEST = 1;
     private MapController mapController;
-    private UIController uiController;
-    private LocationDetailSheetController sheetController;
+    MapFabController fabController;
+    private ActionFlowController flowController;
+
     private LocationViewModel locationViewModel;
     private TaskViewModel taskViewModel;
 
@@ -52,179 +52,120 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapview);
-        MapsInitializer.initialize(this, MapsInitializer.Renderer.LATEST, null);
+        flowController = new ActionFlowController();
 
-        //UI Components
-        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        //Setup ViewModels
+        setupViewModels();
+        //Setup Components
+        setupToolbar();
+        setupMap();
+        setupFab();
+        setupBottomSheet();
+        //Setup LiveData
+        observeData();
+
+        //Activity Permissions
+        checkLocationPermissions();
+    }
+
+    // --- SETUP ---
+    private void setupViewModels(){
+        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
+        taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
+    }
+    private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
-        FloatingActionButton fab = findViewById(R.id.mapFab);
-        FrameLayout fabContainer = findViewById(R.id.fabContainer);
-        //View sheetView = findViewById(R.id.locationSheet);
-        //SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
+        toolbar.setNavigationOnClickListener(v -> {
+            finish(); // back to Planner
+        });
+
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_add_location) {
+                onAddLocation();
+                return true;
+            }
+            return false;
+        });
+    }
+    private void setupMap() {
         SupportMapFragment mapFragment = SupportMapFragment.newInstance();
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.map_container, mapFragment)
                 .commit();
 
-        //Controllers
-        uiController = new UIController(this, drawerLayout, toolbar, fab, fabContainer);
-        uiController.init();
-        //sheetController = new LocationDetailSheetController(this,sheetView);
-
-        taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
-        mapController = new MapController(this, this, taskViewModel);
+        MapController_InfoWindowAdapter adapter = new MapController_InfoWindowAdapter(this);
+        mapController = new MapController(this, this, adapter);
         mapFragment.getMapAsync(mapController);
+    }
+    private void setupFab() {
+        FloatingActionButton fab = findViewById(R.id.mapFab);
+        FrameLayout fabContainer = findViewById(R.id.fabContainer);
 
-        //ViewModel
-        locationViewModel = new LocationViewModel(this.getApplication());
-        locationViewModel.getLocations().observe(this, locations -> {
-            mapController.displayLocations(locations);
-        });
-
-        //Activity Permissions
-        checkLocationPermissions();
-        Log.d("MapViewActivity", "onCreate() called");
-        Log.d("DEBUG", "IS TASK ROOT: " + isTaskRoot());
-        Log.d("CTX_CHECK", "this = " + this);
-        Log.d("CTX_CHECK", "appContext = " + getApplicationContext());
-
-        // Load and display
-        Toast.makeText(MapViewActivity.this, "ACTIVITY CONTEXT", Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(), "APP CONTEXT", Toast.LENGTH_LONG).show();
-
+        fabController = new MapFabController(this, fab, fabContainer);
+        fabController.setListeners(this, this);
+        fabController.showDefault();
+    }
+    private void setupBottomSheet() {
+        //TODO: ReImplement BottomSheet Setup
+    }
+    private void observeData(){
+        locationViewModel.getLocations().observe(this, this.mapController::displayLocations);
+        taskViewModel.getTasks().observe(this, mapController::setTasks);
     }
 
-    // --- Map Interaction Listeners ---
+    // --- Activity Actions ---
+    @Override
+    public void createNewLocation(LocationItem locationItem) {
+        locationViewModel.addLocation(locationItem);
+    }
+    @Override
+    public void createNewTask(TaskItem taskItem) {
+        taskViewModel.addTask(taskItem);
+    }
+    @Override
+    public void cancelCurrentFlow() {}
+
+    // --- FAB Controller Callbacks ---
+    @Override
+    public void onAddLocation() {
+        //TODO: Reimplement AddLocation
+        CreateLocationFlow flow = new CreateLocationFlow(this, mapController);
+        flowController.startFlow(flow);
+    }
+    @Override
+    public void onAddTask() {
+        if (lastLocationClicked == null) {
+            //TODO: ReImplement AddTask
+        } else {
+            onAddTaskToLocation(lastLocationClicked);
+        }
+    }
+    @Override
+    public void onAddTaskToLocation(LocationItem location) {
+        //TODO: ReImplement AddTaskToLocation
+    }
+
+    // --- Map Callbacks ---
     LocationItem lastLocationClicked = null;
     @Override
     public void onLocationSelected(LocationItem location) {
         List<TaskItem> tasks = taskViewModel.getTasksForLocation(location.id);
-        uiController.showLocationActions(location);
+        fabController.showLocationActions(location);
 
         if(lastLocationClicked != null && lastLocationClicked.equals(location)){
-            sheetController.show(location, tasks);
+            //TODO: ReImplement DisplayLocationDetails
         }
 
         else{lastLocationClicked = location;}
     }
 
     @Override
-    public void onMapClicked() {
+    public void onMapClicked(LatLng latLng) {
         Log.d("MapClicked", "onMapClicked() called");
-        sheetController.hide();
         lastLocationClicked = null;
-        uiController.showDefaultFab();
-    }
-
-    // --- Location Action Listeners ---
-    @Override
-    public void onAddTaskToLocation(LocationItem location) {
-        TaskCreatorBottomSheet sheet = new TaskCreatorBottomSheet(this);
-        sheet.show(location.id, (task) -> {
-            taskViewModel.addTask(task);
-            mapController.refreshInfoWindows();
-        });
-    }
-
-    // --- UI Listeners ---
-    @Override
-    public void onAddLocationClicked() {
-        Log.d("DialogTest", "StateSaved: " + getSupportFragmentManager().isStateSaved());
-        Log.d("CTX_CHECK", "this (click) = " + this);
-        //PlacesDialogFragment dialog = PlacesDialogFragment.newInstance();
-        //dialog.setListener(this);
-        //dialog.show(getSupportFragmentManager(), "PlacesDialog");
-        //sheetController.hide();
-        Toast.makeText(MapViewActivity.this, "ACTIVITY CONTEXT", Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(), "APP CONTEXT", Toast.LENGTH_LONG).show();
-
-
-    }
-    @Override
-    public void onAddTaskClicked() {
-        if(lastLocationClicked != null){
-            onAddTaskToLocation(lastLocationClicked);
-        }
-    }
-
-    // --- Location Creation ---
-    private boolean isDrawingLocation = false;
-    private LatLng pendingLatLng;
-    private Place pendingPlace;
-    @Override
-    public void onPlaceSelected(Place place, LatLng latLng) {
-
-        // Store pending data
-        pendingPlace = place;
-        pendingLatLng = latLng;
-
-        // Show temp marker
-        mapController.displayTemporaryLocation(latLng);
-
-        // Enable draw mode
-        mapController.enableDrawMode();
-        isDrawingLocation = true;
-
-        // Update UI (FAB + controls)
-        uiController.showPolygonActions();
-    }
-    @Override
-    public void onPlacesError(String message) {
-        Log.e("Places", message);
-    }
-    @Override
-    public void onUndoPolygonPoint() {
-        mapController.undoLastPoint();
-    }
-    @Override
-    public void onConfirmPolygon() {
-
-        List<LatLng> points = mapController.finishPolygon();
-
-        if (points == null || points.size() < 3) {
-            Toast.makeText(this, "Polygon needs at least 3 points", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        LocationCreatorBottomSheet sheet = new LocationCreatorBottomSheet(this);
-
-        sheet.show(pendingPlace.getName(), (name, type, markerConfig) -> {
-
-            PolygonConfig polygonConfig = new PolygonConfig(
-                    210f, // default color (blue)
-                    points
-            );
-
-            LocationItem item = new LocationItem(
-                    UUID.randomUUID().toString(),
-                    name,
-                    pendingLatLng.latitude,
-                    pendingLatLng.longitude,
-                    polygonConfig,
-                    markerConfig
-            );
-
-            locationViewModel.addLocation(item);
-
-            resetDrawingState();
-        });
-    }
-    @Override
-    public void onCancelPolygon() {
-        resetDrawingState();
-    }
-    private void resetDrawingState() {
-
-        isDrawingLocation = false;
-
-        pendingLatLng = null;
-        pendingPlace = null;
-
-        mapController.clearTemporaryPolygon();
-        mapController.removeTemporaryLocation();
-
-        uiController.showDefaultFab();
+        fabController.showDefault();
     }
 
     // --- Permissions ---
@@ -258,6 +199,7 @@ public class MapViewActivity extends AppCompatActivity implements UIController.T
         }
     }
 
+    // --- Lifecycle ---
     @Override
     protected void onResume() {
         super.onResume();

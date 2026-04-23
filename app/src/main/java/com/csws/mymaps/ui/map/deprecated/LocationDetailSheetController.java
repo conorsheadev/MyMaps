@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.map;
+package com.csws.mymaps.ui.map.deprecated;
 
 import android.content.Context;
 import android.view.View;
@@ -8,6 +8,7 @@ import android.widget.TextView;
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
 import com.csws.mymaps.model.tasks.TaskItem;
+import com.csws.mymaps.ui.core.TimelineRenderer;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.util.List;

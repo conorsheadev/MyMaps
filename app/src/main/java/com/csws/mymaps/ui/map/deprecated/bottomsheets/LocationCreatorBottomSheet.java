@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.map.bottomsheets;
+package com.csws.mymaps.ui.map.deprecated.bottomsheets;
 
 import android.content.Context;
 import android.graphics.Color;

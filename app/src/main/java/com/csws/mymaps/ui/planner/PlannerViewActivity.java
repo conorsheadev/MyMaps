@@ -4,14 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.ui.map.MapViewActivity;
 import com.csws.mymaps.ui.planner.weekview_fragment.PlannerCollectionAdapter;
-import com.csws.mymaps.viewmodel.LocationViewModel;
-import com.csws.mymaps.viewmodel.TaskViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;

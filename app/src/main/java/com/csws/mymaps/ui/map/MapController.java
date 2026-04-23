@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.map.mapcontroller;
+package com.csws.mymaps.ui.map;
 
 import android.Manifest;
 import android.content.Context;
@@ -11,7 +11,8 @@ import androidx.core.content.ContextCompat;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
-import com.csws.mymaps.viewmodel.TaskViewModel;
+import com.csws.mymaps.model.tasks.TaskItem;
+import com.csws.mymaps.ui.core.actions.flows.CreateLocationFlow;
 import com.csws.mymaps.utils.Utilities;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -27,29 +28,34 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class MapController implements OnMapReadyCallback {
-    public interface MarkerClickListener {
+public class MapController implements OnMapReadyCallback, MapActions {
+
+    public interface MapCallbacks {
+        void onMapClicked(LatLng latLng);
         void onLocationSelected(LocationItem location);
-        void onMapClicked(); // optional (clear selection)
     }
 
     private final Context context;
-    private MarkerClickListener listener;
-    private MapController_InfoWindowAdapter infoWindowAdapter;
+    private MapCallbacks listener;
+    public MapController_InfoWindowAdapter infoWindowAdapter;
+    private final FusedLocationProviderClient fusedLocationClient;
+
+    private GoogleMap map;
+    private boolean locationPermissionGranted = false;
+
     private List<Marker> activeMarkers = new ArrayList<>();
     private List<Polygon> activePolygons = new ArrayList<>();
 
-    private boolean locationPermissionGranted = false;
 
-    private GoogleMap map;
-    private final FusedLocationProviderClient fusedLocationClient;
 
-    public MapController(Context context, MarkerClickListener listener, TaskViewModel taskViewModel) {
+    public MapController(Context context, MapCallbacks listener, MapController_InfoWindowAdapter infoWindowAdapter) {
         this.context = context;
         this.listener = listener;
-        this.infoWindowAdapter = new MapController_InfoWindowAdapter(context, taskViewModel);
+        this.infoWindowAdapter = infoWindowAdapter;
         this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
     }
 
@@ -78,6 +84,7 @@ public class MapController implements OnMapReadyCallback {
         map.getUiSettings().setZoomControlsEnabled(show);
     }
 
+    // --- MAP DATA ---
     private List<LocationItem> cachedLocations;
     public void displayLocations(List<LocationItem> locations) {
         if (map == null) {cachedLocations = locations; return;}
@@ -116,6 +123,19 @@ public class MapController implements OnMapReadyCallback {
             activeMarkers.add(marker);
         }
     }
+    public void setTasks(List<TaskItem> tasks) {
+        Map<String, List<TaskItem>> grouped = new HashMap<>();
+
+        for (TaskItem task : tasks) {
+            if (!grouped.containsKey(task.locationId)) {
+                grouped.put(task.locationId, new ArrayList<>());
+            }
+            grouped.get(task.locationId).add(task);
+        }
+
+        infoWindowAdapter.setTasks(grouped);
+        refreshInfoWindows();
+    }
     public void refreshInfoWindows() {
         if (map == null) return;
 
@@ -134,127 +154,82 @@ public class MapController implements OnMapReadyCallback {
         }
     }
 
-    // --- Draw Polygon Mode ---
-    private boolean drawMode = false;
-    private Polygon tempPolygon;
-    private List<LatLng> tempPoints = new ArrayList<>();
-    private List<Marker> tempPolygonMarkers = new ArrayList<>();
-    public void enableDrawMode() {
-        drawMode = true;
-        tempPoints.clear();
-        tempPolygonMarkers.clear();
-        showZoomControls(true);
-    }
-    public void displayTemporaryPolygon(List<LatLng> points) {
-        if (map == null || points == null) return;
-        for(Marker marker : tempPolygonMarkers){ marker.remove(); }
-        for(LatLng point : points){
-            addTempMarker(point);
-        }
-        if (points.size() < 3) return;
+    // --- Map Actions ---
+    private Marker tempMarker;
+    @Override
+    public void renderTempLocation(LatLng latLng) {
+        if (tempMarker != null) { tempMarker.remove(); }
 
+        tempMarker = map.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title("Temporary Location"));
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+    }
+
+    private Polygon tempPolygon;
+    private List<Marker> tempPolygonMarkers = new ArrayList<>();
+    @Override
+    public void renderTempPolygon(List<LatLng> points) {
+        //Remove old polygon and markers if they exist
         if (tempPolygon != null) {
             tempPolygon.remove();
         }
+        for(Marker marker : tempPolygonMarkers){ marker.remove(); }
 
+        //Add temporary markers for each point
+        for(LatLng point : points){
+            Marker marker = map.addMarker(new MarkerOptions()
+                    .position(point)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+            );
+            marker.setTag("TEMP_POLYGON_POINT");
+            tempPolygonMarkers.add(marker);
+        }
+
+        //If +2 points provided -> draw polygon
+        if (points.size() < 2) return;
         tempPolygon = map.addPolygon(new PolygonOptions()
                 .addAll(points)
                 .strokeWidth(4)
                 .strokeColor(Color.BLUE)
                 .fillColor(0x220000FF));
     }
-    private void addTempMarker(LatLng point) {
-        Marker marker = map.addMarker(new MarkerOptions()
-                .position(point)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-        );
 
-        marker.setTag("TEMP_POLYGON_POINT");
-        tempPolygonMarkers.add(marker);
-    }
-    public void clearTemporaryPolygon() {
+    @Override
+    public void clearTemp() {
+        //Clear Marker
+        if (tempMarker != null) {
+            tempMarker.remove();
+            tempMarker = null;
+        }
+
+        //Clear Polygon
         if (tempPolygon != null) {
             tempPolygon.remove();
             tempPolygon = null;
         }
         for(Marker marker : tempPolygonMarkers){ marker.remove(); }
     }
-    public void undoLastPoint() {
-        if (!tempPoints.isEmpty()) {
-            tempPoints.remove(tempPoints.size() - 1);
-            displayTemporaryPolygon(tempPoints);
-        }
-    }
-    public List<LatLng> finishPolygon() {
-        drawMode = false;
 
-        List<LatLng> result = new ArrayList<>(tempPoints);
-        tempPoints.clear();
+    // --- Map Callbacks ---
+    private boolean onMarkerClicked(Marker marker) {
 
-        showZoomControls(false);
-        return result;
-    }
-    // --- Map Interaction ---
-    private Marker focusedMarker;
-    private boolean onMarkerClicked(Marker marker)
-    {
         Object tag = marker.getTag();
-        if ("TEMP_LOCATION".equals(tag)) {
-            return true;
-        }
-        if ("TEMP_POLYGON_POINT".equals(tag)) {
-            return true;
+
+        if (tag instanceof LocationItem && listener != null) {
+            listener.onLocationSelected((LocationItem) tag);
         }
 
-        focusedMarker = marker;
+        return false;
+    }
+    private boolean onMapClicked(LatLng latLng) {
+
         if (listener != null) {
-            LocationItem loc = (LocationItem) marker.getTag();
-            if (loc != null) {
-                listener.onLocationSelected(loc);
-            }
+            listener.onMapClicked(latLng);
         }
-        return false;
-    }
-    private void onPolygonClicked(Polygon polygon) {
-        LocationItem loc = (LocationItem) polygon.getTag();
-
-        if (loc != null && listener != null) {
-            listener.onLocationSelected(loc);
-        }
-    }
-    private boolean onMapClicked(LatLng latLng)
-    {
-        focusedMarker = null;
-
-        if(drawMode){
-            tempPoints.add(latLng);
-            displayTemporaryPolygon(tempPoints);
-            return false;
-        }
-        if(listener != null) {
-            listener.onMapClicked();
-        }
-
 
         return false;
-    }
-    public void setMarkerClickListener(MarkerClickListener listener) {
-        this.listener = listener;
-    }
-
-    // --- Temporary Location ---
-    private Marker tempMarker;
-    public void displayTemporaryLocation(LatLng latLng) {
-        Marker marker = map.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title("Temporary Location"));
-
-        marker.setTag("TEMP_LOCATION");
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
-    }
-    public void removeTemporaryLocation(){
-        map.clear();
-        moveToUserLocation();
     }
 
     // --- User Location ---
