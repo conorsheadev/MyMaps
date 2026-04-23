@@ -1,11 +1,11 @@
 package com.csws.mymaps.ui.map;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,26 +15,21 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
-import com.csws.mymaps.model.locations.PolygonConfig;
 import com.csws.mymaps.model.tasks.TaskItem;
 import com.csws.mymaps.ui.core.actions.ActionFlowController;
 import com.csws.mymaps.ui.core.actions.flows.CreateLocationFlow;
-import com.csws.mymaps.ui.map.deprecated.ActivityActions;
-import com.csws.mymaps.ui.map.deprecated.bottomsheets.LocationCreatorBottomSheet;
+import com.csws.mymaps.ui.places.PlaceSearchActivity;
 import com.csws.mymaps.viewmodel.LocationViewModel;
 import com.csws.mymaps.viewmodel.TaskViewModel;
+import com.csws.mymaps.viewmodel.flows.CreateLocationViewModel;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
-import java.util.UUID;
-
-import kotlinx.coroutines.scheduling.Task;
 
 public class MapViewActivity extends AppCompatActivity implements ActivityActions, MapFabController.DefaultActionsListener, MapFabController.LocationActionsListener, MapController.MapCallbacks {
 
@@ -117,6 +112,11 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
 
     // --- Activity Actions ---
     @Override
+    public void openPlaceSearch() {
+        Intent intent = new Intent(this, PlaceSearchActivity.class);
+        startActivity(intent);
+    }
+    @Override
     public void createNewLocation(LocationItem locationItem) {
         locationViewModel.addLocation(locationItem);
     }
@@ -131,7 +131,9 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     @Override
     public void onAddLocation() {
         //TODO: Reimplement AddLocation
-        CreateLocationFlow flow = new CreateLocationFlow(this, mapController);
+        CreateLocationViewModel viewModel = new ViewModelProvider(this).get(CreateLocationViewModel.class);
+
+        CreateLocationFlow flow = new CreateLocationFlow(viewModel,this, mapController);
         flowController.startFlow(flow);
     }
     @Override

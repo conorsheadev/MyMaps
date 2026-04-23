@@ -44,6 +44,11 @@
             android:name=".ui.planner.PlannerViewActivity"
             android:exported="false"
             android:theme="@style/Theme.MyMaps"/>
+
+        <activity
+            android:name=".ui.places.PlaceSearchActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyMaps"/>
     </application>
 
 </manifest>
