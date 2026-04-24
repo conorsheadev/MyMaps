@@ -1,8 +1,10 @@
 package com.csws.mymaps.ui.places;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -12,9 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.flows.CreateLocationState;
 import com.csws.mymaps.viewmodel.flows.CreateLocationViewModel;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -37,6 +42,7 @@ public class PlaceSearchActivity extends AppCompatActivity {
 
     private CreateLocationViewModel viewModel;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,7 +61,10 @@ public class PlaceSearchActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbar.setNavigationOnClickListener(v -> {
+            setResult(RESULT_CANCELED);
+            finish();
+        });
     }
 
     private void setupSearchUI() {
@@ -79,9 +88,7 @@ public class PlaceSearchActivity extends AppCompatActivity {
     private void setupRecycler() {
         recyclerView = findViewById(R.id.resultsRecycler);
 
-        adapter = new PlacesAdapter(place -> {
-            onPlaceSelected(place);
-        });
+        adapter = new PlacesAdapter(this::onPlaceSelected);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
@@ -98,23 +105,41 @@ public class PlaceSearchActivity extends AppCompatActivity {
     // --- Internal Functionality ---
     private void searchPlaces(String query) {
 
+        Log.d("Places", "Query: " + query);
         if (query.isEmpty()) {
+            Log.d("Places", "Empty query");
             adapter.submitList(new ArrayList<>());
             return;
         }
 
+        RectangularBounds bounds = RectangularBounds.newInstance(
+                new LatLng(52.8, -1.3),   // SW (Nottingham-ish)
+                new LatLng(53.1, -1.0)    // NE
+        );
+
+        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
+
         FindAutocompletePredictionsRequest request =
                 FindAutocompletePredictionsRequest.builder()
                         .setQuery(query)
+                        .setLocationBias(bounds)
+                        .setSessionToken(token)
                         .build();
 
         placesClient.findAutocompletePredictions(request)
                 .addOnSuccessListener(response -> {
-
                     List<AutocompletePrediction> predictions =
                             response.getAutocompletePredictions();
 
+                    Log.d("Places", "Results: " + predictions.size());
+
                     adapter.submitList(predictions);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Places", "Error: ", e);
+                })
+                .addOnCanceledListener(() -> {
+                    Log.e("Places", "CANCELLED");
                 });
     }
 
@@ -133,12 +158,15 @@ public class PlaceSearchActivity extends AppCompatActivity {
 
                     Place place = response.getPlace();
 
-                    CreateLocationState state = viewModel.getCurrent();
-                    state.place = place;
-                    state.latLng = place.getLatLng();
+                    Intent result = new Intent();
+                    result.putExtra("place_name", place.getName());
 
-                    viewModel.update(state);
+                    if (place.getLatLng() != null) {
+                        result.putExtra("lat", place.getLatLng().latitude);
+                        result.putExtra("lng", place.getLatLng().longitude);
+                    }
 
+                    setResult(RESULT_OK, result);
                     finish();
                 });
     }

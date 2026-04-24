@@ -11,6 +11,7 @@ import com.csws.mymaps.ui.map.MapController;
 import com.csws.mymaps.ui.map.ActivityActions;
 import com.csws.mymaps.viewmodel.flows.CreateLocationViewModel;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.model.Place;
 
 import java.util.UUID;
 
@@ -27,22 +28,46 @@ public class CreateLocationFlow implements ActionFlow, MapController.MapCallback
         this.mapActions = mapActions;
     }
 
-    @Override
-    public void start() {
-        activityActions.openPlaceSearch();
-    }
-
+    // --- MapCallbacks ---
     @Override
     public void onMapClicked(LatLng latLng) {
+        CreateLocationState state = viewModel.getCurrent();
+        state.polygonPoints.add(latLng);
 
+        mapActions.renderTempPolygon(state.polygonPoints);
     }
     @Override
     public void onLocationSelected(LocationItem location) {
 
     }
+
+    // --- Action Flow ---
+    @Override
+    public void start() {
+        activityActions.openPlaceSearch();
+    }
+    @Override
+    public void onPlaceSelected(String name, double lat, double lng) {
+        // Save to state
+        CreateLocationState state = viewModel.getCurrent();
+        state.name = name;
+        state.latLng = new LatLng(lat, lng);
+        viewModel.update(state);
+
+        // Tell map to show temp marker
+        mapActions.renderTempLocation(state.latLng);
+
+        // Enable drawing mode
+        mapActions.setCallbacksListener(this);
+    }
+    @Override
+    public void onCancel(){
+
+    }
+    // --- UI Actions ---
     @Override
     public void onAction(int action) {
-
+        //Polygon Actions
         if (action == R.id.fab_confirm_polygon) {
             CreateLocationState currentState = viewModel.getCurrent();
             if (currentState.polygonPoints.size() < 3) return;

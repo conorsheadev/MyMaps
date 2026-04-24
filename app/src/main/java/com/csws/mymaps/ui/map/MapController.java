@@ -40,7 +40,7 @@ public class MapController implements OnMapReadyCallback, MapActions {
     }
 
     private final Context context;
-    private MapCallbacks listener;
+    private MapCallbacks listener; public void setListener(MapCallbacks listener){this.listener = listener;}
     public MapController_InfoWindowAdapter infoWindowAdapter;
     private final FusedLocationProviderClient fusedLocationClient;
 
@@ -155,6 +155,9 @@ public class MapController implements OnMapReadyCallback, MapActions {
     }
 
     // --- Map Actions ---
+    @Override
+    public void setCallbacksListener(MapCallbacks listener) {this.setListener(listener);}
+
     private Marker tempMarker;
     @Override
     public void renderTempLocation(LatLng latLng) {

@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.FrameLayout;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -26,6 +28,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -37,17 +40,37 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     private MapController mapController;
     MapFabController fabController;
     private ActionFlowController flowController;
+    private ActivityResultLauncher<Intent> placeSearchLauncher;
 
     private LocationViewModel locationViewModel;
     private TaskViewModel taskViewModel;
-
-    MapView mapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapview);
+
+        //Flow Controller
         flowController = new ActionFlowController();
+        //Flow Intent Actions
+        placeSearchLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+
+
+                        String name = result.getData().getStringExtra("place_name");
+                        double lat = result.getData().getDoubleExtra("lat", 0);
+                        double lng = result.getData().getDoubleExtra("lng", 0);
+
+                        LatLng latLng = new LatLng(lat, lng);
+                        flowController.getCurrentFlow().onPlaceSelected(name, lat, lng);
+
+                    } else {
+                        flowController.cancelFlow();
+                    }
+                }
+        );
 
         //Setup ViewModels
         setupViewModels();
@@ -114,8 +137,9 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     @Override
     public void openPlaceSearch() {
         Intent intent = new Intent(this, PlaceSearchActivity.class);
-        startActivity(intent);
+        placeSearchLauncher.launch(intent);
     }
+
     @Override
     public void createNewLocation(LocationItem locationItem) {
         locationViewModel.addLocation(locationItem);

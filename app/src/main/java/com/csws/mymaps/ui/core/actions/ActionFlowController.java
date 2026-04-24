@@ -4,7 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class ActionFlowController {
 
-    private ActionFlow currentFlow;
+    private ActionFlow currentFlow; public ActionFlow getCurrentFlow(){return currentFlow;}
 
     public void startFlow(ActionFlow flow) {
         //if (currentFlow != null) currentFlow.onCancel();
@@ -18,7 +18,10 @@ public class ActionFlowController {
         }
     }
 
-    public void clearFlow() {
-        currentFlow = null;
+    public void cancelFlow() {
+        if (currentFlow != null) {
+            currentFlow.onCancel();
+            currentFlow = null;
+        }
     }
 }
