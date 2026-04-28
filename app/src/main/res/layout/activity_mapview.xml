@@ -6,21 +6,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- APP BAR -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <!-- TOOLBAR -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Map View"
+            app:navigationIcon="@drawable/arrow_back_24px"
+            app:menu="@menu/toolbar_menu"/>
+    </com.google.android.material.appbar.AppBarLayout>
     <!-- MAP CONTAINER -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map_container"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <!-- TOOLBAR -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/topAppBar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:title="Map View"
-        app:navigationIcon="@drawable/arrow_back_24px"
-        app:menu="@menu/toolbar_menu"/>
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
+    </FrameLayout>
     <!-- FAB MENU CONTAINER -->
     <FrameLayout
         android:id="@+id/fabContainer"
@@ -44,56 +54,15 @@
     <FrameLayout
         android:id="@+id/locationSheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:behavior_peekHeight="120dp"
-        app:behavior_fitToContents="true"
         app:behavior_hideable="true">
 
-        <com.google.android.material.card.MaterialCardView
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/bottom_sheet_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/colorSurface">
-
-            <LinearLayout
-                android:id="@+id/locationSheetContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <View
-                    android:layout_width="40dp"
-                    android:layout_height="4dp"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/drag_handle_24px"/>
-
-                <TextView
-                    android:id="@+id/locationTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Location"
-                    android:textSize="18sp"
-                    android:textStyle="bold"/>
-
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="400dp">
-
-                    <RelativeLayout
-                        android:id="@+id/timelineContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-
-                </ScrollView>
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            android:layout_height="wrap_content"/>
 
     </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

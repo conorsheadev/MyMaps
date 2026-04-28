@@ -1,21 +1,25 @@
 package com.csws.mymaps.ui.core.actions.flows;
 
+import android.util.Log;
+
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.flows.CreateLocationState;
 import com.csws.mymaps.model.locations.LocationItem;
 import com.csws.mymaps.model.locations.MarkerConfig;
 import com.csws.mymaps.model.locations.PolygonConfig;
 import com.csws.mymaps.ui.core.actions.ActionFlow;
+import com.csws.mymaps.ui.map.LocationConfigFragment;
 import com.csws.mymaps.ui.map.MapActions;
-import com.csws.mymaps.ui.map.MapController;
+import com.csws.mymaps.ui.map.MapFabController;
+import com.csws.mymaps.ui.map.MapFragment;
 import com.csws.mymaps.ui.map.ActivityActions;
+import com.csws.mymaps.ui.places.PlaceSearchFragment;
 import com.csws.mymaps.viewmodel.flows.CreateLocationViewModel;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.libraries.places.api.model.Place;
 
 import java.util.UUID;
 
-public class CreateLocationFlow implements ActionFlow, MapController.MapCallbacks {
+public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.PlaceSelectionListener {
 
     private final CreateLocationViewModel viewModel;
 
@@ -41,11 +45,34 @@ public class CreateLocationFlow implements ActionFlow, MapController.MapCallback
 
     }
 
+
     // --- Action Flow ---
     @Override
     public void start() {
-        activityActions.openPlaceSearch();
+        activityActions.openPlaceSearch(this);
     }
+
+    @Override
+    public void onCancel(){
+
+    }
+
+    @Override
+    public void onAction(int action) {
+        //Polygon Actions
+        if (action == R.id.fab_confirm_polygon) {
+            onConfirmPolygon();
+        }
+
+        else if (action == R.id.fab_undo_polygon) {
+            onUndoPolygon();
+        }
+
+        else if (action == R.id.fab_cancel_polygon) {
+            onCancelPolygon();
+        }
+    }
+    // --- PlaceSearchCallbacks ---
     @Override
     public void onPlaceSelected(String name, double lat, double lng) {
         // Save to state
@@ -54,49 +81,58 @@ public class CreateLocationFlow implements ActionFlow, MapController.MapCallback
         state.latLng = new LatLng(lat, lng);
         viewModel.update(state);
 
-        // Tell map to show temp marker
+        // Display TempMarker and set callbacks
         mapActions.renderTempLocation(state.latLng);
 
-        // Enable drawing mode
-        mapActions.setCallbacksListener(this);
+        // Set Fab Menu
+        activityActions.setFabMenu(R.menu.fab_polyeditactions_menu);
+        Log.d("CreateLocationFlow", "onPlaceSelected: " + name + " (" + lat + ", " + lng + ")");
     }
     @Override
-    public void onCancel(){
-
+    public void onSearchCancelled() {
+        //TODO: Instead of cancelling flow when search is cancelled provide users alternative ways before cancelling
+        activityActions.cancelCurrentFlow();
     }
-    // --- UI Actions ---
-    @Override
-    public void onAction(int action) {
-        //Polygon Actions
-        if (action == R.id.fab_confirm_polygon) {
-            CreateLocationState currentState = viewModel.getCurrent();
-            if (currentState.polygonPoints.size() < 3) return;
+    // --- Polygon Actions ---
+    public void onConfirmPolygon() {
 
-            PolygonConfig polygon = new PolygonConfig(210f, currentState.polygonPoints);
+        mapActions.setMapGesturesEnabled(false);
+
+        CreateLocationState state = viewModel.getCurrent();
+
+        LocationConfigFragment fragment = LocationConfigFragment.newInstance(state.name, state.type, state.markerConfig, state.polygonConfig);
+
+        fragment.setListener((name,type,markerConfig,polygonConfig) -> {
 
             LocationItem item = new LocationItem(
                     UUID.randomUUID().toString(),
-                    "New Location",
-                    currentState.polygonPoints.get(0).latitude,
-                    currentState.polygonPoints.get(0).longitude,
-                    polygon,
-                    new MarkerConfig(0f,"default")
+                    name,
+                    type,
+                    state.latLng.latitude,
+                    state.latLng.longitude,
+                    polygonConfig,
+                    markerConfig
             );
 
             activityActions.createNewLocation(item);
-        }
-
-        else if (action == R.id.fab_undo_polygon) {
-            CreateLocationState currentState = viewModel.getCurrent();
-            if (!currentState.polygonPoints.isEmpty()) {
-                currentState.polygonPoints.remove(currentState.polygonPoints.size() - 1);
-                mapActions.renderTempPolygon(currentState.polygonPoints);
-            }
-        }
-
-        else if (action == R.id.fab_cancel_polygon) {
-            mapActions.clearTemp();
+            mapActions.setMapGesturesEnabled(true);
+            activityActions.hideBottomSheet();
             activityActions.cancelCurrentFlow();
+        });
+
+        activityActions.showBottomSheet(fragment);
+    }
+
+    public void onUndoPolygon() {
+        CreateLocationState currentState = viewModel.getCurrent();
+        if (!currentState.polygonPoints.isEmpty()) {
+            currentState.polygonPoints.remove(currentState.polygonPoints.size() - 1);
+            mapActions.renderTempPolygon(currentState.polygonPoints);
         }
+    }
+
+    public void onCancelPolygon() {
+        mapActions.clearTemp();
+        activityActions.cancelCurrentFlow();
     }
 }

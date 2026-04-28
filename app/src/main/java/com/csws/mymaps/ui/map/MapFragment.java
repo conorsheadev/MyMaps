@@ -5,20 +5,28 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
 import com.csws.mymaps.model.tasks.TaskItem;
-import com.csws.mymaps.ui.core.actions.flows.CreateLocationFlow;
 import com.csws.mymaps.utils.Utilities;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -32,17 +40,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MapController implements OnMapReadyCallback, MapActions {
+public class MapFragment extends Fragment implements OnMapReadyCallback, MapActions {
 
     public interface MapCallbacks {
         void onMapClicked(LatLng latLng);
         void onLocationSelected(LocationItem location);
     }
 
-    private final Context context;
     private MapCallbacks listener; public void setListener(MapCallbacks listener){this.listener = listener;}
-    public MapController_InfoWindowAdapter infoWindowAdapter;
-    private final FusedLocationProviderClient fusedLocationClient;
+    private MapController_InfoWindowAdapter infoWindowAdapter; public void setInfoWindowAdapter(MapController_InfoWindowAdapter adapter) {this.infoWindowAdapter = adapter;}
+    private FusedLocationProviderClient fusedLocationClient;
 
     private GoogleMap map;
     private boolean locationPermissionGranted = false;
@@ -51,14 +58,30 @@ public class MapController implements OnMapReadyCallback, MapActions {
     private List<Polygon> activePolygons = new ArrayList<>();
 
 
-
-    public MapController(Context context, MapCallbacks listener, MapController_InfoWindowAdapter infoWindowAdapter) {
-        this.context = context;
-        this.listener = listener;
-        this.infoWindowAdapter = infoWindowAdapter;
-        this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.mapfragment_map, container, false);
     }
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getChildFragmentManager()
+                        .findFragmentById(R.id.map);
+
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.map, mapFragment)
+                    .commit();
+        }
+
+        mapFragment.getMapAsync(this);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
+    }
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
@@ -66,7 +89,7 @@ public class MapController implements OnMapReadyCallback, MapActions {
         map.setOnMarkerClickListener(this::onMarkerClicked);
         map.setOnMapClickListener(this::onMapClicked);
         try {
-            this.map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context,R.raw.style_json));
+            this.map.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(),R.raw.style_json));
         }
         catch (Resources.NotFoundException e) {
             Log.e("MapController", "Can't find style. Error: ", e);
@@ -158,6 +181,16 @@ public class MapController implements OnMapReadyCallback, MapActions {
     @Override
     public void setCallbacksListener(MapCallbacks listener) {this.setListener(listener);}
 
+    public void setMapGesturesEnabled(boolean enabled) {
+        if (map == null) return;
+
+        UiSettings ui = map.getUiSettings();
+        ui.setScrollGesturesEnabled(enabled);
+        ui.setZoomGesturesEnabled(enabled);
+        ui.setTiltGesturesEnabled(enabled);
+        ui.setRotateGesturesEnabled(enabled);
+    }
+
     private Marker tempMarker;
     @Override
     public void renderTempLocation(LatLng latLng) {
@@ -216,29 +249,38 @@ public class MapController implements OnMapReadyCallback, MapActions {
     }
 
     // --- Map Callbacks ---
+    private boolean mapClicksEnabled = true;
+    public void setMapClicksEnabled(boolean enabled) {mapClicksEnabled = enabled;}
+    public boolean isMapClicksEnabled() {return mapClicksEnabled;}
+
     private boolean onMarkerClicked(Marker marker) {
+        if (!mapClicksEnabled) {
+            return true;
+        }
 
         Object tag = marker.getTag();
-
         if (tag instanceof LocationItem && listener != null) {
             listener.onLocationSelected((LocationItem) tag);
         }
 
-        return false;
+        return true;
     }
     private boolean onMapClicked(LatLng latLng) {
+        if (!mapClicksEnabled) {
+            return true;
+        }
 
         if (listener != null) {
             listener.onMapClicked(latLng);
         }
 
-        return false;
+        return true;
     }
 
     // --- User Location ---
     public void enableUserLocation() {locationPermissionGranted = true;}
     public void moveToUserLocation() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
 
             fusedLocationClient.getLastLocation()

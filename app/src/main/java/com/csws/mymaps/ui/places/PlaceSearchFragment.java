@@ -5,14 +5,19 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.model.flows.CreateLocationState;
 import com.csws.mymaps.viewmodel.flows.CreateLocationViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
@@ -31,7 +36,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PlaceSearchActivity extends AppCompatActivity {
+public class PlaceSearchFragment extends Fragment {
+    public interface PlaceSelectionListener{
+        void onPlaceSelected(String name, double lat, double lng);
+        void onSearchCancelled();
+    }
+
+    private PlaceSelectionListener listener; public void setListener(PlaceSelectionListener listener){this.listener = listener;}
 
     private SearchBar searchBar;
     private SearchView searchView;
@@ -44,14 +55,17 @@ public class PlaceSearchActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_placesearch);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_placesearch, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         setupViewModel();
-        setupToolbar();
-        setupSearchUI();
-        setupRecycler();
+        setupSearchUI(view);
+        setupRecycler(view);
         setupPlacesClient();
     }
 
@@ -59,17 +73,9 @@ public class PlaceSearchActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(CreateLocationViewModel.class);
     }
 
-    private void setupToolbar() {
-        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
-        toolbar.setNavigationOnClickListener(v -> {
-            setResult(RESULT_CANCELED);
-            finish();
-        });
-    }
-
-    private void setupSearchUI() {
-        searchBar = findViewById(R.id.searchBar);
-        searchView = findViewById(R.id.searchView);
+    private void setupSearchUI(View view) {
+        searchBar = view.findViewById(R.id.searchBar);
+        searchView = view.findViewById(R.id.searchView);
 
         searchBar.setOnClickListener(v -> searchView.show());
         searchView.setupWithSearchBar(searchBar);
@@ -85,21 +91,21 @@ public class PlaceSearchActivity extends AppCompatActivity {
         });
     }
 
-    private void setupRecycler() {
-        recyclerView = findViewById(R.id.resultsRecycler);
+    private void setupRecycler(View view) {
+        recyclerView = view.findViewById(R.id.resultsRecycler);
 
         adapter = new PlacesAdapter(this::onPlaceSelected);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
     }
 
     private void setupPlacesClient() {
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), "AIzaSyCL0FPqe4IgRy-QQO42y1P5xCg09LwHLuc");
+            Places.initialize(requireContext(), "AIzaSyCL0FPqe4IgRy-QQO42y1P5xCg09LwHLuc");
         }
 
-        placesClient = Places.createClient(this);
+        placesClient = Places.createClient(requireContext());
     }
 
     // --- Internal Functionality ---
@@ -157,18 +163,27 @@ public class PlaceSearchActivity extends AppCompatActivity {
                 .addOnSuccessListener(response -> {
 
                     Place place = response.getPlace();
+                    searchBar.setText(place.getName());
+                    searchView.hide();
 
-                    Intent result = new Intent();
-                    result.putExtra("place_name", place.getName());
-
-                    if (place.getLatLng() != null) {
-                        result.putExtra("lat", place.getLatLng().latitude);
-                        result.putExtra("lng", place.getLatLng().longitude);
+                    if (listener != null && place.getLatLng() != null) {
+                        listener.onPlaceSelected(
+                                place.getName(),
+                                place.getLatLng().latitude,
+                                place.getLatLng().longitude
+                        );
                     }
 
-                    setResult(RESULT_OK, result);
-                    finish();
+                    closeFragment();
                 });
+    }
+
+    private void closeFragment() {
+        if (isAdded()) {
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .popBackStack();
+        }
     }
 
 }

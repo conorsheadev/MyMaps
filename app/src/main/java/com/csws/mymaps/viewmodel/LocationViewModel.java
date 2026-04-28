@@ -34,11 +34,12 @@ public class LocationViewModel extends AndroidViewModel {
         return locations;
     }
 
-    public LocationItem addLocation(String name, double lat, double lng, String type, PolygonConfig polygonConfig, MarkerConfig markerConfig) {
+    public LocationItem addLocation(String name, String type, double lat, double lng, PolygonConfig polygonConfig, MarkerConfig markerConfig) {
 
         LocationItem item = new LocationItem(
                 UUID.randomUUID().toString(),
                 name,
+                type,
                 lat,
                 lng,
                 polygonConfig,

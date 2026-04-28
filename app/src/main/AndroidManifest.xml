@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -38,7 +40,8 @@
         <activity
             android:name=".ui.map.MapViewActivity"
             android:exported="false"
-            android:theme="@style/Theme.MyMaps"/>
+            android:theme="@style/Theme.MyMaps"
+            android:windowSoftInputMode="adjustNothing"/>
 
         <activity
             android:name=".ui.planner.PlannerViewActivity"
@@ -46,7 +49,7 @@
             android:theme="@style/Theme.MyMaps"/>
 
         <activity
-            android:name=".ui.places.PlaceSearchActivity"
+            android:name=".ui.places.PlaceSearchFragment"
             android:exported="false"
             android:theme="@style/Theme.MyMaps"/>
     </application>
