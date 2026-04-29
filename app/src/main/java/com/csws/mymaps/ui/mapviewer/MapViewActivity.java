@@ -28,6 +28,7 @@ import com.csws.mymaps.ui.mapviewer.fragments.map.MapFragment;
 import com.csws.mymaps.viewmodel.LocationViewModel;
 import com.csws.mymaps.viewmodel.TaskViewModel;
 import com.csws.mymaps.viewmodel.flows.CreateLocationViewModel;
+import com.csws.mymaps.viewmodel.flows.CreateTaskViewModel;
 import com.csws.mymaps.viewmodel.flows.DefaultFlowViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
@@ -132,6 +133,11 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     public void startCreateLocationFlow() {
         CreateLocationViewModel vm = new ViewModelProvider(this).get(CreateLocationViewModel.class);
         flowController.startFlow(flowFactory.createLocationFlow(vm));
+    }
+    @Override
+    public void startCreateTaskFlow(){
+        CreateTaskViewModel vm = new ViewModelProvider(this).get(CreateTaskViewModel.class);
+        flowController.startFlow(flowFactory.createTaskFlow(vm));
     }
 
     // --- Activity UI Actions ---

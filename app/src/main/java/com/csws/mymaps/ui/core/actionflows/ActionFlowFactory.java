@@ -1,10 +1,12 @@
 package com.csws.mymaps.ui.core.actionflows;
 
 import com.csws.mymaps.ui.core.actionflows.flows.CreateLocationFlow;
+import com.csws.mymaps.ui.core.actionflows.flows.CreateTaskFlow;
 import com.csws.mymaps.ui.core.actionflows.flows.DefaultFlow;
 import com.csws.mymaps.ui.core.actionflows.interfaces.ActivityActions;
 import com.csws.mymaps.ui.core.actionflows.interfaces.MapActions;
 import com.csws.mymaps.viewmodel.flows.CreateLocationViewModel;
+import com.csws.mymaps.viewmodel.flows.CreateTaskViewModel;
 import com.csws.mymaps.viewmodel.flows.DefaultFlowViewModel;
 
 public class ActionFlowFactory {
@@ -22,6 +24,10 @@ public class ActionFlowFactory {
 
     public CreateLocationFlow createLocationFlow(CreateLocationViewModel vm){
         return new CreateLocationFlow(vm, activityActions, mapActions);
+    }
+
+    public CreateTaskFlow createTaskFlow(CreateTaskViewModel vm){
+        return new CreateTaskFlow(vm, activityActions, mapActions);
     }
 
 }

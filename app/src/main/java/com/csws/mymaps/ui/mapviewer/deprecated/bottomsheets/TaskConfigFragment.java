@@ -1,15 +1,17 @@
 package com.csws.mymaps.ui.mapviewer.deprecated.bottomsheets;
 
-import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.tasks.TaskItem;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
@@ -24,23 +26,42 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class TaskCreatorBottomSheet {
+public class TaskConfigFragment extends Fragment {
+
     public interface Listener {
-        void onTaskCreated(TaskItem task);
+        void onTaskConfirmed(TaskItem task);
     }
 
-    private final Context context;
-    private BottomSheetDialog dialog;
+    private Listener listener;
 
-    public TaskCreatorBottomSheet(Context context) {
-        this.context = context;
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
-    public void show(String locationId, Listener listener) {
+    private static final String ARG_LOCATION_ID = "location_id";
 
-        dialog = new BottomSheetDialog(context);
-        View view = LayoutInflater.from(context)
-                .inflate(R.layout.bottom_sheet_task_create, null);
+    public static TaskConfigFragment newInstance(String locationId) {
+        TaskConfigFragment fragment = new TaskConfigFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_LOCATION_ID, locationId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    private String locationId;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.bottom_sheet_task_create, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        locationId = getArguments() != null
+                ? getArguments().getString(ARG_LOCATION_ID)
+                : null;
 
         // --- Views ---
         TextInputEditText editName = view.findViewById(R.id.editTaskName);
@@ -53,10 +74,9 @@ public class TaskCreatorBottomSheet {
         LinearLayout timeSection = view.findViewById(R.id.timeSection);
         MaterialButton startTimeButton = view.findViewById(R.id.startTimeButton);
         MaterialButton endTimeButton = view.findViewById(R.id.endTimeButton);
-
         MaterialButton confirmButton = view.findViewById(R.id.confirmButton);
 
-        // --- Dropdown Setup ---
+        // --- Dropdowns ---
         String[] types = {"BASIC", "SCHEDULED", "LOCATION_BASED", "UNIVERSITY"};
         typeSelector.setSimpleItems(types);
         typeSelector.setText("SCHEDULED", false);
@@ -69,7 +89,7 @@ public class TaskCreatorBottomSheet {
         final long[] startTimeMillis = {0};
         final long[] endTimeMillis = {0};
 
-        // --- Type Change Logic ---
+        // --- Type change ---
         typeSelector.setOnItemClickListener((parent, v, pos, id) -> {
             String type = typeSelector.getText().toString();
 
@@ -80,39 +100,31 @@ public class TaskCreatorBottomSheet {
             }
         });
 
-        // --- Time Pickers ---
-        startTimeButton.setOnClickListener(v -> {
-            pickDateTime(result -> {
-                startTimeMillis[0] = result;
-                startTimeButton.setText("Start: " + formatDateTime(result));
-            });
-        });
+        // --- Time pickers ---
+        startTimeButton.setOnClickListener(v ->
+                pickDateTime(result -> {
+                    startTimeMillis[0] = result;
+                    startTimeButton.setText("Start: " + formatDateTime(result));
+                })
+        );
 
-        endTimeButton.setOnClickListener(v -> {
-            pickDateTime(result -> {
-                endTimeMillis[0] = result;
-                endTimeButton.setText("End: " + formatDateTime(result));
-            });
-        });
+        endTimeButton.setOnClickListener(v ->
+                pickDateTime(result -> {
+                    endTimeMillis[0] = result;
+                    endTimeButton.setText("End: " + formatDateTime(result));
+                })
+        );
 
         // --- Confirm ---
         confirmButton.setOnClickListener(v -> {
 
-            String name = editName.getText() != null
-                    ? editName.getText().toString()
-                    : "";
-
-            String desc = editDesc.getText() != null
-                    ? editDesc.getText().toString()
-                    : "";
-
+            String name = getText(editName);
+            String desc = getText(editDesc);
             String typeStr = typeSelector.getText().toString();
             String travelMode = travelModeSelector.getText().toString();
 
-            // --- Convert enums ---
             TaskItem.TaskType type = TaskItem.TaskType.valueOf(typeStr);
 
-            // --- Build Task ---
             TaskItem task = new TaskItem(
                     UUID.randomUUID().toString(),
                     name,
@@ -121,7 +133,6 @@ public class TaskCreatorBottomSheet {
                     type
             );
 
-            // --- Optional fields ---
             if (timeSection.getVisibility() == View.VISIBLE) {
                 task.startTimeMillis = startTimeMillis[0];
                 task.endTimeMillis = endTimeMillis[0];
@@ -130,10 +141,7 @@ public class TaskCreatorBottomSheet {
             task.travelMode = travelMode;
 
             // --- Prerequisites ---
-            String prereqText = editPrereq.getText() != null
-                    ? editPrereq.getText().toString()
-                    : "";
-
+            String prereqText = getText(editPrereq);
             if (!prereqText.isEmpty()) {
                 String[] items = prereqText.split(",");
                 for (String item : items) {
@@ -141,24 +149,26 @@ public class TaskCreatorBottomSheet {
                 }
             }
 
-            // --- Callback ---
             if (listener != null) {
-                listener.onTaskCreated(task);
+                listener.onTaskConfirmed(task);
             }
-
-            dialog.dismiss();
         });
-
-        dialog.setContentView(view);
-        dialog.show();
     }
+
+    // --- Helpers ---
+    private String getText(TextInputEditText editText) {
+        return editText.getText() != null
+                ? editText.getText().toString()
+                : "";
+    }
+
     private String formatDateTime(long millis) {
         SimpleDateFormat sdf = new SimpleDateFormat("EEE, HH:mm", Locale.getDefault());
         return sdf.format(new Date(millis));
     }
+
     private void pickDateTime(Consumer<Long> onResult) {
 
-        // --- Date Picker ---
         MaterialDatePicker<Long> datePicker =
                 MaterialDatePicker.Builder.datePicker()
                         .setTitleText("Select date")
@@ -169,7 +179,6 @@ public class TaskCreatorBottomSheet {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(date);
 
-            // --- Time Picker ---
             MaterialTimePicker timePicker =
                     new MaterialTimePicker.Builder()
                             .setTimeFormat(TimeFormat.CLOCK_24H)
@@ -187,10 +196,9 @@ public class TaskCreatorBottomSheet {
                 onResult.accept(calendar.getTimeInMillis());
             });
 
-            timePicker.show(((AppCompatActivity) context).getSupportFragmentManager(), "TIME_PICKER");
-
+            timePicker.show(getParentFragmentManager(), "TIME_PICKER");
         });
 
-        datePicker.show(((AppCompatActivity) context).getSupportFragmentManager(), "DATE_PICKER");
+        datePicker.show(getParentFragmentManager(), "DATE_PICKER");
     }
 }

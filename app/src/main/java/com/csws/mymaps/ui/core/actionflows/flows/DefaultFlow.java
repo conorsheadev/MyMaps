@@ -32,7 +32,7 @@ public class DefaultFlow implements ActionFlow {
         }
 
         if (actionId == R.id.fab_add_task) {
-            // handle
+            actions.startCreateTaskFlow();
         }
     }
 
