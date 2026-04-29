@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.map;
+package com.csws.mymaps.ui.mapviewer.fragments.map;
 
 
 import android.content.Context;

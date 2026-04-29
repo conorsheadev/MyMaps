@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.map;
+package com.csws.mymaps.ui.mapviewer.controllers;
 
 import android.content.Context;
 import android.view.Gravity;
@@ -12,7 +12,6 @@ import androidx.annotation.MenuRes;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.model.locations.LocationItem;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;

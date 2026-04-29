@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.map.deprecated;
+package com.csws.mymaps.ui.mapviewer.deprecated;
 
 import android.content.Context;
 import android.view.View;

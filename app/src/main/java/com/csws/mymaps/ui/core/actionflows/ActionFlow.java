@@ -1,8 +1,7 @@
-package com.csws.mymaps.ui.core.actions;
+package com.csws.mymaps.ui.core.actionflows;
 
 import com.csws.mymaps.model.locations.LocationItem;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.libraries.places.api.model.Place;
 
 public interface ActionFlow {
     void start();

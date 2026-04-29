@@ -1,14 +1,12 @@
-package com.csws.mymaps.ui.map;
+package com.csws.mymaps.ui.mapviewer;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -19,21 +17,22 @@ import androidx.lifecycle.ViewModelProvider;
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
 import com.csws.mymaps.model.tasks.TaskItem;
-import com.csws.mymaps.ui.core.actions.ActionFlow;
-import com.csws.mymaps.ui.core.actions.ActionFlowController;
-import com.csws.mymaps.ui.core.actions.ActionFlowFactory;
-import com.csws.mymaps.ui.core.actions.flows.CreateLocationFlow;
-import com.csws.mymaps.ui.places.PlaceSearchFragment;
+import com.csws.mymaps.ui.core.actionflows.ActionFlowController;
+import com.csws.mymaps.ui.core.actionflows.ActionFlowFactory;
+import com.csws.mymaps.ui.core.actionflows.interfaces.ActivityActions;
+import com.csws.mymaps.ui.mapviewer.controllers.BottomSheetController;
+import com.csws.mymaps.ui.mapviewer.controllers.MapFabController;
+import com.csws.mymaps.ui.mapviewer.fragments.placesearch.PlaceSearchFragment;
+import com.csws.mymaps.ui.mapviewer.fragments.map.MapController_InfoWindowAdapter;
+import com.csws.mymaps.ui.mapviewer.fragments.map.MapFragment;
 import com.csws.mymaps.viewmodel.LocationViewModel;
 import com.csws.mymaps.viewmodel.TaskViewModel;
 import com.csws.mymaps.viewmodel.flows.CreateLocationViewModel;
+import com.csws.mymaps.viewmodel.flows.DefaultFlowViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.List;
 
 public class MapViewActivity extends AppCompatActivity implements ActivityActions, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener {
 
@@ -66,8 +65,8 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
 
         //Flow Controller
         flowController = new ActionFlowController();
-        flowController.endFlow(this);
         flowFactory = new ActionFlowFactory(this, mapFragment);
+        cancelCurrentFlow();
 
         //Setup LiveData
         observeData();
@@ -158,31 +157,11 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     }
     @Override
     public void showBottomSheet(Fragment fragment) {
-
-        View sheet = findViewById(R.id.locationSheet);
-        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(sheet);
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.bottom_sheet_container, fragment)
-                .commitNow();
-
-        mapFragment.setMapClicksEnabled(false);
-
-        behavior.setPeekHeight(120, true);
-        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-        sheet.setOnTouchListener((v, event) -> true);
+        bottomSheetController.show(getSupportFragmentManager(), fragment);
     }
     @Override
     public void hideBottomSheet() {
-        Log.d("MapViewActivity", "hideBottomSheet() called");
-        View sheet = findViewById(R.id.locationSheet);
-        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(sheet);
-
-        mapFragment.setMapClicksEnabled(true);
-
-        behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        bottomSheetController.hide();
     }
 
     // --- Activity REAL Actions ---
@@ -195,33 +174,35 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
         taskViewModel.addTask(taskItem);
     }
     @Override
-    public void cancelCurrentFlow() {flowController.endFlow(this);}
+    public void cancelCurrentFlow() {
+        flowController.startFlow(flowFactory.createDefaultFlow(new ViewModelProvider(this).get(DefaultFlowViewModel.class)));
+    }
 
     // --- MAP/FAB/BOTTOM_SHEET Controller Callbacks ---
-    @Override
+    @Override //FAB
     public void onFabAction(int actionId) {
         if (flowController.getCurrentFlow() != null) {
             flowController.getCurrentFlow().onAction(actionId);
         }
     }
 
-    @Override
+    @Override //MAP
     public void onMapClicked(LatLng latLng) {
         //if (isBottomSheetOpen()) return;
         flowController.getCurrentFlow().onMapClicked(latLng);
     }
 
-    @Override
+    @Override //MAP
     public void onLocationSelected(LocationItem location) {
         flowController.getCurrentFlow().onLocationSelected(location);
     }
 
-    @Override
+    @Override //BOTTOM_SHEET
     public void onSheetShown() {
         mapFragment.setMapClicksEnabled(false);
     }
 
-    @Override
+    @Override //BOTTOM_SHEET
     public void onSheetHidden() {
         mapFragment.setMapClicksEnabled(true);
     }

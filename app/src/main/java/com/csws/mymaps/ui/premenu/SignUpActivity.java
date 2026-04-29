@@ -8,7 +8,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.ui.map.MapViewActivity;
+import com.csws.mymaps.ui.mapviewer.MapViewActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;

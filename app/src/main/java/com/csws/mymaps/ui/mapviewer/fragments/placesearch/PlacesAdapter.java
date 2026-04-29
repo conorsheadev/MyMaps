@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.places;
+package com.csws.mymaps.ui.mapviewer.fragments.placesearch;
 
 import android.view.LayoutInflater;
 import android.view.View;

@@ -38,18 +38,13 @@
             android:exported="false"/>
 
         <activity
-            android:name=".ui.map.MapViewActivity"
+            android:name=".ui.mapviewer.MapViewActivity"
             android:exported="false"
             android:theme="@style/Theme.MyMaps"
             android:windowSoftInputMode="adjustNothing"/>
 
         <activity
             android:name=".ui.planner.PlannerViewActivity"
-            android:exported="false"
-            android:theme="@style/Theme.MyMaps"/>
-
-        <activity
-            android:name=".ui.places.PlaceSearchFragment"
             android:exported="false"
             android:theme="@style/Theme.MyMaps"/>
     </application>

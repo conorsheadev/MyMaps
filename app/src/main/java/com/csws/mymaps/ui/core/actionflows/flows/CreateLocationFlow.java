@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.core.actions.flows;
+package com.csws.mymaps.ui.core.actionflows.flows;
 
 import android.util.Log;
 
@@ -7,13 +7,11 @@ import com.csws.mymaps.model.flows.CreateLocationState;
 import com.csws.mymaps.model.locations.LocationItem;
 import com.csws.mymaps.model.locations.MarkerConfig;
 import com.csws.mymaps.model.locations.PolygonConfig;
-import com.csws.mymaps.ui.core.actions.ActionFlow;
-import com.csws.mymaps.ui.map.LocationConfigFragment;
-import com.csws.mymaps.ui.map.MapActions;
-import com.csws.mymaps.ui.map.MapFabController;
-import com.csws.mymaps.ui.map.MapFragment;
-import com.csws.mymaps.ui.map.ActivityActions;
-import com.csws.mymaps.ui.places.PlaceSearchFragment;
+import com.csws.mymaps.ui.core.actionflows.ActionFlow;
+import com.csws.mymaps.ui.mapviewer.fragments.bottom_sheets.LocationConfigFragment;
+import com.csws.mymaps.ui.core.actionflows.interfaces.MapActions;
+import com.csws.mymaps.ui.core.actionflows.interfaces.ActivityActions;
+import com.csws.mymaps.ui.mapviewer.fragments.placesearch.PlaceSearchFragment;
 import com.csws.mymaps.viewmodel.flows.CreateLocationViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -102,23 +100,7 @@ public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.Place
 
         LocationConfigFragment fragment = LocationConfigFragment.newInstance(state.name, state.type, state.markerConfig, state.polygonConfig);
 
-        fragment.setListener((name,type,markerConfig,polygonConfig) -> {
-
-            LocationItem item = new LocationItem(
-                    UUID.randomUUID().toString(),
-                    name,
-                    type,
-                    state.latLng.latitude,
-                    state.latLng.longitude,
-                    polygonConfig,
-                    markerConfig
-            );
-
-            activityActions.createNewLocation(item);
-            mapActions.setMapGesturesEnabled(true);
-            activityActions.hideBottomSheet();
-            activityActions.cancelCurrentFlow();
-        });
+        fragment.setListener(this::onConfirmLocation);
 
         activityActions.showBottomSheet(fragment);
     }
@@ -133,6 +115,28 @@ public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.Place
 
     public void onCancelPolygon() {
         mapActions.clearTemp();
+        activityActions.cancelCurrentFlow();
+    }
+
+    // --- Bottom Sheet Fragment ---
+    public void onConfirmLocation(String name, String type, MarkerConfig markerConfig, PolygonConfig polygonConfig) {
+        CreateLocationState state = viewModel.getCurrent();
+
+        polygonConfig.points = state.polygonPoints;
+
+        LocationItem item = new LocationItem(
+                UUID.randomUUID().toString(),
+                name,
+                type,
+                state.latLng.latitude,
+                state.latLng.longitude,
+                polygonConfig,
+                markerConfig
+        );
+
+        activityActions.createNewLocation(item);
+        mapActions.setMapGesturesEnabled(true);
+        activityActions.hideBottomSheet();
         activityActions.cancelCurrentFlow();
     }
 }

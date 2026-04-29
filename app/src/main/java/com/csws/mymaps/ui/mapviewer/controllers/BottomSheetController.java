@@ -1,9 +1,8 @@
-package com.csws.mymaps.ui.map;
+package com.csws.mymaps.ui.mapviewer.controllers;
 
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -35,8 +34,9 @@ public class BottomSheetController extends BottomSheetCallback {
 
     private void setup() {
         behavior.setHideable(true);
-        behavior.setFitToContents(false);
-        behavior.setSkipCollapsed(true);
+
+        behavior.setFitToContents(true);
+        behavior.setSkipCollapsed(false);
 
         behavior.addBottomSheetCallback(this);
         behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
@@ -63,9 +63,9 @@ public class BottomSheetController extends BottomSheetCallback {
                 .replace(containerId, fragment)
                 .commitNow();
 
-        behavior.setPeekHeight(120, true);
-        behavior.setExpandedOffset(0);
-        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        behavior.setPeekHeight(1050, true);
+        //behavior.setExpandedOffset(0);
+        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
     public void hide() {

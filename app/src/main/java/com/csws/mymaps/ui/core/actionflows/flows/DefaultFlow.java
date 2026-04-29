@@ -1,17 +1,23 @@
-package com.csws.mymaps.ui.core.actions.flows;
+package com.csws.mymaps.ui.core.actionflows.flows;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
-import com.csws.mymaps.ui.core.actions.ActionFlow;
-import com.csws.mymaps.ui.map.ActivityActions;
-import com.csws.mymaps.ui.map.MapFragment;
+import com.csws.mymaps.ui.core.actionflows.ActionFlow;
+import com.csws.mymaps.ui.core.actionflows.interfaces.ActivityActions;
+import com.csws.mymaps.ui.core.actionflows.interfaces.MapActions;
+import com.csws.mymaps.viewmodel.flows.DefaultFlowViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
 public class DefaultFlow implements ActionFlow {
-    private final ActivityActions actions;
+    private final DefaultFlowViewModel viewModel;
 
-    public DefaultFlow(ActivityActions actions) {
+    private final ActivityActions actions;
+    private final MapActions mapActions;
+
+    public DefaultFlow(DefaultFlowViewModel viewModel, ActivityActions actions, MapActions mapActions) {
+        this.viewModel = viewModel;
         this.actions = actions;
+        this.mapActions = mapActions;
     }
 
     @Override
@@ -33,6 +39,7 @@ public class DefaultFlow implements ActionFlow {
     @Override
     public void onLocationSelected(LocationItem location) {
         //TODO: ReImplement DisplayLocationDetails
+        mapActions.focusLocation(location);
         actions.setFabMenu(R.menu.fab_locationactions_menu);
     }
 

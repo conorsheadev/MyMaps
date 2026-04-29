@@ -1,4 +1,4 @@
-package com.csws.mymaps.ui.map.deprecated.bottomsheets;
+package com.csws.mymaps.ui.mapviewer.deprecated.bottomsheets;
 
 import android.content.Context;
 import android.view.LayoutInflater;

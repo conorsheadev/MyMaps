@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.ui.map.MapViewActivity;
+import com.csws.mymaps.ui.mapviewer.MapViewActivity;
 import com.csws.mymaps.ui.planner.weekview_fragment.PlannerCollectionAdapter;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;

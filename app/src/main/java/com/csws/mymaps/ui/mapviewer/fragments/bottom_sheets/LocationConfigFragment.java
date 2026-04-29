@@ -1,13 +1,11 @@
-package com.csws.mymaps.ui.map;
+package com.csws.mymaps.ui.mapviewer.fragments.bottom_sheets;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -15,7 +13,6 @@ import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.MarkerConfig;
 import com.csws.mymaps.model.locations.PolygonConfig;
 import com.csws.mymaps.utils.Utilities;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;

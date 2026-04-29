@@ -1,7 +1,6 @@
-package com.csws.mymaps.ui.map;
+package com.csws.mymaps.ui.mapviewer.fragments.map;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -19,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.csws.mymaps.R;
 import com.csws.mymaps.model.locations.LocationItem;
 import com.csws.mymaps.model.tasks.TaskItem;
+import com.csws.mymaps.ui.core.actionflows.interfaces.MapActions;
 import com.csws.mymaps.utils.Utilities;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -178,8 +178,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
     }
 
     // --- Map Actions ---
-    @Override
-    public void setCallbacksListener(MapCallbacks listener) {this.setListener(listener);}
+    public void focusLocation(LocationItem location) {
+        if (map == null) return;
+
+        for (Marker marker : activeMarkers) {
+            Object tag = marker.getTag();
+            if (tag instanceof LocationItem) {
+                LocationItem loc = (LocationItem) tag;
+
+                if (loc.id.equals(location.id)) {
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 17));
+                    marker.showInfoWindow();
+                    return;
+                }
+            }
+        }
+    }
 
     public void setMapGesturesEnabled(boolean enabled) {
         if (map == null) return;
