@@ -3,7 +3,7 @@ package com.csws.mymaps.data;
 import android.content.Context;
 import android.util.Log;
 
-import com.csws.mymaps.model.locations.LocationItem;
+import com.csws.mymaps.domain.locations.LocationItem;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
