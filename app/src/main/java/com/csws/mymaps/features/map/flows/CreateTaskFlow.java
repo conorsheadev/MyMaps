@@ -86,7 +86,9 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
     }
 
     @Override
-    public void onSearchCancelled() {}
+    public void onSearchCancelled() {
+        //TODO: Implement location select functionality
+    }
     // --- Internal Functionality ---
     private void onLocationChosen(LocationItem location) {
         viewModel.setLocation(location);
