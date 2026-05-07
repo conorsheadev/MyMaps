@@ -12,6 +12,7 @@ public interface ActivityActions {
     //NEW FLOW ACTIONS
     void startCreateLocationFlow();
     void startCreateTaskFlow();
+    void startCreateTaskFromLocationFlow(LocationItem location);
 
     //UI ACTIONS
     void openPlaceSearch(PlaceSearchFragment.PlaceSelectionListener listener);

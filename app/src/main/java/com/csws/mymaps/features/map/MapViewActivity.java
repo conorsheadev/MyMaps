@@ -22,6 +22,7 @@ import com.csws.mymaps.core.flow.ActionFlowFactory;
 import com.csws.mymaps.core.flow.interfaces.ActivityActions;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
+import com.csws.mymaps.features.map.flows.CreateTaskFlow;
 import com.csws.mymaps.features.map.ui.placesearch.PlaceSearchFragment;
 import com.csws.mymaps.features.map.map.MapController_InfoWindowAdapter;
 import com.csws.mymaps.features.map.map.MapFragment;
@@ -138,6 +139,12 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     public void startCreateTaskFlow(){
         CreateTaskViewModel vm = new ViewModelProvider(this).get(CreateTaskViewModel.class);
         flowController.startFlow(flowFactory.createTaskFlow(vm));
+    }
+    @Override
+    public void startCreateTaskFromLocationFlow(LocationItem location){
+        CreateTaskFlow flow = flowFactory.createTaskFlow(new ViewModelProvider(this).get(CreateTaskViewModel.class));
+        flowController.startFlow(flow);
+        flow.onLocationSelected(location);
     }
 
     // --- Activity UI Actions ---

@@ -34,12 +34,17 @@ public class DefaultFlow implements ActionFlow {
         if (actionId == R.id.fab_add_task) {
             actions.startCreateTaskFlow();
         }
+
+        if (actionId ==R.id.fab_add_task_to_location){
+            actions.startCreateTaskFromLocationFlow(viewModel.getCurrentLocation());
+        }
     }
 
     @Override
     public void onLocationSelected(LocationItem location) {
         //TODO: ReImplement DisplayLocationDetails
         mapActions.focusLocation(location);
+        viewModel.setSelectedLocation(location);
         actions.setFabMenu(R.menu.fab_locationactions_menu);
     }
 
