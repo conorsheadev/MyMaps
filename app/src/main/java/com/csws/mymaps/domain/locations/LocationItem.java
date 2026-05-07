@@ -1,6 +1,9 @@
 package com.csws.mymaps.domain.locations;
 
-public class LocationItem {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class LocationItem implements Parcelable {
     public String id;
     public String name;
     public String type;
@@ -21,4 +24,54 @@ public class LocationItem {
         this.markerConfig = markerConfig;
     }
 
+    // --- Parcelable Constructor ---
+    protected LocationItem(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        type = in.readString();
+        lat = in.readDouble();
+        lng = in.readDouble();
+
+        polygonConfig =
+                in.readParcelable(
+                        PolygonConfig.class.getClassLoader()
+                );
+
+        markerConfig =
+                in.readParcelable(
+                        MarkerConfig.class.getClassLoader()
+                );
+    }
+
+    // --- Parcelable Writer ---
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(type);
+        dest.writeDouble(lat);
+        dest.writeDouble(lng);
+
+        dest.writeParcelable(polygonConfig, flags);
+        dest.writeParcelable(markerConfig, flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    // --- Parcelable Creator ---
+    public static final Parcelable.Creator<LocationItem> CREATOR =
+            new Parcelable.Creator<LocationItem>() {
+                @Override
+                public LocationItem createFromParcel(Parcel in) {
+                    return new LocationItem(in);
+                }
+
+                @Override
+                public LocationItem[] newArray(int size) {
+                    return new LocationItem[size];
+                }
+            };
 }
