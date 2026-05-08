@@ -67,7 +67,7 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
 
         //Flow Controller
         flowController = new ActionFlowController();
-        flowFactory = new ActionFlowFactory(this, mapFragment);
+        flowFactory = new ActionFlowFactory(taskViewModel, locationViewModel, this, mapFragment);
         cancelCurrentFlow();
 
         //Setup LiveData

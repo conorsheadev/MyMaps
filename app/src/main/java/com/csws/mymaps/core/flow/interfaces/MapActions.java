@@ -6,6 +6,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.List;
 
 public interface MapActions {
+    void previewLocation(LocationItem location);
     void focusLocation(LocationItem location);
     void setMapGesturesEnabled(boolean enabled);
     void renderTempPolygon(List<LatLng> points);

@@ -178,6 +178,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
     }
 
     // --- Map Actions ---
+    public void previewLocation(LocationItem location){
+        if (map == null) return;
+
+        for (Marker marker : activeMarkers) {
+            Object tag = marker.getTag();
+            if (tag instanceof LocationItem) {
+                LocationItem loc = (LocationItem) tag;
+
+                if (loc.id.equals(location.id)) {
+                    marker.showInfoWindow();
+                    return;
+                }
+            }
+        }
+    }
+
     public void focusLocation(LocationItem location) {
         if (map == null) return;
 
@@ -188,7 +204,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
 
                 if (loc.id.equals(location.id)) {
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 17));
-                    marker.showInfoWindow();
                     return;
                 }
             }
