@@ -12,19 +12,27 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.planner.PlannerDay;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.core.viewmodel.TaskViewModel;
+import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WeeklyPlannerFragment extends Fragment {
     private TaskViewModel taskViewModel;
+    private PlannedTaskViewModel plannedTaskViewModel;
 
     private RecyclerView recyclerView;
     private WeeklyPlannerAdapter adapter;
+
+    private List<TaskItem> cachedTasks = new ArrayList<>();
+    private List<PlannedTask> cachedPlannedTasks = new ArrayList<>();
 
     public WeeklyPlannerFragment() {}
 
@@ -37,9 +45,11 @@ public class WeeklyPlannerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //Init ViewModel
+        //Init ViewModels
         taskViewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
         taskViewModel.getTasks().observe(getViewLifecycleOwner(), this::onTasksChanged);
+        plannedTaskViewModel = new ViewModelProvider(requireActivity()).get(PlannedTaskViewModel.class);
+        plannedTaskViewModel.getPlannedTasks().observe(getViewLifecycleOwner(), this::onPlannedTasksChanged);
 
         //Init UI
         recyclerView = view.findViewById(R.id.plannerCarousel);
@@ -49,20 +59,13 @@ public class WeeklyPlannerFragment extends Fragment {
         //Setup
         setupCarousel();
     }
-    private void onTasksChanged(List<TaskItem> tasks) {
-        List<PlannerDay> plannerDays = buildPlannerDays(tasks);
-        adapter.submitList(plannerDays);
-    }
 
+    // --- SETUP ---
     private void setupCarousel() {
         recyclerView.setAdapter(adapter);
 
         //Can this be moved to xml
-        recyclerView.setLayoutManager(
-                new LinearLayoutManager(requireContext(),
-                        LinearLayoutManager.HORIZONTAL,
-                        false)
-        );
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
 
         new PagerSnapHelper().attachToRecyclerView(recyclerView);
 
@@ -71,24 +74,46 @@ public class WeeklyPlannerFragment extends Fragment {
         recyclerView.setPadding(100, 0, 100, 0);
     }
 
-    private List<PlannerDay> buildPlannerDays(List<TaskItem> allTasks) {
+    // --- Data Observers ---
+    private void onTasksChanged(List<TaskItem> tasks) {
+        List<PlannerDay> plannerDays = buildPlannerDays(cachedPlannedTasks, tasks);
+        adapter.submitList(plannerDays);
+    }
+    private void onPlannedTasksChanged(List<PlannedTask> plannedTasks) {
+        List<PlannerDay> plannerDays = buildPlannerDays(plannedTasks, cachedTasks);
+        adapter.submitList(plannerDays);
+    }
+
+    // --- Planner Days ---
+    private void refreshPlanner() {
+        List<PlannerDay> plannerDays = buildPlannerDays(cachedPlannedTasks, cachedTasks);
+        adapter.submitList(plannerDays);
+    }
+
+    private List<PlannerDay> buildPlannerDays(List<PlannedTask> allPlannedTasks, List<TaskItem> allTasks) {
 
         List<PlannerDay> result = new ArrayList<>();
         List<LocalDate> days = getNext7Days();
 
         for (LocalDate day : days) {
 
-            List<TaskItem> tasksForDay = new ArrayList<>();
+            //PlannedTasks
+            String dateString = day.toString();
+            List<PlannedTask> plannedForDay = new ArrayList<>();
+            for (PlannedTask plannedTask : allPlannedTasks) {
 
-            for (TaskItem task : allTasks) {
-                LocalDate taskDate = task.toLocalDate();
-
-                if (taskDate.equals(day)) {
-                    tasksForDay.add(task);
+                if (dateString.equals(plannedTask.date)) {
+                    plannedForDay.add(plannedTask);
                 }
             }
 
-            result.add(new PlannerDay(day, tasksForDay));
+            //TaskItems
+            List<TaskItem> resolvedTasks = resolveTasks(plannedForDay,allTasks);
+
+            //PlannerDay
+            PlannerDay plannerDay = new PlannerDay(dateString,resolvedTasks,plannedForDay);
+
+            result.add(plannerDay);
         }
 
         return result;
@@ -96,6 +121,26 @@ public class WeeklyPlannerFragment extends Fragment {
 
 
 
+    private List<TaskItem> resolveTasks(List<PlannedTask> plannedTasks, List<TaskItem> allTasks) {
+
+        List<TaskItem> result = new ArrayList<>();
+        Map<String, TaskItem> taskMap = new HashMap<>();
+
+        for (TaskItem task : allTasks) {
+            taskMap.put(task.id, task);
+        }
+
+        for (PlannedTask plannedTask : plannedTasks) {
+
+            TaskItem task = taskMap.get(plannedTask.taskId);
+
+            if (task != null) {
+                result.add(task);
+            }
+        }
+
+        return result;
+    }
 
 
     private List<LocalDate> getNext7Days() {

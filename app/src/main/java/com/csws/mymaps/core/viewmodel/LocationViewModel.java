@@ -32,6 +32,7 @@ public class LocationViewModel extends AndroidViewModel {
         return locations;
     }
 
+    // --- ADD/REMOVE funcs ---
     public LocationItem addLocation(String name, String type, double lat, double lng, PolygonConfig polygonConfig, MarkerConfig markerConfig) {
 
         LocationItem item = new LocationItem(
@@ -62,6 +63,8 @@ public class LocationViewModel extends AndroidViewModel {
         repository.saveLocations(current);
         locations.setValue(current);
     }
+
+    // --- Queries ---
     public LocationItem getLocationById(String id) {
         List<LocationItem> current = locations.getValue();
         if (current == null) return null;

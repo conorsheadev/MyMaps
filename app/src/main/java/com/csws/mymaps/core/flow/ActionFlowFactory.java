@@ -10,22 +10,25 @@ import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
+import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
 
 public class ActionFlowFactory {
     private final TaskViewModel taskViewModel;
+    private final PlannedTaskViewModel plannedTaskViewModel;
     private final LocationViewModel locationViewModel;
     private final ActivityActions activityActions;
     private final MapActions mapActions;
 
-    public ActionFlowFactory(TaskViewModel taskViewModel, LocationViewModel locationViewModel, ActivityActions activityActions, MapActions mapActions) {
+    public ActionFlowFactory(TaskViewModel taskViewModel, PlannedTaskViewModel plannedTaskViewModel, LocationViewModel locationViewModel, ActivityActions activityActions, MapActions mapActions) {
         this.taskViewModel = taskViewModel;
+        this.plannedTaskViewModel = plannedTaskViewModel;
         this.locationViewModel = locationViewModel;
         this.activityActions = activityActions;
         this.mapActions = mapActions;
     }
 
     public DefaultFlow createDefaultFlow(DefaultFlowViewModel vm){
-        return new DefaultFlow(vm, taskViewModel, locationViewModel, activityActions, mapActions);
+        return new DefaultFlow(vm, taskViewModel, plannedTaskViewModel, locationViewModel, activityActions, mapActions);
     }
 
     public CreateLocationFlow createLocationFlow(CreateLocationViewModel vm){

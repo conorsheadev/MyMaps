@@ -9,16 +9,26 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class LocationTasksAdapter extends RecyclerView.Adapter<LocationTasksAdapter.TaskViewHolder> {
-    private List<TaskItem> tasks = new ArrayList<>();
 
-    public void submitList(List<TaskItem> newTasks) {
+    private List<PlannedTask> plannedTasks = new ArrayList<>();
+    private Map<String,TaskItem> tasks = new HashMap<>();
+
+    public void submitList(List<PlannedTask> newPlannedTasks,Map<String, TaskItem> newTasks) {
+        plannedTasks = newPlannedTasks;
         tasks = newTasks;
+
         notifyDataSetChanged();
     }
 
@@ -32,12 +42,16 @@ public class LocationTasksAdapter extends RecyclerView.Adapter<LocationTasksAdap
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
-        holder.bind(tasks.get(position));
+        PlannedTask plannedTask = plannedTasks.get(position);
+        TaskItem task = tasks.get(plannedTask.taskId);
+        if(task!= null){
+            holder.bind(plannedTask, task);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return tasks.size();
+        return plannedTasks.size();
     }
 
     static class TaskViewHolder extends RecyclerView.ViewHolder {
@@ -50,9 +64,20 @@ public class LocationTasksAdapter extends RecyclerView.Adapter<LocationTasksAdap
             taskTime = itemView.findViewById(R.id.taskTime);
         }
 
-        void bind(TaskItem task) {
+        void bind(PlannedTask plannedTask, TaskItem task) {
             taskTitle.setText(task.title);
-            taskTime.setText(task.startTimeMillis + " - " + task.endTimeMillis);
+            taskTime.setText(formatTimeRange(plannedTask.startTimeMillis , plannedTask.endTimeMillis));
+        }
+
+        private String formatTimeRange(Long start, Long end) {
+            //TODO: Setup DateTime Utils for Formatting
+            if (start == null || end == null) {
+                return "Unscheduled";
+            }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+            return sdf.format(new Date(start)) + " - " + sdf.format(new Date(end));
         }
     }
 }

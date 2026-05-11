@@ -4,10 +4,12 @@ import com.csws.mymaps.R;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.locations.MarkerConfig;
 import com.csws.mymaps.domain.locations.PolygonConfig;
+import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.core.flow.ActionFlow;
 import com.csws.mymaps.core.flow.interfaces.ActivityActions;
 import com.csws.mymaps.core.flow.interfaces.MapActions;
+import com.csws.mymaps.features.map.ui.bottom_sheets.PlannedTaskConfigFragment;
 import com.csws.mymaps.features.map.ui.bottom_sheets.TaskConfigFragment;
 import com.csws.mymaps.features.map.ui.placesearch.PlaceSearchFragment;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
@@ -44,7 +46,7 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
         }
 
         if (actionId == R.id.fab_confirm_task) {
-            createTask();
+
         }
     }
 
@@ -92,41 +94,56 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
     // --- Internal Functionality ---
     private void onLocationChosen(LocationItem location) {
         viewModel.setLocation(location);
-
         mapActions.focusLocation(location);
-
         viewModel.setStage(CreateTaskViewModel.Stage.CONFIGURE_TASK);
-
         openTaskConfig();
     }
 
+    // --- Task Config ---
     private void openTaskConfig() {
-        TaskConfigFragment fragment = TaskConfigFragment.newInstance(viewModel.getLocation().getValue().id);
+        String locationId = viewModel.getCurrentLocation().id;
+        TaskConfigFragment fragment = TaskConfigFragment.newInstance(locationId);
 
         fragment.setListener(task -> {
-            actions.createNewTask(task);
-            actions.hideBottomSheet();
-            actions.cancelCurrentFlow();
+            viewModel.setDraftTask(task);
+            viewModel.setStage(CreateTaskViewModel.Stage.CONFIGURE_PLAN);
+            openPlannedTaskConfig();
         });
 
         actions.showBottomSheet(fragment);
     }
 
-    private void createTask() {
-        LocationItem location = viewModel.getCurrentLocation();
-        if (location == null) return;
+    // --- PlannedTask Config ---
+    private void openPlannedTaskConfig() {
 
-        TaskItem task = new TaskItem(
-                UUID.randomUUID().toString(),
-                viewModel.getTaskName(),
-                viewModel.getTaskDescription(),
-                location.id,
-                TaskItem.TaskType.SCHEDULED
-        );
+        TaskItem task = viewModel.getDraftTask().getValue();
+
+        PlannedTaskConfigFragment fragment = PlannedTaskConfigFragment.newInstance(task.id);
+
+        fragment.setListener(plannedTask -> {
+            viewModel.setDraftPlan(plannedTask);
+            completeFlow();
+        });
+
+        actions.showBottomSheet(fragment);
+    }
+
+    private void completeFlow() {
+
+        TaskItem task = viewModel.getCurrentTask();
+
+        PlannedTask plannedTask = viewModel.getCurrentPlan();
+
+        if (task == null || plannedTask == null) {
+            return;
+        }
 
         actions.createNewTask(task);
 
+        actions.createNewPlannedTask(plannedTask);
+
         actions.hideBottomSheet();
+
         actions.cancelCurrentFlow();
     }
 

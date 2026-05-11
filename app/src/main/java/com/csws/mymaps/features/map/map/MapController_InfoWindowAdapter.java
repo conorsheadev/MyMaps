@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.locations.LocationItem;
+import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
@@ -21,14 +22,17 @@ import java.util.Map;
 public class MapController_InfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     private final Context context;
-    private Map<String, List<TaskItem>> tasksByLocation = new HashMap<>();
+    private Map<String, List<PlannedTask>> plannedTasksByLocation = new HashMap<>();
+    private Map<String, TaskItem> taskLookup = new HashMap<>();
+
 
     public MapController_InfoWindowAdapter(Context context) {
         this.context = context;
     }
 
-    public void setTasks(Map<String, List<TaskItem>> tasksByLocation) {
-        this.tasksByLocation = tasksByLocation;
+    public void setTasks(Map<String, List<PlannedTask>> plannedTasksByLocation, Map<String, TaskItem> taskLookup) {
+        this.plannedTasksByLocation = plannedTasksByLocation;
+        this.taskLookup = taskLookup;
     }
 
     @Override
@@ -55,17 +59,19 @@ public class MapController_InfoWindowAdapter implements GoogleMap.InfoWindowAdap
 
         title.setText(location.name);
 
-        List<TaskItem> tasks = tasksByLocation.get(location.id);
+        List<PlannedTask> plannedTasks = plannedTasksByLocation.get(location.id);
 
-        if (tasks == null || tasks.isEmpty()) {
+        if (plannedTasks == null || plannedTasks.isEmpty()) {
             tasksView.setText("No tasks yet");
         } else {
+            //TODO: convert from stringbuilder to custom xml inflation or smthn
             StringBuilder builder = new StringBuilder();
 
-            for (TaskItem task : tasks) {
+            for (PlannedTask plannedTask : plannedTasks) {
+                TaskItem task = taskLookup.get(plannedTask.taskId);
                 builder.append("• ").append(task.title);
 
-                if (task.startTimeMillis != null && task.startTimeMillis > 0) {
+                if (plannedTask.startTimeMillis != null && plannedTask.startTimeMillis > 0) {
                     builder.append(" (scheduled)");
                 }
 

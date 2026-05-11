@@ -25,66 +25,42 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create Task"
+            android:text="Plan Task"
             android:textSize="20sp"
             android:textStyle="bold"/>
 
-        <!-- TASK NAME -->
+        <!-- START TIME -->
 
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/startTimeButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="12dp"
+            android:text="Select Start Time"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTaskName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Task name"/>
-        </com.google.android.material.textfield.TextInputLayout>
+        <!-- END TIME -->
 
-        <!-- DESCRIPTION -->
-
-        <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/endTimeButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="8dp"
+            android:text="Select End Time"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTaskDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Description"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- TASK TYPE -->
+        <!-- TRAVEL MODE -->
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Task Type">
+            android:hint="Travel Mode">
 
             <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                android:id="@+id/typeSelector"
+                android:id="@+id/travelModeSelector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- PREREQUISITES -->
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editPrerequisites"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Prerequisites (comma separated)"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- CONFIRM -->
@@ -94,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Continue"/>
+            android:text="Create Planned Task"/>
 
     </LinearLayout>
 

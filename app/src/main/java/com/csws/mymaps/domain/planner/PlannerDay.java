@@ -4,22 +4,40 @@ import com.csws.mymaps.domain.tasks.TaskItem;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlannerDay {
-    public LocalDate date;
+    public String date;
     public List<TaskItem> tasks;
+    public List<PlannedTask> plannedTasks;
 
-    public PlannerDay(LocalDate date, List<TaskItem> tasks) {
+    public PlannerDay(String date) {
+        this.date = date;
+        this.tasks = new ArrayList<>();
+    }
+    public PlannerDay(String date, List<TaskItem> tasks, List<PlannedTask> plannedTasks) {
         this.date = date;
         this.tasks = tasks;
+        this.plannedTasks = plannedTasks;
     }
 
     public String getDayName() {
-        return date.getDayOfWeek().toString();
+
+        LocalDate localDate = LocalDate.parse(date);
+        return localDate.getDayOfWeek().toString();
     }
+
     public String getFormattedDate() {
-        return date.format(DateTimeFormatter.ofPattern("dd MMM"));
+        //TODO: Setup DateTime Utils for Formatting
+        LocalDate localDate = LocalDate.parse(date);
+        return localDate.format(DateTimeFormatter.ofPattern("dd MMM"));
     }
-    public List<TaskItem> getTasks() {return tasks;}
+
+    public List<TaskItem> getTasks() {
+        return tasks;
+    }
+    public List<PlannedTask> getPlannedTasks() {
+        return plannedTasks;
+    }
 }

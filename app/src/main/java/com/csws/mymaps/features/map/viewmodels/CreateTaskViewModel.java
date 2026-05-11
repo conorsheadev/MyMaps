@@ -5,64 +5,69 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.csws.mymaps.domain.locations.LocationItem;
+import com.csws.mymaps.domain.planner.PlannedTask;
+import com.csws.mymaps.domain.tasks.TaskItem;
 
 public class CreateTaskViewModel extends ViewModel {
 
     public enum Stage {
         SELECT_LOCATION,
-        CONFIGURE_TASK
+        CONFIGURE_TASK,
+        CONFIGURE_PLAN
     }
 
     private final MutableLiveData<Stage> stage = new MutableLiveData<>(Stage.SELECT_LOCATION);
-
     private final MutableLiveData<LocationItem> selectedLocation = new MutableLiveData<>();
-    private final MutableLiveData<String> taskName = new MutableLiveData<>("");
-    private final MutableLiveData<String> taskDescription = new MutableLiveData<>("");
+    private final MutableLiveData<TaskItem> draftTask = new MutableLiveData<>();
+    private final MutableLiveData<PlannedTask> draftPlan = new MutableLiveData<>();
 
     // --- Stage ---
     public LiveData<Stage> getStage() {
         return stage;
     }
-
     public void setStage(Stage newStage) {
         stage.setValue(newStage);
     }
+    public void reset() {
+        stage.setValue(Stage.SELECT_LOCATION);
+        selectedLocation.setValue(null);
+        draftTask.setValue(null);
+        draftPlan.setValue(null);
+    }
 
-    // --- Location ---
+
+    // --- SelectedLocation ---
     public void setLocation(LocationItem location) {
         selectedLocation.setValue(location);
     }
-
     public LiveData<LocationItem> getLocation() {
         return selectedLocation;
     }
-
     public LocationItem getCurrentLocation() {
         return selectedLocation.getValue();
     }
 
-    // --- Task Data ---
-    public void setTaskName(String name) {
-        taskName.setValue(name);
+    // --- Task Draft ---
+    public void setDraftTask(TaskItem task) {
+        draftTask.setValue(task);
+    }
+    public LiveData<TaskItem> getDraftTask() {
+        return draftTask;
+    }
+    public TaskItem getCurrentTask() {
+        return draftTask.getValue();
     }
 
-    public String getTaskName() {
-        return taskName.getValue();
+    // --- Planned Task ---
+    public void setDraftPlan(PlannedTask plannedTask) {
+        draftPlan.setValue(plannedTask);
+    }
+    public LiveData<PlannedTask> getDraftPlan() {
+        return draftPlan;
+    }
+    public PlannedTask getCurrentPlan() {
+        return draftPlan.getValue();
     }
 
-    public void setTaskDescription(String desc) {
-        taskDescription.setValue(desc);
-    }
 
-    public String getTaskDescription() {
-        return taskDescription.getValue();
-    }
-
-    // --- Reset ---
-    public void reset() {
-        stage.setValue(Stage.SELECT_LOCATION);
-        selectedLocation.setValue(null);
-        taskName.setValue("");
-        taskDescription.setValue("");
-    }
 }

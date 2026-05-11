@@ -27,8 +27,7 @@ public class TasksViewAdapter extends RecyclerView.Adapter<TasksViewAdapter.Sect
     @NonNull
     @Override
     public SectionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_task_section, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_task_section, parent, false);
         return new SectionViewHolder(view);
     }
 
@@ -42,6 +41,7 @@ public class TasksViewAdapter extends RecyclerView.Adapter<TasksViewAdapter.Sect
         return sections.size();
     }
 
+    // --- View Holder ---
     static class SectionViewHolder extends RecyclerView.ViewHolder {
 
         TextView locationTitle;
@@ -56,16 +56,13 @@ public class TasksViewAdapter extends RecyclerView.Adapter<TasksViewAdapter.Sect
         void bind(LocationTasks section) {
 
             locationTitle.setText(section.location.name);
-
-            // Setup horizontal list
             LinearLayoutManager layoutManager = new LinearLayoutManager(itemView.getContext(), RecyclerView.HORIZONTAL, false);
 
+            //Internal Adapter
             horizontalRecycler.setLayoutManager(layoutManager);
-
             LocationTasksAdapter adapter = new LocationTasksAdapter();
             horizontalRecycler.setAdapter(adapter);
-
-            adapter.submitList(section.tasks);
+            adapter.submitList(section.plannedTasks, section.tasks);
         }
     }
 }

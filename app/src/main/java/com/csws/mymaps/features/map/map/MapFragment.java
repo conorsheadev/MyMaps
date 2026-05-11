@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.locations.LocationItem;
+import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.core.utils.Utilities;
@@ -146,17 +147,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
             activeMarkers.add(marker);
         }
     }
-    public void setTasks(List<TaskItem> tasks) {
-        Map<String, List<TaskItem>> grouped = new HashMap<>();
-
+    public void setTasks(List<TaskItem> tasks, List<PlannedTask> plannedTasks) {
+        //TaskItem Lookup
+        Map<String, TaskItem> taskLookup = new HashMap<>();
         for (TaskItem task : tasks) {
+            taskLookup.put(task.id, task);
+        }
+        //plannedTasks grouped by location
+        Map<String, List<PlannedTask>> grouped = new HashMap<>();
+        for (PlannedTask plannedTask : plannedTasks) {
+            TaskItem task = taskLookup.get(plannedTask.taskId);
+            if (task == null || task.locationId == null) { continue;}
             if (!grouped.containsKey(task.locationId)) {
                 grouped.put(task.locationId, new ArrayList<>());
             }
-            grouped.get(task.locationId).add(task);
+            grouped.get(task.locationId).add(plannedTask);
         }
 
-        infoWindowAdapter.setTasks(grouped);
+        //Adapter refresh
+        infoWindowAdapter.setTasks(grouped, taskLookup);
         refreshInfoWindows();
     }
     public void refreshInfoWindows() {

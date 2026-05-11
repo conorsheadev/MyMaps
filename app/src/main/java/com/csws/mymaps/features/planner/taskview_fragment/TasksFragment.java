@@ -14,21 +14,31 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.LocationTasks;
+import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.core.viewmodel.LocationViewModel;
 import com.csws.mymaps.core.viewmodel.TaskViewModel;
+import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TasksFragment extends Fragment {
 
     private LocationViewModel locationViewModel;
     private TaskViewModel taskViewModel;
+    private PlannedTaskViewModel plannedTaskViewModel;
 
     private RecyclerView recyclerView;
 
     private TasksViewAdapter adapter;
+
+    //Cached Data
+    private List<LocationItem> cachedLocations = new ArrayList<>();
+    private List<TaskItem> cachedTasks = new ArrayList<>();
+    private List<PlannedTask> cachedPlannedTasks = new ArrayList<>();
 
     public TasksFragment(){}
 
@@ -49,42 +59,55 @@ public class TasksFragment extends Fragment {
 
         locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
         taskViewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
+        plannedTaskViewModel = new ViewModelProvider(requireActivity()).get(PlannedTaskViewModel.class);
 
         observeData();
     }
 
-    private List<LocationItem> currentLocations = new ArrayList<>(); private void updateLocations(List<LocationItem> newLocations){this.currentLocations = newLocations; updateUI();}
-    private List<TaskItem> currentTasks = new ArrayList<>(); private void updateTasks(List<TaskItem> newTasks){this.currentTasks = newTasks; updateUI();}
+    private void updateLocations(List<LocationItem> newLocations){this.cachedLocations = newLocations; updateUI();}
+    private void updateTasks(List<TaskItem> newTasks){this.cachedTasks = newTasks; updateUI();}
+    private void updatePlannedTasks(List<PlannedTask> newPlannedTasks){this.cachedPlannedTasks = newPlannedTasks; updateUI();}
 
     private void observeData() {
         locationViewModel.getLocations().observe(getViewLifecycleOwner(), this::updateLocations);
         taskViewModel.getTasks().observe(getViewLifecycleOwner(), this::updateTasks);
+        plannedTaskViewModel.getPlannedTasks().observe(getViewLifecycleOwner(), this::updatePlannedTasks);
     }
 
     private void updateUI() {
         Log.d("TasksFragment", "Updating UI");
-        onDataChanged(currentLocations, currentTasks);
+        List<LocationTasks> grouped = buildSections(cachedLocations, cachedTasks, cachedPlannedTasks);
+        adapter.submitList(grouped);
     }
 
-    private void onDataChanged(List<LocationItem> locations, List<TaskItem> tasks) {
+    private List<LocationTasks> buildSections(List<LocationItem> locations, List<TaskItem> tasks, List<PlannedTask> plannedTasks) {
 
-        List<LocationTasks> grouped = new ArrayList<>();
+        List<LocationTasks> result = new ArrayList<>();
+        Map<String, TaskItem> taskMap = new HashMap<>();
+
+        for (TaskItem task : tasks) {
+            taskMap.put(task.id, task);
+        }
 
         for (LocationItem location : locations) {
 
-            List<TaskItem> tasksForLocation = new ArrayList<>();
+            List<PlannedTask> plansForLocation = new ArrayList<>();
+            Map<String, TaskItem> resolvedTasks = new HashMap<>();
 
-            for (TaskItem task : tasks) {
-                if (task.locationId.equals(location.id)) {
-                    tasksForLocation.add(task);
-                }
+            for (PlannedTask plannedTask : plannedTasks) {
+
+                TaskItem task = taskMap.get(plannedTask.taskId);
+                if (task == null || !location.id.equals(task.locationId)) {continue;}
+
+                plansForLocation.add(plannedTask);
+                resolvedTasks.put(task.id, task);
             }
 
-            if (!tasksForLocation.isEmpty()) {
-                grouped.add(new LocationTasks(location, tasksForLocation));
+            if (!plansForLocation.isEmpty()) {
+                result.add(new LocationTasks(location,plansForLocation,resolvedTasks));
             }
         }
 
-        adapter.submitList(grouped);
+        return result;
     }
 }

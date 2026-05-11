@@ -4,6 +4,7 @@ import androidx.annotation.MenuRes;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.domain.locations.LocationItem;
+import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.ui.placesearch.PlaceSearchFragment;
 
@@ -24,5 +25,6 @@ public interface ActivityActions {
     //REAL ACTIONS
     void createNewLocation(LocationItem locationItem);
     void createNewTask(TaskItem taskItem);
+    void createNewPlannedTask(PlannedTask plannedTask);
     void cancelCurrentFlow();
 }

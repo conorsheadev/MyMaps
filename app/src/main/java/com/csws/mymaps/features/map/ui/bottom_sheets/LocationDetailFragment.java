@@ -15,27 +15,34 @@ import androidx.fragment.app.Fragment;
 import com.csws.mymaps.R;
 import com.csws.mymaps.core.ui.TimelineRenderer;
 import com.csws.mymaps.domain.locations.LocationItem;
+import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LocationDetailFragment extends Fragment {
 
     private static final String ARG_LOCATION = "location";
     private static final String ARG_TASKS = "tasks";
+    private static final String ARG_PLANNED_TASKS = "planned_tasks";
 
     private LocationItem location;
     private List<TaskItem> tasks;
+    private List<PlannedTask> plannedTasks;
+
 
     private TimelineRenderer timelineRenderer;
 
-    public static LocationDetailFragment newInstance(LocationItem location, List<TaskItem> tasks) {
+    public static LocationDetailFragment newInstance(LocationItem location, List<TaskItem> tasks, List<PlannedTask> plannedTasks) {
         LocationDetailFragment fragment = new LocationDetailFragment();
 
         Bundle args = new Bundle();
         args.putParcelable(ARG_LOCATION, location);
         args.putParcelableArrayList(ARG_TASKS, new ArrayList<>(tasks));
+        args.putParcelableArrayList(ARG_PLANNED_TASKS, new ArrayList<>(plannedTasks));
 
         fragment.setArguments(args);
 
@@ -51,31 +58,40 @@ public class LocationDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // --- Load args ---
+        //Args
         Bundle args = getArguments();
-
         if (args != null) {
             location = args.getParcelable(ARG_LOCATION);
             tasks = args.getParcelableArrayList(ARG_TASKS);
+            plannedTasks = args.getParcelableArrayList(ARG_PLANNED_TASKS);
         }
 
-        // --- Views ---
-        TextView title =
-                view.findViewById(R.id.locationTitle);
+        if (tasks == null) {
+            tasks = new ArrayList<>();
+        }
 
-        RelativeLayout timelineContainer =
-                view.findViewById(R.id.timelineContainer);
+        if (plannedTasks == null) {
+            plannedTasks = new ArrayList<>();
+        }
 
-        // --- Render location ---
+        //Views
+        TextView title = view.findViewById(R.id.locationTitle);
+        RelativeLayout timelineContainer = view.findViewById(R.id.timelineContainer);
+
+        //TODO: Clean Up
+
+        //Location
         if (location != null) {
             title.setText(location.name);
         }
-
-        // --- Timeline ---
+        //Timeline
         timelineRenderer = new TimelineRenderer(requireContext(), timelineContainer, new TimelineRenderer.Config());
 
-        if (tasks != null) {
-            timelineRenderer.render(tasks);
+        Map<String, TaskItem> taskLookup = new HashMap<>();
+        for (TaskItem task : tasks) {
+            taskLookup.put(task.id, task);
         }
+
+        timelineRenderer.render(plannedTasks,taskLookup);
     }
 }

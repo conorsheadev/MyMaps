@@ -9,11 +9,13 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 public class TimelineRenderer {
 
@@ -34,19 +36,22 @@ public class TimelineRenderer {
         this.config = config;
     }
 
-    public void render(List<TaskItem> tasks) {
+    public void render(List<PlannedTask> plannedTasks, Map<String, TaskItem> tasks) {
         container.removeAllViews();
 
         drawTimeline();
 
-        for (TaskItem task : tasks) {
-            if (shouldRender(task)) {
-                drawTask(task);
+        for (PlannedTask plannedTask : plannedTasks) {
+            if (shouldRender(plannedTask)) {
+                TaskItem task = tasks.get(plannedTask.taskId);
+                if (task != null) {
+                    drawTask(plannedTask, task);
+                }
             }
         }
     }
-    private boolean shouldRender(TaskItem task) {
-        return task.startTimeMillis > 0 && task.endTimeMillis > 0;
+    private boolean shouldRender(PlannedTask plannedTask) {
+        return plannedTask.startTimeMillis > 0 && plannedTask.endTimeMillis > 0;
     }
 
     // --- TIMELINE CREATION ---
@@ -54,6 +59,8 @@ public class TimelineRenderer {
         for (int hour = config.startHour; hour <= config.endHour; hour++) {
 
             TextView label = new TextView(context);
+
+            //TODO: Setup DateTime Utils for Formatting
             label.setText(String.format("%02d:00", hour));
 
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
@@ -65,10 +72,10 @@ public class TimelineRenderer {
             container.addView(label, params);
         }
     }
-    private void drawTask(TaskItem task) {
-        int startMinutes = getMinutesFromStartOfTimeline(task.startTimeMillis);
-        int endMinutes = getMinutesFromStartOfTimeline(task.endTimeMillis);
-        Log.d("TimelineRenderer", "Task start: " + task.startTimeMillis + ", end: " + task.endTimeMillis);
+    private void drawTask(PlannedTask plannedTask, TaskItem task) {
+        int startMinutes = getMinutesFromStartOfTimeline(plannedTask.startTimeMillis);
+        int endMinutes = getMinutesFromStartOfTimeline(plannedTask.endTimeMillis);
+        Log.d("TimelineRenderer", "Task start: " + plannedTask.startTimeMillis + ", end: " + plannedTask.endTimeMillis);
         Log.d("TimelineRenderer", "Task start: " + startMinutes + ", end: " + endMinutes);
         int top = (startMinutes * config.hourHeight) / 60;
         int height = ((endMinutes - startMinutes) * config.hourHeight) / 60;
