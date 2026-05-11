@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.csws.mymaps.features.planner.ConfigFragment;
+import com.csws.mymaps.features.planner.config_fragment.ConfigFragment;
 import com.csws.mymaps.features.planner.taskview_fragment.TasksFragment;
 
 import java.util.Arrays;

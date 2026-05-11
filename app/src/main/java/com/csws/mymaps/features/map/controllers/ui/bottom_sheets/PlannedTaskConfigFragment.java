@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.ui.bottom_sheets;
+package com.csws.mymaps.features.map.controllers.ui.bottom_sheets;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

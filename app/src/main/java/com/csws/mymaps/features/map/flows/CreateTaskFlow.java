@@ -1,6 +1,8 @@
 package com.csws.mymaps.features.map.flows;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.flow.interfaces.FlowActions;
+import com.csws.mymaps.core.flow.interfaces.SessionActions;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.locations.MarkerConfig;
 import com.csws.mymaps.domain.locations.PolygonConfig;
@@ -9,9 +11,9 @@ import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.core.flow.ActionFlow;
 import com.csws.mymaps.core.flow.interfaces.ActivityActions;
 import com.csws.mymaps.core.flow.interfaces.MapActions;
-import com.csws.mymaps.features.map.ui.bottom_sheets.PlannedTaskConfigFragment;
-import com.csws.mymaps.features.map.ui.bottom_sheets.TaskConfigFragment;
-import com.csws.mymaps.features.map.ui.placesearch.PlaceSearchFragment;
+import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.PlannedTaskConfigFragment;
+import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.TaskConfigFragment;
+import com.csws.mymaps.features.map.controllers.ui.placesearch.PlaceSearchFragment;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -21,11 +23,15 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
 
     private final CreateTaskViewModel viewModel;
     private final ActivityActions actions;
+    private final SessionActions sessionActions;
+    private final FlowActions flowActions;
     private final MapActions mapActions;
 
-    public CreateTaskFlow(CreateTaskViewModel viewModel, ActivityActions actions, MapActions mapActions) {
+    public CreateTaskFlow(CreateTaskViewModel viewModel, ActivityActions actions, SessionActions sessionActions, FlowActions flowActions, MapActions mapActions) {
         this.viewModel = viewModel;
         this.actions = actions;
+        this.sessionActions = sessionActions;
+        this.flowActions = flowActions;
         this.mapActions = mapActions;
     }
 
@@ -138,13 +144,10 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
             return;
         }
 
-        actions.createNewTask(task);
-
-        actions.createNewPlannedTask(plannedTask);
-
+        sessionActions.createNewTask(task);
+        sessionActions.createNewPlannedTask(plannedTask);
         actions.hideBottomSheet();
-
-        actions.cancelCurrentFlow();
+        flowActions.cancelCurrentFlow();
     }
 
     @Override

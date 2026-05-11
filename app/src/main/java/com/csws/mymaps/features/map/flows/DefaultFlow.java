@@ -1,6 +1,8 @@
 package com.csws.mymaps.features.map.flows;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.flow.interfaces.FlowActions;
+import com.csws.mymaps.core.flow.interfaces.SessionActions;
 import com.csws.mymaps.core.viewmodel.LocationViewModel;
 import com.csws.mymaps.core.viewmodel.TaskViewModel;
 import com.csws.mymaps.domain.locations.LocationItem;
@@ -9,7 +11,7 @@ import com.csws.mymaps.core.flow.interfaces.ActivityActions;
 import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
-import com.csws.mymaps.features.map.ui.bottom_sheets.LocationDetailFragment;
+import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.LocationDetailFragment;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
 import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
 import com.google.android.gms.maps.model.LatLng;
@@ -23,14 +25,18 @@ public class DefaultFlow implements ActionFlow {
     private final LocationViewModel locationViewModel;
 
     private final ActivityActions actions;
+    private final SessionActions sessionActions;
+    private final FlowActions flowActions;
     private final MapActions mapActions;
 
-    public DefaultFlow(DefaultFlowViewModel viewModel, TaskViewModel taskViewModel, PlannedTaskViewModel plannedTaskViewModel, LocationViewModel locationViewModel, ActivityActions actions, MapActions mapActions) {
+    public DefaultFlow(DefaultFlowViewModel viewModel, TaskViewModel taskViewModel, PlannedTaskViewModel plannedTaskViewModel, LocationViewModel locationViewModel, ActivityActions actions, SessionActions sessionActions, FlowActions flowActions, MapActions mapActions) {
         this.viewModel = viewModel;
         this.taskViewModel = taskViewModel;
         this.plannedTaskViewModel = plannedTaskViewModel;
         this.locationViewModel = locationViewModel;
         this.actions = actions;
+        this.sessionActions = sessionActions;
+        this.flowActions = flowActions;
         this.mapActions = mapActions;
     }
 
@@ -42,15 +48,15 @@ public class DefaultFlow implements ActionFlow {
     @Override
     public void onAction(int actionId) {
         if (actionId == R.id.fab_add_location) {
-            actions.startCreateLocationFlow();
+            flowActions.startCreateLocationFlow();
         }
 
         if (actionId == R.id.fab_add_task) {
-            actions.startCreateTaskFlow();
+            flowActions.startCreateTaskFlow();
         }
 
         if (actionId ==R.id.fab_add_task_to_location){
-            actions.startCreateTaskFromLocationFlow(viewModel.getCurrentLocation());
+            flowActions.startCreateTaskFromLocationFlow(viewModel.getCurrentLocation());
         }
     }
 

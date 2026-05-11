@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.map;
+package com.csws.mymaps.features.map.controllers.map;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -219,6 +219,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
         }
     }
 
+    @Override
     public void setMapGesturesEnabled(boolean enabled) {
         if (map == null) return;
 

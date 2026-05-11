@@ -3,15 +3,17 @@ package com.csws.mymaps.features.map.flows;
 import android.util.Log;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.flow.interfaces.FlowActions;
+import com.csws.mymaps.core.flow.interfaces.SessionActions;
 import com.csws.mymaps.domain.flows.CreateLocationState;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.locations.MarkerConfig;
 import com.csws.mymaps.domain.locations.PolygonConfig;
 import com.csws.mymaps.core.flow.ActionFlow;
-import com.csws.mymaps.features.map.ui.bottom_sheets.LocationConfigFragment;
+import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.LocationConfigFragment;
 import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.core.flow.interfaces.ActivityActions;
-import com.csws.mymaps.features.map.ui.placesearch.PlaceSearchFragment;
+import com.csws.mymaps.features.map.controllers.ui.placesearch.PlaceSearchFragment;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -22,11 +24,15 @@ public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.Place
     private final CreateLocationViewModel viewModel;
 
     private final ActivityActions activityActions;
+    private final SessionActions sessionActions;
+    private final FlowActions flowActions;
     private final MapActions mapActions;
 
-    public CreateLocationFlow(CreateLocationViewModel viewModel, ActivityActions activityActions, MapActions mapActions) {
+    public CreateLocationFlow(CreateLocationViewModel viewModel, ActivityActions activityActions, SessionActions sessionActions, FlowActions flowActions, MapActions mapActions) {
         this.viewModel = viewModel;
         this.activityActions = activityActions;
+        this.sessionActions = sessionActions;
+        this.flowActions = flowActions;
         this.mapActions = mapActions;
     }
 
@@ -89,7 +95,7 @@ public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.Place
     @Override
     public void onSearchCancelled() {
         //TODO: Instead of cancelling flow when search is cancelled provide users alternative ways before cancelling
-        activityActions.cancelCurrentFlow();
+        flowActions.cancelCurrentFlow();
     }
     // --- Polygon Actions ---
     public void onConfirmPolygon() {
@@ -115,7 +121,7 @@ public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.Place
 
     public void onCancelPolygon() {
         mapActions.clearTemp();
-        activityActions.cancelCurrentFlow();
+        flowActions.cancelCurrentFlow();
     }
 
     // --- Bottom Sheet Fragment ---
@@ -134,9 +140,9 @@ public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.Place
                 markerConfig
         );
 
-        activityActions.createNewLocation(item);
+        sessionActions.createNewLocation(item);
         mapActions.setMapGesturesEnabled(true);
         activityActions.hideBottomSheet();
-        activityActions.cancelCurrentFlow();
+        flowActions.cancelCurrentFlow();
     }
 }

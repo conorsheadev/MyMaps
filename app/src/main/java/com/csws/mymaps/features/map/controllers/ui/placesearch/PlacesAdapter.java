@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.ui.placesearch;
+package com.csws.mymaps.features.map.controllers.ui.placesearch;
 
 import android.view.LayoutInflater;
 import android.view.View;

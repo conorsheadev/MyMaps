@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.map;
+package com.csws.mymaps.features.map.controllers.map;
 
 
 import android.content.Context;

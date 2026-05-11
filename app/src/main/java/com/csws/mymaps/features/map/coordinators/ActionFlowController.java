@@ -1,4 +1,6 @@
-package com.csws.mymaps.core.flow;
+package com.csws.mymaps.features.map.coordinators;
+
+import com.csws.mymaps.core.flow.ActionFlow;
 
 public class ActionFlowController {
 

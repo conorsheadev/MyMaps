@@ -6,6 +6,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.List;
 
 public interface MapActions {
+    void setMapClicksEnabled(boolean enabled);
     void previewLocation(LocationItem location);
     void focusLocation(LocationItem location);
     void setMapGesturesEnabled(boolean enabled);

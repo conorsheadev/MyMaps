@@ -18,28 +18,31 @@ import androidx.lifecycle.ViewModelProvider;
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
+import com.csws.mymaps.domain.session.SessionStartType;
 import com.csws.mymaps.domain.tasks.TaskItem;
-import com.csws.mymaps.core.flow.ActionFlowController;
+import com.csws.mymaps.features.map.coordinators.ActionFlowController;
 import com.csws.mymaps.core.flow.ActionFlowFactory;
 import com.csws.mymaps.core.flow.interfaces.ActivityActions;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
+import com.csws.mymaps.features.map.coordinators.MapViewCoordinator;
 import com.csws.mymaps.features.map.flows.CreateTaskFlow;
-import com.csws.mymaps.features.map.ui.placesearch.PlaceSearchFragment;
-import com.csws.mymaps.features.map.map.MapController_InfoWindowAdapter;
-import com.csws.mymaps.features.map.map.MapFragment;
+import com.csws.mymaps.features.map.controllers.ui.placesearch.PlaceSearchFragment;
+import com.csws.mymaps.features.map.controllers.map.MapController_InfoWindowAdapter;
+import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.core.viewmodel.LocationViewModel;
 import com.csws.mymaps.core.viewmodel.TaskViewModel;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
 import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
+import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class MapViewActivity extends AppCompatActivity implements ActivityActions, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener {
+public class MapViewActivity extends AppCompatActivity implements ActivityActions {
 
     private static final int LOCATION_PERMISSION_REQUEST = 1;
     private MapFragment mapFragment;
@@ -52,14 +55,14 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     private LocationViewModel locationViewModel;
     private TaskViewModel taskViewModel;
     private PlannedTaskViewModel plannedTaskViewModel;
+    private SessionViewModel sessionViewModel;
+
+    private MapViewCoordinator coordinator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapview);
-
-
-
 
         //Setup ViewModels
         setupViewModels();
@@ -68,14 +71,23 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
         setupMap();
         setupFab();
         setupBottomSheet();
+        //Setup Coordinator
+        coordinator = new MapViewCoordinator(
+                this,
+                this,
+                mapFragment,
+                locationViewModel,
+                taskViewModel,
+                plannedTaskViewModel,
+                sessionViewModel
+        );
 
-        //Flow Controller
-        flowController = new ActionFlowController();
-        flowFactory = new ActionFlowFactory(taskViewModel, plannedTaskViewModel, locationViewModel, this, mapFragment);
-        cancelCurrentFlow();
+        bindCoordinator();
 
-        //Setup LiveData
-        observeData();
+        coordinator.start();
+        coordinator.observe(this);
+
+
 
         //Activity Permissions
         checkLocationPermissions();
@@ -83,9 +95,12 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
 
     // --- SETUP ---
     private void setupViewModels(){
-        locationViewModel = new ViewModelProvider(this).get(LocationViewModel.class);
-        taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
-        plannedTaskViewModel = new ViewModelProvider(this).get(PlannedTaskViewModel.class);
+        ViewModelProvider vmProvider = new ViewModelProvider(this);
+
+        locationViewModel = vmProvider.get(LocationViewModel.class);
+        taskViewModel = vmProvider.get(TaskViewModel.class);
+        plannedTaskViewModel = vmProvider.get(PlannedTaskViewModel.class);
+        sessionViewModel = vmProvider.get(SessionViewModel.class);
     }
     private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
@@ -98,8 +113,6 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
         mapFragment = new MapFragment();
 
         MapController_InfoWindowAdapter adapter = new MapController_InfoWindowAdapter(this);
-
-        mapFragment.setListener(this);
         mapFragment.setInfoWindowAdapter(adapter);
 
         getSupportFragmentManager()
@@ -112,53 +125,16 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
         FrameLayout fabContainer = findViewById(R.id.fabContainer);
 
         fabController = new MapFabController(this, fab, fabContainer);
-        fabController.setListener(this);
         fabController.showDefault();
     }
     private void setupBottomSheet() {
         View sheet = findViewById(R.id.locationSheet);
         bottomSheetController = new BottomSheetController(sheet, R.id.bottom_sheet_container);
-        bottomSheetController.setListener(this);
     }
-    private void observeData(){
-        //TODO: Clean Up
-        locationViewModel.getLocations().observe(this, locationItems -> {
-            if(mapFragment!=null) {
-                this.mapFragment.displayLocations(locationItems);
-            }
-        });
-        Observer<Object> refreshTasks = o -> {
-
-            if (mapFragment != null) {
-
-                mapFragment.setTasks(
-                        taskViewModel.getTasks().getValue(),
-                        plannedTaskViewModel.getPlannedTasks().getValue()
-                );
-            }
-        };
-
-        taskViewModel.getTasks().observe(this, refreshTasks);
-
-        plannedTaskViewModel.getPlannedTasks().observe(this, refreshTasks);
-    }
-
-    // --- Activity NEW FLOW Actions ---
-    @Override
-    public void startCreateLocationFlow() {
-        CreateLocationViewModel vm = new ViewModelProvider(this).get(CreateLocationViewModel.class);
-        flowController.startFlow(flowFactory.createLocationFlow(vm));
-    }
-    @Override
-    public void startCreateTaskFlow(){
-        CreateTaskViewModel vm = new ViewModelProvider(this).get(CreateTaskViewModel.class);
-        flowController.startFlow(flowFactory.createTaskFlow(vm));
-    }
-    @Override
-    public void startCreateTaskFromLocationFlow(LocationItem location){
-        CreateTaskFlow flow = flowFactory.createTaskFlow(new ViewModelProvider(this).get(CreateTaskViewModel.class));
-        flowController.startFlow(flow);
-        flow.onLocationSelected(location);
+    private void bindCoordinator() {
+        mapFragment.setListener(coordinator);
+        fabController.setListener(coordinator);
+        bottomSheetController.setListener(coordinator);
     }
 
     // --- Activity UI Actions ---
@@ -190,53 +166,8 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     public void hideBottomSheet() {
         bottomSheetController.hide();
     }
-    @Override
-    public void cancelCurrentFlow() {
-        flowController.startFlow(flowFactory.createDefaultFlow(new ViewModelProvider(this).get(DefaultFlowViewModel.class)));
-    }
-    // --- Activity REAL Actions ---
-    @Override
-    public void createNewLocation(LocationItem locationItem) {
-        locationViewModel.addLocation(locationItem);
-    }
-    @Override
-    public void createNewTask(TaskItem taskItem) {
-        taskViewModel.addTask(taskItem);
-    }
-    @Override
-    public void createNewPlannedTask(PlannedTask plannedTask) {
-        plannedTaskViewModel.addPlannedTask(plannedTask);
-    }
 
 
-    // --- MAP/FAB/BOTTOM_SHEET Controller Callbacks ---
-    @Override //FAB
-    public void onFabAction(int actionId) {
-        if (flowController.getCurrentFlow() != null) {
-            flowController.getCurrentFlow().onAction(actionId);
-        }
-    }
-
-    @Override //MAP
-    public void onMapClicked(LatLng latLng) {
-        //if (isBottomSheetOpen()) return;
-        flowController.getCurrentFlow().onMapClicked(latLng);
-    }
-
-    @Override //MAP
-    public void onLocationSelected(LocationItem location) {
-        flowController.getCurrentFlow().onLocationSelected(location);
-    }
-
-    @Override //BOTTOM_SHEET
-    public void onSheetShown() {
-        mapFragment.setMapClicksEnabled(false);
-    }
-
-    @Override //BOTTOM_SHEET
-    public void onSheetHidden() {
-        mapFragment.setMapClicksEnabled(true);
-    }
 
     // --- Permissions ---
     private void checkLocationPermissions() {

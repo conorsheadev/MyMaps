@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.planner.viewmodels;
+package com.csws.mymaps.features.map.viewmodels;
 
 import android.app.Application;
 
@@ -16,9 +16,7 @@ import java.time.LocalDate;
 public class SessionViewModel extends AndroidViewModel {
 
     private final SessionRepository repository;
-
-    private final MutableLiveData<DailySession> currentSession =
-            new MutableLiveData<>();
+    private final MutableLiveData<DailySession> currentSession = new MutableLiveData<>();
 
     public SessionViewModel(@NonNull Application application) {
         super(application);
@@ -39,7 +37,6 @@ public class SessionViewModel extends AndroidViewModel {
     // ---------------------------------------------------
 
     public boolean hasSessionToday() {
-
         return repository.hasSession(getTodayDateString());
     }
 
