@@ -63,6 +63,11 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
     }
 
     @Override
+    public void onRecenterClicked() {
+
+    }
+
+    @Override
     public void onMapClicked(LatLng latLng) {
         // Drop pin case
         LocationItem tempLocation = new LocationItem(

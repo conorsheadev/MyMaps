@@ -8,5 +8,6 @@ public interface ActionFlow {
     void onAction(int action);
     void onMapClicked(LatLng latLng);
     void onLocationSelected(LocationItem location);
+    void onRecenterClicked();
     void onCancel();
 }

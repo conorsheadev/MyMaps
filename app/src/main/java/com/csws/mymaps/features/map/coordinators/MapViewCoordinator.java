@@ -63,6 +63,7 @@ public class MapViewCoordinator implements SessionActions, FlowActions, MapToolb
                 taskViewModel,
                 plannedTaskViewModel,
                 locationViewModel,
+                sessionViewModel,
                 actions,
                 this,
                 this,
@@ -182,6 +183,12 @@ public class MapViewCoordinator implements SessionActions, FlowActions, MapToolb
     @Override //MAP
     public void onLocationSelected(LocationItem location) {
         flowController.getCurrentFlow().onLocationSelected(location);
+    }
+    @Override
+    public void onRecenterClicked() {
+        if (flowController.getCurrentFlow() != null) {
+            flowController.getCurrentFlow().onRecenterClicked();
+        }
     }
 
     @Override //BOTTOM_SHEET

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,6 +47,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
     public interface MapCallbacks {
         void onMapClicked(LatLng latLng);
         void onLocationSelected(LocationItem location);
+        void onRecenterClicked();
     }
 
     private MapCallbacks listener; public void setListener(MapCallbacks listener){this.listener = listener;}
@@ -55,6 +57,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
     private GoogleMap map;
     private boolean locationPermissionGranted = false;
 
+    private LatLng lastUserLatLng;
     private List<Marker> activeMarkers = new ArrayList<>();
     private List<Polygon> activePolygons = new ArrayList<>();
 
@@ -98,9 +101,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
         if(locationPermissionGranted){
             try{map.setMyLocationEnabled(true);} catch (SecurityException e){Log.e("MapViewActivity", "Error enabling map location", e);}
             moveToUserLocation();
+
+            //TODO: Clean Up
+            map.setOnMyLocationButtonClickListener(() -> {
+
+                if (listener != null) {
+                    listener.onRecenterClicked();
+                }
+
+                return false;
+            });
         }
 
         map.setInfoWindowAdapter(infoWindowAdapter);
+
+
     }
     public void showZoomControls(boolean show){
         if(show){map.setPadding(0,100,0,150);}
@@ -287,6 +302,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
         for(Marker marker : tempPolygonMarkers){ marker.remove(); }
     }
 
+    @Override
+    public boolean isCenteredOnUser() {
+
+        if (map == null || lastUserLatLng == null) {
+            return false;
+        }
+
+        LatLng target = map.getCameraPosition().target;
+
+        float[] results = new float[1];
+
+        Location.distanceBetween(
+                target.latitude,
+                target.longitude,
+                lastUserLatLng.latitude,
+                lastUserLatLng.longitude,
+                results
+        );
+
+        return results[0] < 50;
+    }
+
     // --- Map Callbacks ---
     private boolean mapClicksEnabled = true;
     public void setMapClicksEnabled(boolean enabled) {mapClicksEnabled = enabled;}
@@ -329,7 +366,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
                                     location.getLatitude(),
                                     location.getLongitude()
                             );
-
+                            lastUserLatLng = center;
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 17));
                         }
                     });

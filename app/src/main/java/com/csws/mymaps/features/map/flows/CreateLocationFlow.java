@@ -49,6 +49,11 @@ public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.Place
 
     }
 
+    @Override
+    public void onRecenterClicked() {
+
+    }
+
 
     // --- Action Flow ---
     @Override
