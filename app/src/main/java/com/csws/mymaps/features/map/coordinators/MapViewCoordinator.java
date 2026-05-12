@@ -1,5 +1,6 @@
 package com.csws.mymaps.features.map.coordinators;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
@@ -19,7 +20,9 @@ import com.csws.mymaps.domain.session.SessionStartType;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
+import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
+import com.csws.mymaps.features.map.controllers.ui.dialogs.SessionStartDialogFragment;
 import com.csws.mymaps.features.map.flows.CreateTaskFlow;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
@@ -27,9 +30,9 @@ import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
 import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
-public class MapViewCoordinator implements SessionActions, FlowActions, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener {
+public class MapViewCoordinator implements SessionActions, FlowActions, MapToolbarController.Listener, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener, SessionStartDialogFragment.Listener {
 
-    private final FragmentActivity activity;
+    private final AppCompatActivity activity;
 
     private final ActivityActions actions;
     private final MapActions mapActions;
@@ -42,7 +45,7 @@ public class MapViewCoordinator implements SessionActions, FlowActions, MapFabCo
     private final ActionFlowController flowController;
     private final ActionFlowFactory flowFactory;
 
-    public MapViewCoordinator(FragmentActivity activity, ActivityActions actions, MapActions mapActions, LocationViewModel locationViewModel, TaskViewModel taskViewModel, PlannedTaskViewModel plannedTaskViewModel, SessionViewModel sessionViewModel) {
+    public MapViewCoordinator(AppCompatActivity activity, ActivityActions actions, MapActions mapActions, LocationViewModel locationViewModel, TaskViewModel taskViewModel, PlannedTaskViewModel plannedTaskViewModel, SessionViewModel sessionViewModel) {
 
         this.activity = activity;
 
@@ -67,11 +70,7 @@ public class MapViewCoordinator implements SessionActions, FlowActions, MapFabCo
         );
     }
 
-    public void start() {
-        initializeSession();
-
-        cancelCurrentFlow();
-    }
+    // --- Setup ---
     public void observe(LifecycleOwner owner) {
         //TODO: Clean Up
         locationViewModel.getLocations().observe(owner, locations -> {
@@ -96,6 +95,14 @@ public class MapViewCoordinator implements SessionActions, FlowActions, MapFabCo
         taskViewModel.getTasks().observe(owner, refreshTasks);
         plannedTaskViewModel.getPlannedTasks().observe(owner, refreshTasks);
     }
+
+    // --- Start ---
+    public void start() {
+        initializeSession();
+
+        cancelCurrentFlow();
+    }
+
     public void initializeSession() {
 
         if (sessionViewModel.hasSessionToday()) {
@@ -103,12 +110,25 @@ public class MapViewCoordinator implements SessionActions, FlowActions, MapFabCo
             sessionViewModel.loadTodaySession();
 
         } else {
-
-            sessionViewModel.createSession(
-                    SessionStartType.IM_READY
-            );
+            showSessionStartDialog();
         }
     }
+    private void showSessionStartDialog() {
+        SessionStartDialogFragment dialog = new SessionStartDialogFragment();
+        dialog.setListener(this);
+        dialog.show(activity.getSupportFragmentManager(), "session_start");
+    }
+    @Override
+    public void onSessionStartSelected(SessionStartType startType) {
+        if(startType != SessionStartType.CONTINUED)
+        {
+            sessionViewModel.createSession(startType);
+        }
+        else{
+            sessionViewModel.loadLatestSession();
+        }
+    }
+
     // --- Activity REAL Actions ---
     @Override
     public void createNewLocation(LocationItem locationItem) {
@@ -159,7 +179,6 @@ public class MapViewCoordinator implements SessionActions, FlowActions, MapFabCo
     public void onMapClicked(LatLng latLng) {
         flowController.getCurrentFlow().onMapClicked(latLng);
     }
-
     @Override //MAP
     public void onLocationSelected(LocationItem location) {
         flowController.getCurrentFlow().onLocationSelected(location);
@@ -169,9 +188,13 @@ public class MapViewCoordinator implements SessionActions, FlowActions, MapFabCo
     public void onSheetShown() {
         mapActions.setMapClicksEnabled(false);
     }
-
     @Override //BOTTOM_SHEET
     public void onSheetHidden() {
         mapActions.setMapClicksEnabled(true);
+    }
+
+    @Override //TOOLBAR
+    public void onBackPressed() {
+
     }
 }

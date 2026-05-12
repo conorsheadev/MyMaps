@@ -56,7 +56,9 @@ public class ConfigRepository {
             File file = getConfigFile();
 
             if (!file.exists()) {
-                return null;
+                PlannerConfig defaultConfig = new PlannerConfig();
+                saveConfig(defaultConfig);
+                return defaultConfig;
             }
 
             FileReader reader = new FileReader(file);
@@ -68,9 +70,7 @@ public class ConfigRepository {
             return config;
 
         } catch (Exception e) {
-
             Log.e(TAG, "Failed to load session", e);
-
             return null;
         }
     }

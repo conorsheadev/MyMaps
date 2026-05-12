@@ -59,10 +59,7 @@ public class SessionViewModel extends AndroidViewModel {
     }
 
     public void loadLatestSession() {
-
-        DailySession session =
-                repository.loadLatestSession();
-
+        DailySession session = repository.loadLatestSession();
         currentSession.setValue(session);
     }
 

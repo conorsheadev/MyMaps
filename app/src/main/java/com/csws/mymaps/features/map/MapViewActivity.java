@@ -20,6 +20,7 @@ import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.session.SessionStartType;
 import com.csws.mymaps.domain.tasks.TaskItem;
+import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.coordinators.ActionFlowController;
 import com.csws.mymaps.core.flow.ActionFlowFactory;
 import com.csws.mymaps.core.flow.interfaces.ActivityActions;
@@ -48,9 +49,7 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     private MapFragment mapFragment;
     private MapFabController fabController;
     private BottomSheetController bottomSheetController;
-
-    private ActionFlowController flowController;
-    private ActionFlowFactory flowFactory;
+    private MapToolbarController toolbarController;
 
     private LocationViewModel locationViewModel;
     private TaskViewModel taskViewModel;
@@ -103,11 +102,10 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
         sessionViewModel = vmProvider.get(SessionViewModel.class);
     }
     private void setupToolbar() {
-        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
 
-        toolbar.setNavigationOnClickListener(v -> {
-            finish(); // back to Planner
-        });
+        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
+        toolbarController = new MapToolbarController(toolbar);
+        toolbarController.setListener(() -> finish());
     }
     private void setupMap() {
         mapFragment = new MapFragment();
@@ -132,6 +130,7 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
         bottomSheetController = new BottomSheetController(sheet, R.id.bottom_sheet_container);
     }
     private void bindCoordinator() {
+        toolbarController.setListener(coordinator);
         mapFragment.setListener(coordinator);
         fabController.setListener(coordinator);
         bottomSheetController.setListener(coordinator);
