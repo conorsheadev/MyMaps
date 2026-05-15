@@ -1,7 +1,6 @@
 package com.csws.mymaps.features.map.coordinators;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -23,7 +22,7 @@ import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.features.map.controllers.ui.dialogs.SessionStartDialogFragment;
-import com.csws.mymaps.features.map.flows.CreateTaskFlow;
+import com.csws.mymaps.features.map.coordinators.flows.CreateTaskFlow;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
@@ -202,6 +201,6 @@ public class MapViewCoordinator implements SessionActions, FlowActions, MapToolb
 
     @Override //TOOLBAR
     public void onBackPressed() {
-
+        activity.finish();
     }
 }

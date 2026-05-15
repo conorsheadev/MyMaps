@@ -4,8 +4,10 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -19,18 +21,11 @@ import java.util.Map;
 
 public class TimelineRenderer {
 
-    public static class Config {
-        public int startHour = 6;
-        public int endHour = 22;
-        public int hourHeight = 120;
-        public int leftPadding = 100;
-    }
-
     private final Context context;
     private final RelativeLayout container;
-    private final Config config;
+    private final TimelineConfig config;
 
-    public TimelineRenderer(Context context, RelativeLayout container, Config config) {
+    public TimelineRenderer(Context context, RelativeLayout container, TimelineConfig config) {
         this.context = context;
         this.container = container;
         this.config = config;
@@ -38,7 +33,7 @@ public class TimelineRenderer {
 
     public void render(List<PlannedTask> plannedTasks, Map<String, TaskItem> tasks) {
         container.removeAllViews();
-
+        ensureContainerHeight();
         drawTimeline();
 
         for (PlannedTask plannedTask : plannedTasks) {
@@ -55,21 +50,37 @@ public class TimelineRenderer {
     }
 
     // --- TIMELINE CREATION ---
+    private void ensureContainerHeight() {
+        int totalHours = config.endHour - config.startHour;
+        int height = totalHours * config.hourHeight;
+        ViewGroup.LayoutParams params = container.getLayoutParams();
+        params.height = height;
+        container.setLayoutParams(params);
+    }
+
     private void drawTimeline(){
         for (int hour = config.startHour; hour <= config.endHour; hour++) {
 
+            int top = (hour - config.startHour) * config.hourHeight;
+
+            //Label
             TextView label = new TextView(context);
+            label.setText(String.format("%02d:00", hour));//TODO: Setup DateTime Utils for Formatting
 
-            //TODO: Setup DateTime Utils for Formatting
-            label.setText(String.format("%02d:00", hour));
+            RelativeLayout.LayoutParams labelParams = new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+            labelParams.topMargin = (hour - config.startHour) * config.hourHeight;
 
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                    WRAP_CONTENT, WRAP_CONTENT
-            );
+            container.addView(label, labelParams);
 
-            params.topMargin = (hour - config.startHour) * config.hourHeight;
+            //Line
+            View line = new View(context);
+            line.setBackgroundColor(Color.LTGRAY);
 
-            container.addView(label, params);
+            RelativeLayout.LayoutParams lineParams = new RelativeLayout.LayoutParams(MATCH_PARENT, 2);
+            lineParams.topMargin = top + 40;
+            lineParams.leftMargin = config.leftPadding;
+
+            container.addView(line, lineParams);
         }
     }
     private void drawTask(PlannedTask plannedTask, TaskItem task) {

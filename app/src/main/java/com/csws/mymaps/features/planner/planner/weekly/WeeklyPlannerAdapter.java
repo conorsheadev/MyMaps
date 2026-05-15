@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.planner.weekview_fragment;
+package com.csws.mymaps.features.planner.planner.weekly;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.ui.TimelineView;
 import com.csws.mymaps.domain.planner.PlannerDay;
 import com.csws.mymaps.core.ui.TimelineRenderer;
 import com.csws.mymaps.domain.tasks.TaskItem;
@@ -51,7 +52,7 @@ public class WeeklyPlannerAdapter extends RecyclerView.Adapter<WeeklyPlannerAdap
     static class DayViewHolder extends RecyclerView.ViewHolder {
 
         TextView dayTitle, dayDate, taskCount;
-        RelativeLayout timelineContainer;
+        TimelineView timelineView;
 
 
         public DayViewHolder(@NonNull View itemView) {
@@ -59,20 +60,16 @@ public class WeeklyPlannerAdapter extends RecyclerView.Adapter<WeeklyPlannerAdap
             dayTitle = itemView.findViewById(R.id.dayTitle);
             dayDate = itemView.findViewById(R.id.dayDate);
             taskCount = itemView.findViewById(R.id.taskCount);
-            timelineContainer = itemView.findViewById(R.id.timelineContainer);
+            timelineView = itemView.findViewById(R.id.timeline_view);
         }
 
         void bind(PlannerDay day) {
-
             dayTitle.setText(day.getDayName());
             dayDate.setText(day.getFormattedDate());
             taskCount.setText(day.getTasks().size() + " tasks");
 
             Map<String, TaskItem> taskMap = buildTaskMap(day.getTasks());
-
-            TimelineRenderer.Config config = new TimelineRenderer.Config();
-            TimelineRenderer renderer = new TimelineRenderer(itemView.getContext(), timelineContainer, config);
-            renderer.render(day.getPlannedTasks(), taskMap);
+            timelineView.render(day.getPlannedTasks(), taskMap);
         }
 
         private Map<String, TaskItem> buildTaskMap(List<TaskItem> tasks) {

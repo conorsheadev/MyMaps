@@ -23,7 +23,6 @@ public class MapToolbarController {
     }
 
     private void setupToolbar() {
-
         toolbar.setNavigationOnClickListener(v -> {
 
             if (listener != null) {

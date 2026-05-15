@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.flows;
+package com.csws.mymaps.features.map.coordinators.flows;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.core.flow.interfaces.FlowActions;

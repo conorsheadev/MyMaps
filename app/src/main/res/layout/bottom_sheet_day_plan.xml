@@ -26,8 +26,8 @@
             android:textStyle="bold"
             android:layout_marginBottom="16dp"/>
 
-        <RelativeLayout
-            android:id="@+id/timelineContainer"
+        <com.csws.mymaps.core.ui.TimelineView
+            android:id="@+id/timeline_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 

@@ -12,33 +12,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.domain.locations.LocationItem;
-import com.csws.mymaps.domain.planner.PlannedTask;
-import com.csws.mymaps.domain.session.SessionStartType;
-import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
-import com.csws.mymaps.features.map.coordinators.ActionFlowController;
-import com.csws.mymaps.core.flow.ActionFlowFactory;
 import com.csws.mymaps.core.flow.interfaces.ActivityActions;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.coordinators.MapViewCoordinator;
-import com.csws.mymaps.features.map.flows.CreateTaskFlow;
 import com.csws.mymaps.features.map.controllers.ui.placesearch.PlaceSearchFragment;
 import com.csws.mymaps.features.map.controllers.map.MapController_InfoWindowAdapter;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.core.viewmodel.LocationViewModel;
 import com.csws.mymaps.core.viewmodel.TaskViewModel;
-import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
-import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
-import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
 import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
 import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -102,10 +90,8 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
         sessionViewModel = vmProvider.get(SessionViewModel.class);
     }
     private void setupToolbar() {
-
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
         toolbarController = new MapToolbarController(toolbar);
-        toolbarController.setListener(() -> finish());
     }
     private void setupMap() {
         mapFragment = new MapFragment();

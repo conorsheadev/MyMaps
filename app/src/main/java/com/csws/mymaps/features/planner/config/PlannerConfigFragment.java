@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.planner.config_fragment;
+package com.csws.mymaps.features.planner.config;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,12 +20,12 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-public class ConfigFragment extends Fragment {
+public class PlannerConfigFragment extends Fragment {
 
     private PlannerConfigViewModel configViewModel;
     private LinearLayout wakeUpContainer;
 
-    public ConfigFragment() {}
+    public PlannerConfigFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

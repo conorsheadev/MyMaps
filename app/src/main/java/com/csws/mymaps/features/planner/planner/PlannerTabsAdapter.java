@@ -1,24 +1,25 @@
-package com.csws.mymaps.features.planner.weekview_fragment;
+package com.csws.mymaps.features.planner.planner;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.csws.mymaps.features.planner.config_fragment.ConfigFragment;
-import com.csws.mymaps.features.planner.taskview_fragment.TasksFragment;
+import com.csws.mymaps.features.planner.planner.calendar.CalendarFragment;
+import com.csws.mymaps.features.planner.planner.daily.DailyPlannerFragment;
+import com.csws.mymaps.features.planner.planner.weekly.WeeklyPlannerFragment;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class PlannerCollectionAdapter extends FragmentStateAdapter {
+public class PlannerTabsAdapter extends FragmentStateAdapter {
     private final List<Fragment> fragments = Arrays.asList(
-            new ConfigFragment(),
+            new DailyPlannerFragment(),
             new WeeklyPlannerFragment(),
-            new TasksFragment()
+            new CalendarFragment()
     );
 
-    public PlannerCollectionAdapter(FragmentActivity fragmentActivity) {
+    public PlannerTabsAdapter(FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
 

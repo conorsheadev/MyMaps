@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.flows;
+package com.csws.mymaps.features.map.coordinators.flows;
 
 import android.util.Log;
 

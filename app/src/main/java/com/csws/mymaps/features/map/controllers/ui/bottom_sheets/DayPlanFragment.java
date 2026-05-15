@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.core.ui.TimelineRenderer;
+import com.csws.mymaps.core.ui.TimelineView;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.session.DailySession;
 import com.csws.mymaps.domain.tasks.TaskItem;
@@ -60,17 +61,11 @@ public class DayPlanFragment extends Fragment {
         loadArguments();
 
         TextView title = view.findViewById(R.id.dayPlanTitle);
-        RelativeLayout timelineContainer = view.findViewById(R.id.timelineContainer);
+        TimelineView timelineView = view.findViewById(R.id.timeline_view);
 
         if (session != null) {
             title.setText("Today's Plan");
         }
-
-        timelineRenderer = new TimelineRenderer(
-                requireContext(),
-                timelineContainer,
-                new TimelineRenderer.Config()
-        );
 
         Map<String, TaskItem> taskLookup = new HashMap<>();
 
@@ -78,7 +73,7 @@ public class DayPlanFragment extends Fragment {
             taskLookup.put(task.id, task);
         }
 
-        timelineRenderer.render(plannedTasks, taskLookup);
+        timelineView.render(plannedTasks, taskLookup);
     }
 
     private void loadArguments() {

@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.core.ui.TimelineRenderer;
+import com.csws.mymaps.core.ui.TimelineView;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
@@ -75,7 +76,7 @@ public class LocationDetailFragment extends Fragment {
 
         //Views
         TextView title = view.findViewById(R.id.locationTitle);
-        RelativeLayout timelineContainer = view.findViewById(R.id.timelineContainer);
+        TimelineView timelineView = view.findViewById(R.id.timeline_view);
 
         //TODO: Clean Up
 
@@ -84,13 +85,11 @@ public class LocationDetailFragment extends Fragment {
             title.setText(location.name);
         }
         //Timeline
-        timelineRenderer = new TimelineRenderer(requireContext(), timelineContainer, new TimelineRenderer.Config());
-
         Map<String, TaskItem> taskLookup = new HashMap<>();
         for (TaskItem task : tasks) {
             taskLookup.put(task.id, task);
         }
 
-        timelineRenderer.render(plannedTasks,taskLookup);
+        timelineView.render(plannedTasks,taskLookup);
     }
 }

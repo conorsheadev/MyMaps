@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.planner.taskview_fragment;
+package com.csws.mymaps.features.planner.tasks;
 
 import android.os.Bundle;
 import android.util.Log;

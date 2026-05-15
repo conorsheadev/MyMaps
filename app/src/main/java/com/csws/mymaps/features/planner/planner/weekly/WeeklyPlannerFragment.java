@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.planner.weekview_fragment;
+package com.csws.mymaps.features.planner.planner.weekly;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
