@@ -1,44 +1,31 @@
 package com.csws.mymaps.features.planner.tasks;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.fragment.app.FragmentContainerView;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.domain.locations.LocationItem;
-import com.csws.mymaps.domain.planner.LocationTasks;
-import com.csws.mymaps.domain.planner.PlannedTask;
-import com.csws.mymaps.domain.tasks.TaskItem;
-import com.csws.mymaps.core.viewmodel.LocationViewModel;
-import com.csws.mymaps.core.viewmodel.TaskViewModel;
-import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.csws.mymaps.features.planner.tasks.adapters.date.DateTasksFragment;
+import com.csws.mymaps.features.planner.tasks.adapters.location.LocationTasksFragment;
+import com.csws.mymaps.features.planner.tasks.adapters.TaskSearchable;
+import com.csws.mymaps.features.planner.tasks.adapters.type.TypeTasksFragment;
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputEditText;
 
 public class TasksFragment extends Fragment {
 
-    private LocationViewModel locationViewModel;
-    private TaskViewModel taskViewModel;
-    private PlannedTaskViewModel plannedTaskViewModel;
-
-    private RecyclerView recyclerView;
-
-    private TasksViewAdapter adapter;
-
-    //Cached Data
-    private List<LocationItem> cachedLocations = new ArrayList<>();
-    private List<TaskItem> cachedTasks = new ArrayList<>();
-    private List<PlannedTask> cachedPlannedTasks = new ArrayList<>();
+    private TextInputEditText searchInput;
+    private MaterialButtonToggleGroup viewModeGroup;
+    private TasksViewController controller;
 
     public TasksFragment(){}
 
@@ -51,63 +38,57 @@ public class TasksFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
 
-        recyclerView = view.findViewById(R.id.tasksRecycler);
-        adapter = new TasksViewAdapter();
+        //Init UI
+        searchInput = view.findViewById(R.id.searchInput);
+        viewModeGroup = view.findViewById(R.id.viewModeGroup);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        recyclerView.setAdapter(adapter);
+        controller = new TasksViewController(getChildFragmentManager(), R.id.tasksViewContainer);
 
-        locationViewModel = new ViewModelProvider(requireActivity()).get(LocationViewModel.class);
-        taskViewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
-        plannedTaskViewModel = new ViewModelProvider(requireActivity()).get(PlannedTaskViewModel.class);
+        setupChips();
+        setupSearch();
 
-        observeData();
+        controller.setViewMode(TasksViewController.TaskViewMode.LOCATION);
     }
 
-    private void updateLocations(List<LocationItem> newLocations){this.cachedLocations = newLocations; updateUI();}
-    private void updateTasks(List<TaskItem> newTasks){this.cachedTasks = newTasks; updateUI();}
-    private void updatePlannedTasks(List<PlannedTask> newPlannedTasks){this.cachedPlannedTasks = newPlannedTasks; updateUI();}
+    // --- SETUP ---
+    private void setupChips() {
 
-    private void observeData() {
-        locationViewModel.getLocations().observe(getViewLifecycleOwner(), this::updateLocations);
-        taskViewModel.getTasks().observe(getViewLifecycleOwner(), this::updateTasks);
-        plannedTaskViewModel.getPlannedTasks().observe(getViewLifecycleOwner(), this::updatePlannedTasks);
+        viewModeGroup.addOnButtonCheckedListener(
+                (group, checkedId, isChecked) -> {
+
+                    if (!isChecked) {
+                        return;
+                    }
+
+                    if (checkedId == R.id.buttonLocation) {
+                        controller.setViewMode(TasksViewController.TaskViewMode.LOCATION);
+                    }
+
+                    else if (checkedId == R.id.buttonType) {
+                        controller.setViewMode(TasksViewController.TaskViewMode.TYPE);
+                    }
+
+                    else if (checkedId == R.id.buttonDate) {
+                        controller.setViewMode(TasksViewController.TaskViewMode.DATE);
+                    }
+                }
+        );
     }
 
-    private void updateUI() {
-        Log.d("TasksFragment", "Updating UI");
-        List<LocationTasks> grouped = buildSections(cachedLocations, cachedTasks, cachedPlannedTasks);
-        adapter.submitList(grouped);
-    }
+    private void setupSearch() {
 
-    private List<LocationTasks> buildSections(List<LocationItem> locations, List<TaskItem> tasks, List<PlannedTask> plannedTasks) {
+        searchInput.addTextChangedListener(new TextWatcher() {
 
-        List<LocationTasks> result = new ArrayList<>();
-        Map<String, TaskItem> taskMap = new HashMap<>();
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-        for (TaskItem task : tasks) {
-            taskMap.put(task.id, task);
-        }
-
-        for (LocationItem location : locations) {
-
-            List<PlannedTask> plansForLocation = new ArrayList<>();
-            Map<String, TaskItem> resolvedTasks = new HashMap<>();
-
-            for (PlannedTask plannedTask : plannedTasks) {
-
-                TaskItem task = taskMap.get(plannedTask.taskId);
-                if (task == null || !location.id.equals(task.locationId)) {continue;}
-
-                plansForLocation.add(plannedTask);
-                resolvedTasks.put(task.id, task);
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                controller.notifySearchChanged(s.toString());
             }
 
-            if (!plansForLocation.isEmpty()) {
-                result.add(new LocationTasks(location,plansForLocation,resolvedTasks));
-            }
-        }
-
-        return result;
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 }

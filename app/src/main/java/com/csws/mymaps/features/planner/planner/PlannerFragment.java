@@ -19,8 +19,9 @@ public class PlannerFragment extends Fragment {
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
 
-    public PlannerFragment() {
-    }
+    private PlannerTabsAdapter adapter;
+
+    public PlannerFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,7 +40,7 @@ public class PlannerFragment extends Fragment {
     }
     private void setupViewPager() {
 
-        PlannerTabsAdapter adapter = new PlannerTabsAdapter(requireActivity());
+        adapter = new PlannerTabsAdapter(requireActivity());
         viewPager.setAdapter(adapter);
     }
 

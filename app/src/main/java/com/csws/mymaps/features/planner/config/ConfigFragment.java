@@ -20,12 +20,12 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-public class PlannerConfigFragment extends Fragment {
+public class ConfigFragment extends Fragment {
 
     private PlannerConfigViewModel configViewModel;
     private LinearLayout wakeUpContainer;
 
-    public PlannerConfigFragment() {}
+    public ConfigFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -16,7 +16,6 @@ import com.csws.mymaps.core.ui.TimelineView;
 import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
 import com.csws.mymaps.core.viewmodel.TaskViewModel;
 import com.csws.mymaps.domain.planner.PlannedTask;
-import com.csws.mymaps.domain.planner.PlannerDay;
 import com.csws.mymaps.domain.tasks.TaskItem;
 
 import java.time.LocalDate;
@@ -42,7 +41,7 @@ public class DailyPlannerFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.pagefragment_planner_daily, container, false);
+        return inflater.inflate(R.layout.pagesubfragment_planner_daily, container, false);
     }
 
     @Override

@@ -38,7 +38,7 @@ public class WeeklyPlannerFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.pagefragment_weeklyplanner, container, false);
+        return inflater.inflate(R.layout.pagesubfragment_planner_weekly, container, false);
     }
 
     @Override

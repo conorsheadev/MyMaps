@@ -10,10 +10,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.features.map.MapViewActivity;
-import com.csws.mymaps.features.planner.config.PlannerConfigFragment;
+import com.csws.mymaps.features.planner.config.ConfigFragment;
 import com.csws.mymaps.features.planner.planner.PlannerFragment;
 import com.csws.mymaps.features.planner.tasks.TasksFragment;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -23,6 +24,7 @@ public class PlannerViewActivity extends AppCompatActivity {
 
     private MaterialToolbar toolbar;
     private BottomNavigationView bottomNav;
+    private FragmentContainerView navHost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,7 @@ public class PlannerViewActivity extends AppCompatActivity {
         //Init UI
         toolbar = findViewById(R.id.top_app_bar);
         bottomNav = findViewById(R.id.bottom_nav);
+        navHost = findViewById(R.id.nav_host_container);
 
         setupToolbar();
         setupBottomNav();
@@ -48,7 +51,7 @@ public class PlannerViewActivity extends AppCompatActivity {
     private void showFragment(Fragment fragment){
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.nav_host_container, fragment)
+                .replace(navHost.getId(), fragment)
                 .commit();
     }
 
@@ -85,7 +88,7 @@ public class PlannerViewActivity extends AppCompatActivity {
             return true;
         }
         if (itemId == R.id.nav_config) {
-            showFragment(new PlannerConfigFragment());
+            showFragment(new ConfigFragment());
             return true;
         }
 

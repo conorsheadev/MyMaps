@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.planner.tasks;
+package com.csws.mymaps.features.planner.tasks.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class LocationTasksAdapter extends RecyclerView.Adapter<LocationTasksAdapter.TaskViewHolder> {
+public class TaskTileAdapter extends RecyclerView.Adapter<TaskTileAdapter.TaskViewHolder> {
 
     private List<PlannedTask> plannedTasks = new ArrayList<>();
     private Map<String,TaskItem> tasks = new HashMap<>();
