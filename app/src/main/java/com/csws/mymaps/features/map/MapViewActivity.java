@@ -3,6 +3,8 @@ package com.csws.mymaps.features.map;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -19,6 +21,8 @@ import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.core.flow.interfaces.ActivityActions;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
+import com.csws.mymaps.features.map.controllers.ui.TopSheetController;
+import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.csws.mymaps.features.map.coordinators.MapViewCoordinator;
 import com.csws.mymaps.features.map.controllers.ui.placesearch.PlaceSearchFragment;
 import com.csws.mymaps.features.map.controllers.map.MapController_InfoWindowAdapter;
@@ -31,78 +35,95 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class MapViewActivity extends AppCompatActivity implements ActivityActions {
+public class MapViewActivity extends AppCompatActivity {
+    //Debugging
+    private static final String TAG = "MapViewActivity";
 
     private static final int LOCATION_PERMISSION_REQUEST = 1;
+
+    private MapToolbarController toolbarController;
+    private TopSheetController topSheetController;
     private MapFragment mapFragment;
     private MapFabController fabController;
     private BottomSheetController bottomSheetController;
-    private MapToolbarController toolbarController;
-
-    private LocationViewModel locationViewModel;
-    private TaskViewModel taskViewModel;
-    private PlannedTaskViewModel plannedTaskViewModel;
-    private SessionViewModel sessionViewModel;
 
     private MapViewCoordinator coordinator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        /*Debug*/Log.d(TAG, "onCreate START");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapview);
 
-        //Setup ViewModels
-        setupViewModels();
+        /*Debug*/Log.d(TAG, "setContentView COMPLETE");
+
         //Setup Components
         setupToolbar();
+        setupTopSheet();
         setupMap();
         setupFab();
         setupBottomSheet();
-        //Setup Coordinator
-        coordinator = new MapViewCoordinator(
-                this,
-                this,
-                mapFragment,
-                locationViewModel,
-                taskViewModel,
-                plannedTaskViewModel,
-                sessionViewModel
-        );
 
-        bindCoordinator();
+        /*Debug*/Log.d(TAG, "onCreate END");
+    }
+
+    public void onMapLoaded() {
+
+        Log.d(TAG, "Map Loaded");
+
+        checkLocationPermissions();
+
+        setupCoordinator();
+
+        coordinator.observe(this);
+    }
+
+    public void onMapPrepared() {
+
+        Log.d(TAG, "Map Prepared");
 
         coordinator.start();
-        coordinator.observe(this);
-
-
-
-        //Activity Permissions
-        checkLocationPermissions();
     }
 
     // --- SETUP ---
-    private void setupViewModels(){
-        ViewModelProvider vmProvider = new ViewModelProvider(this);
-
-        locationViewModel = vmProvider.get(LocationViewModel.class);
-        taskViewModel = vmProvider.get(TaskViewModel.class);
-        plannedTaskViewModel = vmProvider.get(PlannedTaskViewModel.class);
-        sessionViewModel = vmProvider.get(SessionViewModel.class);
-    }
     private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
         toolbarController = new MapToolbarController(toolbar);
     }
+    private void setupTopSheet() {
+
+        View sheet = findViewById(R.id.topSheet);
+
+        topSheetController = new TopSheetController(
+                sheet,
+                R.id.top_sheet_container,
+                getSupportFragmentManager()
+        );
+    }
     private void setupMap() {
+        /*Debug*/Log.d(TAG, "setupMap START");
+
         mapFragment = new MapFragment();
+
+        /*Debug*/Log.d(TAG, "MapFragment instance created");
 
         MapController_InfoWindowAdapter adapter = new MapController_InfoWindowAdapter(this);
         mapFragment.setInfoWindowAdapter(adapter);
 
+        /*Debug*/Log.d(TAG, "InfoWindowAdapter attached");
+
+        mapFragment.setOnMapLoadedListener(this::onMapLoaded);
+        mapFragment.setOnMapPreparedListener(this::onMapPrepared);
+
+        /*Debug*/Log.d(TAG, "OnMap(Loaded/Prepared)Listeners attached");
+
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.map_container, mapFragment)
-                .commit();
+                .commitNow();
+
+        /*Debug*/Log.d(TAG, "MapFragment transaction committed");
     }
     private void setupFab() {
         FloatingActionButton fab = findViewById(R.id.mapFab);
@@ -113,58 +134,69 @@ public class MapViewActivity extends AppCompatActivity implements ActivityAction
     }
     private void setupBottomSheet() {
         View sheet = findViewById(R.id.locationSheet);
-        bottomSheetController = new BottomSheetController(sheet, R.id.bottom_sheet_container);
-    }
-    private void bindCoordinator() {
-        toolbarController.setListener(coordinator);
-        mapFragment.setListener(coordinator);
-        fabController.setListener(coordinator);
-        bottomSheetController.setListener(coordinator);
+        bottomSheetController = new BottomSheetController(sheet, R.id.bottom_sheet_container, getSupportFragmentManager());
     }
 
-    // --- Activity UI Actions ---
-    @Override
-    public void openPlaceSearch(PlaceSearchFragment.PlaceSelectionListener listener) {
-        PlaceSearchFragment fragment = new PlaceSearchFragment();
+    private void setupCoordinator(){
+        ViewModelProvider vmProvider = new ViewModelProvider(this);
 
-        fragment.setListener(listener);
+        LocationViewModel locationViewModel = vmProvider.get(LocationViewModel.class);
+        TaskViewModel taskViewModel = vmProvider.get(TaskViewModel.class);
+        PlannedTaskViewModel plannedTaskViewModel = vmProvider.get(PlannedTaskViewModel.class);
+        SessionViewModel sessionViewModel = vmProvider.get(SessionViewModel.class);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.map_container, fragment)
-                .addToBackStack(null)
-                .commit();
-    }
-    @Override
-    public void closePlaceSearch() {
+        FlowContext flowContext = new FlowContext(
 
-    }
-    @Override
-    public void setFabMenu(int menuRes) {
-        fabController.setMenu(menuRes);
-    }
-    @Override
-    public void showBottomSheet(Fragment fragment) {
-        bottomSheetController.show(getSupportFragmentManager(), fragment);
-    }
-    @Override
-    public void hideBottomSheet() {
-        bottomSheetController.hide();
-    }
+                taskViewModel,
+                plannedTaskViewModel,
+                locationViewModel,
+                sessionViewModel,
 
+                toolbarController,
+                topSheetController,
+                mapFragment,
+                fabController,
+                bottomSheetController,
 
+                null,
+                null
+        );
+
+        // --- Coordinator ---
+        coordinator = new MapViewCoordinator(this, flowContext);
+
+        coordinator.flowController.bindCallbacks(toolbarController, mapFragment, fabController, bottomSheetController);
+
+        // inject session actions after creation
+        flowContext.bootstrap(coordinator.flowController, coordinator);
+    }
 
     // --- Permissions ---
     private void checkLocationPermissions() {
+        Log.d(TAG, "checkLocationPermissions");
+
         if (!Places.isInitialized()) {
+
+            Log.d(TAG, "Initialising Places SDK");
+
             Places.initialize(getApplicationContext(), "AIzaSyCL0FPqe4IgRy-QQO42y1P5xCg09LwHLuc");
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        boolean granted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+        Log.d(TAG, "Location permission granted = " + granted);
+
+        if (granted){
             //If permissions already granted
+
+            Log.d(TAG, "Enabling user location");
+
             mapFragment.enableUserLocation();
         } else {
             //If permissions not granted, request them
+
+            Log.d(TAG, "Requesting permission");
+
             ActivityCompat.requestPermissions(
                     this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},

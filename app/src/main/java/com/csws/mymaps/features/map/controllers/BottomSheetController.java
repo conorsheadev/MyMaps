@@ -11,22 +11,24 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCa
 
 public class BottomSheetController extends BottomSheetCallback {
 
-
-
     public interface Listener {
         void onSheetShown();
         void onSheetHidden();
     }
-
     private Listener listener; public void setListener(Listener listener){this.listener = listener;}
+
 
     private final View sheet;
     private final int containerId;
+    private final FragmentManager fragmentManager;
+
     private final BottomSheetBehavior<View> behavior;
 
-    public BottomSheetController(View sheet, int containerId) {
+    public BottomSheetController(View sheet, int containerId, FragmentManager fragmentManager) {
         this.sheet = sheet;
         this.containerId = containerId;
+        this.fragmentManager = fragmentManager;
+
         this.behavior = BottomSheetBehavior.from(sheet);
 
         setup();
@@ -58,13 +60,13 @@ public class BottomSheetController extends BottomSheetCallback {
 
     }
 
-    public void show(FragmentManager fragmentManager, Fragment fragment) {
+    public void show(Fragment fragment) {
+
         fragmentManager.beginTransaction()
                 .replace(containerId, fragment)
-                .commitNow();
+                .commit();
 
         behavior.setPeekHeight(1050, true);
-        //behavior.setExpandedOffset(0);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 

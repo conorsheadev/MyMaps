@@ -18,6 +18,23 @@
             app:title="Map View"
             app:navigationIcon="@drawable/arrow_back_24px" />
     </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- TOP SHEET -->
+    <FrameLayout
+        android:id="@+id/topSheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:elevation="12dp"
+        android:visibility="gone">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/top_sheet_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </FrameLayout>
+
     <!-- MAP CONTAINER -->
     <FrameLayout
         android:layout_width="match_parent"

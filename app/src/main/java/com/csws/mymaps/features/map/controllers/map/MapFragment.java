@@ -17,11 +17,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.utils.Utilities;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.core.flow.interfaces.MapActions;
-import com.csws.mymaps.core.utils.Utilities;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -43,19 +43,31 @@ import java.util.List;
 import java.util.Map;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, MapActions {
+    //Debugging
+    private static final String TAG = "MapFragment";
+
+    public interface OnMapLoadedListener {
+        void onMapLoaded();
+    }
+    private OnMapLoadedListener onMapLoadedListener; public void setOnMapLoadedListener(OnMapLoadedListener onMapLoadedListener) {this.onMapLoadedListener = onMapLoadedListener;}
+
+    public interface OnMapPreparedListener {
+        void onMapPrepared();
+    }
+    private OnMapPreparedListener onMapPreparedListener; public void setOnMapPreparedListener(OnMapPreparedListener listener) {this.onMapPreparedListener = listener;}
+    private boolean mapPreparedDispatched = false;
 
     public interface MapCallbacks {
         void onMapClicked(LatLng latLng);
         void onLocationSelected(LocationItem location);
         void onRecenterClicked();
     }
-
     private MapCallbacks listener; public void setListener(MapCallbacks listener){this.listener = listener;}
     private MapController_InfoWindowAdapter infoWindowAdapter; public void setInfoWindowAdapter(MapController_InfoWindowAdapter adapter) {this.infoWindowAdapter = adapter;}
     private FusedLocationProviderClient fusedLocationClient;
 
     private GoogleMap map;
-    private boolean locationPermissionGranted = false;
+    private boolean userLocationEnabled = false;
 
     private LatLng lastUserLatLng;
     private List<Marker> activeMarkers = new ArrayList<>();
@@ -64,59 +76,123 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        /*Debug*/Log.d(TAG, "onCreateView");
         return inflater.inflate(R.layout.mapfragment_map, container, false);
     }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager()
-                        .findFragmentById(R.id.map);
+        /*Debug*/Log.d(TAG, "onViewCreated START");
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+
+        /*Debug*/Log.d(TAG, "Existing child map fragment = " + (mapFragment != null));
 
         if (mapFragment == null) {
+
+            /*Debug*/Log.d(TAG, "Creating new SupportMapFragment");
+
             mapFragment = SupportMapFragment.newInstance();
             getChildFragmentManager()
                     .beginTransaction()
                     .replace(R.id.map, mapFragment)
                     .commit();
+
+            /*Debug*/Log.d(TAG, "SupportMapFragment transaction committed");
         }
+
+        /*Debug*/Log.d(TAG, "Calling getMapAsync");
 
         mapFragment.getMapAsync(this);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
+
+        /*Debug*/Log.d(TAG, "FusedLocationProviderClient initialised");
+
+        /*Debug*/Log.d(TAG, "onViewCreated END");
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d(TAG, "onMapReady START");
+
         this.map = googleMap;
-        if(cachedLocations != null){displayLocations(cachedLocations); cachedLocations = null;}
+
+        Log.d(TAG, "GoogleMap assigned");
+
+        if(cachedLocations != null){
+
+            Log.d(TAG, "Rendering cached locations: " + cachedLocations.size());
+            displayLocations(cachedLocations); cachedLocations = null;
+        }
+
+        Log.d(TAG, "Setting map listeners");
+
         map.setOnMarkerClickListener(this::onMarkerClicked);
         map.setOnMapClickListener(this::onMapClicked);
         try {
+
+            Log.d(TAG, "Applying map style");
+
             this.map.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(),R.raw.style_json));
+
+            Log.d(TAG, "Map style applied");
         }
         catch (Resources.NotFoundException e) {
-            Log.e("MapController", "Can't find style. Error: ", e);
+            Log.e(TAG, "Can't find style", e);
         }
-        if(locationPermissionGranted){
-            try{map.setMyLocationEnabled(true);} catch (SecurityException e){Log.e("MapViewActivity", "Error enabling map location", e);}
-            moveToUserLocation();
 
-            //TODO: Clean Up
-            map.setOnMyLocationButtonClickListener(() -> {
+        Log.d(TAG, "Applying user location state");
 
-                if (listener != null) {
-                    listener.onRecenterClicked();
-                }
+        applyUserLocationState();
 
-                return false;
-            });
-        }
+        map.setOnCameraIdleListener(() -> {
+
+            Log.d(TAG, "Camera idle");
+
+            if (userLocationEnabled && lastUserLatLng != null) {
+                dispatchMapPrepared();
+            }
+        });
 
         map.setInfoWindowAdapter(infoWindowAdapter);
 
+        Log.d(TAG, "InfoWindowAdapter attached");
 
+        map.setOnMapLoadedCallback(() -> {
+
+            Log.d(TAG, "MAP TILES FULLY LOADED");
+
+            if(onMapLoadedListener != null){
+
+                Log.d(TAG, "Dispatching onMapLoadedListener");
+
+                onMapLoadedListener.onMapLoaded();
+                //onMapLoadedListener = null;
+            }
+        });
+
+        Log.d(TAG, "onMapReady END");
     }
+
+    private void dispatchMapPrepared() {
+
+        if (mapPreparedDispatched) {
+            return;
+        }
+
+        mapPreparedDispatched = true;
+
+        Log.d(TAG, "MAP PREPARED");
+
+        if (onMapPreparedListener != null) {
+
+            Log.d(TAG, "Dispatching onMapPreparedListener");
+
+            onMapPreparedListener.onMapPrepared();
+        }
+    }
+
     public void showZoomControls(boolean show){
         if(show){map.setPadding(0,100,0,150);}
         else{map.setPadding(0,0,0,0);}
@@ -126,6 +202,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
     // --- MAP DATA ---
     private List<LocationItem> cachedLocations;
     public void displayLocations(List<LocationItem> locations) {
+        Log.d("MapFragment", "displayLocations: " + locations.size());
+        //return;
+
         if (map == null) {cachedLocations = locations; return;}
 
         map.clear();
@@ -354,23 +433,73 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
     }
 
     // --- User Location ---
-    public void enableUserLocation() {locationPermissionGranted = true;}
-    public void moveToUserLocation() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+    public void enableUserLocation() {
 
-            fusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(location -> {
-                        if (location != null && map != null) {
-                            LatLng center = new LatLng(
-                                    location.getLatitude(),
-                                    location.getLongitude()
-                            );
-                            lastUserLatLng = center;
-                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 17));
-                        }
-                    });
+        userLocationEnabled = true;
+
+        applyUserLocationState();
+
+        moveToUserLocation();
+    }
+    private void applyUserLocationState() {
+
+        if (map == null) {return;}
+        if (!userLocationEnabled) {return;}
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {return;}
+
+        try {
+
+            map.setMyLocationEnabled(true);
+
+            map.setOnMyLocationButtonClickListener(() -> {
+
+                if (listener != null) {
+                    listener.onRecenterClicked();
+                }
+
+                return false;
+            });
+
+        } catch (SecurityException e) {
+
+            Log.e("MapFragment", "Failed to enable user location", e);
         }
+    }
+    public void moveToUserLocation() {
+        Log.d(TAG, "moveToUserLocation START");
+        if (map == null) { Log.d(TAG, "moveToUserLocation ABORT map == null"); return; }
+        if (!userLocationEnabled) { Log.d(TAG, "moveToUserLocation ABORT userLocationEnabled == false"); return; }
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) { Log.d(TAG, "moveToUserLocation ABORT permission denied"); return; }
+
+        Log.d(TAG, "Requesting last location");
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(location -> {
+
+                    Log.d(TAG, "getLastLocation SUCCESS");
+
+                    if (location != null && map != null) {
+
+                        Log.d(TAG, "Location received: " + location.getLatitude() + ", " + location.getLongitude());
+
+                        LatLng center = new LatLng(
+                                location.getLatitude(),
+                                location.getLongitude()
+                        );
+                        lastUserLatLng = center;
+
+                        Log.d(TAG, "Moving camera to user");
+
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 17));
+
+                        Log.d(TAG, "Camera move complete");
+                    }
+                })
+                .addOnFailureListener(e -> {
+
+                    Log.e(TAG, "getLastLocation FAILED", e);
+                });
+
     }
 
 

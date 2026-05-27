@@ -1,13 +1,15 @@
 package com.csws.mymaps.features.map.coordinators;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
-import com.csws.mymaps.core.flow.ActionFlowFactory;
 import com.csws.mymaps.core.flow.interfaces.ActivityActions;
-import com.csws.mymaps.core.flow.interfaces.FlowActions;
+import com.csws.mymaps.core.flow.interfaces.FlowNavigator;
 import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.core.flow.interfaces.SessionActions;
 import com.csws.mymaps.core.viewmodel.LocationViewModel;
@@ -17,190 +19,118 @@ import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.session.SessionStartType;
 import com.csws.mymaps.domain.tasks.TaskItem;
-import com.csws.mymaps.features.map.controllers.BottomSheetController;
-import com.csws.mymaps.features.map.controllers.MapFabController;
-import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.features.map.controllers.ui.dialogs.SessionStartDialogFragment;
-import com.csws.mymaps.features.map.coordinators.flows.CreateTaskFlow;
-import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
-import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
-import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
+import com.csws.mymaps.features.map.coordinators.flows.InitialiseSessionFlow;
 import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
-import com.google.android.gms.maps.model.LatLng;
 
-public class MapViewCoordinator implements SessionActions, FlowActions, MapToolbarController.Listener, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener, SessionStartDialogFragment.Listener {
+import java.util.List;
+
+public class MapViewCoordinator implements SessionActions {
+    //Debugging
+    private static final String TAG = "MapViewCoordinator";
 
     private final AppCompatActivity activity;
 
-    private final ActivityActions actions;
-    private final MapActions mapActions;
+    // --- Flow System ---
+    private final FlowContext flowContext;
 
-    private final LocationViewModel locationViewModel;
-    private final TaskViewModel taskViewModel;
-    private final PlannedTaskViewModel plannedTaskViewModel;
-    private final SessionViewModel sessionViewModel;
+    public final ActionFlowController flowController;
 
-    private final ActionFlowController flowController;
-    private final ActionFlowFactory flowFactory;
-
-    public MapViewCoordinator(AppCompatActivity activity, ActivityActions actions, MapActions mapActions, LocationViewModel locationViewModel, TaskViewModel taskViewModel, PlannedTaskViewModel plannedTaskViewModel, SessionViewModel sessionViewModel) {
-
+    public MapViewCoordinator(AppCompatActivity activity, FlowContext flowContext){
         this.activity = activity;
+        this.flowContext = flowContext;
 
-        this.actions = actions;
-        this.mapActions = mapActions;
-
-        this.locationViewModel = locationViewModel;
-        this.taskViewModel = taskViewModel;
-        this.plannedTaskViewModel = plannedTaskViewModel;
-        this.sessionViewModel = sessionViewModel;
-
-        flowController = new ActionFlowController();
-
-        flowFactory = new ActionFlowFactory(
-                taskViewModel,
-                plannedTaskViewModel,
-                locationViewModel,
-                sessionViewModel,
-                actions,
-                this,
-                this,
-                mapActions
-        );
+        this.flowController = new ActionFlowController(activity, flowContext);
     }
 
-    // --- Setup ---
+    // --- Observers ---
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    private Runnable pendingRefresh;
     public void observe(LifecycleOwner owner) {
-        //TODO: Clean Up
-        locationViewModel.getLocations().observe(owner, locations -> {
 
-            if (mapActions instanceof MapFragment) {
+        Log.d(TAG, "observe START");
 
-                ((MapFragment) mapActions).displayLocations(locations);
+        flowContext.locationViewModel.getLocations().observe(owner, locations -> {
+
+            Log.d(TAG, "Locations observer fired size=" + (locations != null ? locations.size() : -1));
+
+            if (flowContext.mapActions instanceof MapFragment) {
+                ((MapFragment) flowContext.mapActions).displayLocations(locations);
             }
         });
 
         Observer<Object> refreshTasks = o -> {
 
-            if (mapActions instanceof MapFragment) {
-
-                ((MapFragment) mapActions).setTasks(
-                        taskViewModel.getTasks().getValue(),
-                        plannedTaskViewModel.getPlannedTasks().getValue()
-                );
+            if (pendingRefresh != null) {
+                mainHandler.removeCallbacks(pendingRefresh);
             }
+
+            pendingRefresh = () -> {
+
+                List<TaskItem> tasks = flowContext.taskViewModel.getTasks().getValue();
+                List<PlannedTask> planned = flowContext.plannedTaskViewModel.getPlannedTasks().getValue();
+
+                ((MapFragment) flowContext.mapActions).setTasks(tasks, planned);
+            };
+
+            mainHandler.postDelayed(pendingRefresh, 300);
         };
 
-        taskViewModel.getTasks().observe(owner, refreshTasks);
-        plannedTaskViewModel.getPlannedTasks().observe(owner, refreshTasks);
+        flowContext.taskViewModel.getTasks().observe(owner, refreshTasks);
+        flowContext.plannedTaskViewModel.getPlannedTasks().observe(owner, refreshTasks);
+
+        Log.d(TAG, "observe END");
     }
 
     // --- Start ---
+
     public void start() {
-        initializeSession();
 
-        cancelCurrentFlow();
-    }
+        Log.d(TAG, "start()");
 
-    public void initializeSession() {
+        flowController.cancelCurrentFlow();
 
-        if (sessionViewModel.hasSessionToday()) {
+        boolean hasSession = flowContext.sessionViewModel.hasSessionToday();
 
-            sessionViewModel.loadTodaySession();
+        Log.d(TAG, "hasSessionToday = " + hasSession);
+        if(hasSession) {
+
+            Log.d(TAG, "Loading existing session");
+
+            flowContext.sessionViewModel.loadTodaySession();
+
+            Log.d(TAG, "Starting default flow");
+
+            flowController.startDefaultFlow();
 
         } else {
-            showSessionStartDialog();
-        }
-    }
-    private void showSessionStartDialog() {
-        SessionStartDialogFragment dialog = new SessionStartDialogFragment();
-        dialog.setListener(this);
-        dialog.show(activity.getSupportFragmentManager(), "session_start");
-    }
-    @Override
-    public void onSessionStartSelected(SessionStartType startType) {
-        if(startType != SessionStartType.CONTINUED)
-        {
-            sessionViewModel.createSession(startType);
-        }
-        else{
-            sessionViewModel.loadLatestSession();
+
+            Log.d(TAG, "Starting InitialiseSessionFlow");
+
+            flowController.startFlow(new InitialiseSessionFlow(activity, flowContext));
         }
     }
 
-    // --- Activity REAL Actions ---
+
+
+    // --- SessionActions ---
     @Override
     public void createNewLocation(LocationItem locationItem) {
-        locationViewModel.addLocation(locationItem);
+
+        flowContext.locationViewModel.addLocation(locationItem);
     }
+
     @Override
     public void createNewTask(TaskItem taskItem) {
-        taskViewModel.addTask(taskItem);
+
+        flowContext.taskViewModel.addTask(taskItem);
     }
+
     @Override
     public void createNewPlannedTask(PlannedTask plannedTask) {
-        plannedTaskViewModel.addPlannedTask(plannedTask);
-    }
 
-    // --- FLOW Actions ---
-    @Override
-    public void startCreateLocationFlow() {
-        CreateLocationViewModel vm = new ViewModelProvider(activity).get(CreateLocationViewModel.class);
-        flowController.startFlow(flowFactory.createLocationFlow(vm));
-    }
-    @Override
-    public void startCreateTaskFlow(){
-        CreateTaskViewModel vm = new ViewModelProvider(activity).get(CreateTaskViewModel.class);
-        flowController.startFlow(flowFactory.createTaskFlow(vm));
-    }
-    @Override
-    public void startCreateTaskFromLocationFlow(LocationItem location){
-        CreateTaskViewModel vm = new ViewModelProvider(activity).get(CreateTaskViewModel.class);
-        CreateTaskFlow flow = flowFactory.createTaskFlow(vm);
-        flowController.startFlow(flow);
-        flow.onLocationSelected(location);
-    }
-    @Override
-    public void cancelCurrentFlow() {
-        DefaultFlowViewModel vm = new ViewModelProvider(activity).get(DefaultFlowViewModel.class);
-        flowController.startFlow(flowFactory.createDefaultFlow(vm));
-    }
-
-    // --- MAP/FAB/BOTTOM_SHEET Controller Callbacks ---
-    @Override //FAB
-    public void onFabAction(int actionId) {
-        if (flowController.getCurrentFlow() != null) {
-            flowController.getCurrentFlow().onAction(actionId);
-        }
-    }
-
-    @Override //MAP
-    public void onMapClicked(LatLng latLng) {
-        flowController.getCurrentFlow().onMapClicked(latLng);
-    }
-    @Override //MAP
-    public void onLocationSelected(LocationItem location) {
-        flowController.getCurrentFlow().onLocationSelected(location);
-    }
-    @Override
-    public void onRecenterClicked() {
-        if (flowController.getCurrentFlow() != null) {
-            flowController.getCurrentFlow().onRecenterClicked();
-        }
-    }
-
-    @Override //BOTTOM_SHEET
-    public void onSheetShown() {
-        mapActions.setMapClicksEnabled(false);
-    }
-    @Override //BOTTOM_SHEET
-    public void onSheetHidden() {
-        mapActions.setMapClicksEnabled(true);
-    }
-
-    @Override //TOOLBAR
-    public void onBackPressed() {
-        activity.finish();
+        flowContext.plannedTaskViewModel.addPlannedTask(plannedTask);
     }
 }

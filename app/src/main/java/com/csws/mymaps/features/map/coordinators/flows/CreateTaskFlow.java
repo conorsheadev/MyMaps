@@ -1,7 +1,7 @@
 package com.csws.mymaps.features.map.coordinators.flows;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.core.flow.interfaces.FlowActions;
+import com.csws.mymaps.core.flow.interfaces.FlowNavigator;
 import com.csws.mymaps.core.flow.interfaces.SessionActions;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.locations.MarkerConfig;
@@ -14,6 +14,7 @@ import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.PlannedTaskConfigFragment;
 import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.TaskConfigFragment;
 import com.csws.mymaps.features.map.controllers.ui.placesearch.PlaceSearchFragment;
+import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -22,33 +23,29 @@ import java.util.UUID;
 public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSelectionListener {
 
     private final CreateTaskViewModel viewModel;
-    private final ActivityActions actions;
-    private final SessionActions sessionActions;
-    private final FlowActions flowActions;
-    private final MapActions mapActions;
+    private final FlowContext flowContext;
 
-    public CreateTaskFlow(CreateTaskViewModel viewModel, ActivityActions actions, SessionActions sessionActions, FlowActions flowActions, MapActions mapActions) {
+    public CreateTaskFlow(CreateTaskViewModel viewModel, FlowContext flowContext){
         this.viewModel = viewModel;
-        this.actions = actions;
-        this.sessionActions = sessionActions;
-        this.flowActions = flowActions;
-        this.mapActions = mapActions;
+        this.flowContext = flowContext;
     }
 
     @Override
     public void start() {
         viewModel.reset();
 
-        actions.setFabMenu(R.menu.fab_select_location_menu);
+        flowContext.fabController.setMenu(R.menu.fab_select_location_menu);
 
-        mapActions.setMapGesturesEnabled(true);
+        flowContext.mapActions.setMapGesturesEnabled(true);
     }
 
     @Override
     public void onAction(int actionId) {
 
         if (actionId == R.id.fab_search_place) {
-            actions.openPlaceSearch(this);
+            PlaceSearchFragment fragment = new PlaceSearchFragment();
+            fragment.setListener(this);
+            flowContext.topSheetController.show(fragment);
         }
 
         if (actionId == R.id.fab_confirm_task) {
@@ -80,7 +77,7 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
                 new MarkerConfig(0f, "default")
         );
 
-        mapActions.renderTempLocation(latLng);
+        flowContext.mapActions.renderTempLocation(latLng);
         onLocationChosen(tempLocation);
     }
 
@@ -105,7 +102,7 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
     // --- Internal Functionality ---
     private void onLocationChosen(LocationItem location) {
         viewModel.setLocation(location);
-        mapActions.focusLocation(location);
+        flowContext.mapActions.focusLocation(location);
         viewModel.setStage(CreateTaskViewModel.Stage.CONFIGURE_TASK);
         openTaskConfig();
     }
@@ -121,7 +118,7 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
             openPlannedTaskConfig();
         });
 
-        actions.showBottomSheet(fragment);
+        flowContext.bottomSheetController.show(fragment);
     }
 
     // --- PlannedTask Config ---
@@ -136,7 +133,7 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
             completeFlow();
         });
 
-        actions.showBottomSheet(fragment);
+        flowContext.bottomSheetController.show(fragment);
     }
 
     private void completeFlow() {
@@ -149,16 +146,16 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
             return;
         }
 
-        sessionActions.createNewTask(task);
-        sessionActions.createNewPlannedTask(plannedTask);
-        actions.hideBottomSheet();
-        flowActions.cancelCurrentFlow();
+        flowContext.sessionActions.createNewTask(task);
+        flowContext.sessionActions.createNewPlannedTask(plannedTask);
+        flowContext.bottomSheetController.hide();
+        flowContext.flowNavigator.cancelCurrentFlow();
     }
 
     @Override
     public void onCancel() {
-        mapActions.clearTemp();
-        actions.hideBottomSheet();
+        flowContext.mapActions.clearTemp();
+        flowContext.bottomSheetController.hide();
         viewModel.reset();
     }
 }
