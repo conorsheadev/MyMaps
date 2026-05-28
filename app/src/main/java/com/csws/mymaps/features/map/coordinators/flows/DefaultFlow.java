@@ -15,84 +15,97 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultFlow implements ActionFlow {
-    private final DefaultFlowViewModel viewModel;
-    private final FlowContext flowContext;
+public class DefaultFlow extends BaseFlow {
 
-    public DefaultFlow(DefaultFlowViewModel viewModel, FlowContext flowContext) {
+    private final DefaultFlowViewModel viewModel;
+
+    public DefaultFlow(DefaultFlowViewModel viewModel, FlowContext context) {
+        super(context);
         this.viewModel = viewModel;
-        this.flowContext = flowContext;
     }
 
     @Override
-    public void start(){
-        flowContext.fabController.setMenu(R.menu.fab_defaultactions_menu);
+    public void start() {
+        context.fabController.setMenu(R.menu.fab_defaultactions_menu);
     }
 
     @Override
     public void onAction(int actionId) {
+
         if (actionId == R.id.fab_add_location) {
-            flowContext.flowNavigator.startCreateLocationFlow();
+            context.flowNavigator.startCreateLocationFlow();
         }
 
-        if (actionId == R.id.fab_add_task) {
-            flowContext.flowNavigator.startCreateTaskFlow();
+        else if (actionId == R.id.fab_add_task) {
+            context.flowNavigator.startCreateTaskFlow();
         }
 
-        if (actionId ==R.id.fab_add_task_to_location){
-            flowContext.flowNavigator.startCreateTaskFromLocationFlow(viewModel.getCurrentLocation());
+        else if (actionId == R.id.fab_add_task_to_location) {
+
+            context.flowNavigator.startCreateTaskFromLocationFlow(
+                    viewModel.getCurrentLocation()
+            );
         }
     }
 
     @Override
     public void onLocationSelected(LocationItem location) {
-        //TODO: ReImplement DisplayLocationDetails
-        if(viewModel.getCurrentLocation() != null && location.id.equals(viewModel.getCurrentLocation().id)){
-            flowContext.mapActions.focusLocation(location);
 
-            List<TaskItem> tasks = flowContext.taskViewModel.getTasksForLocation(location.id);
-            List<PlannedTask> plannedTasks = flowContext.plannedTaskViewModel.getPlansForTasks(tasks);
-            flowContext.bottomSheetController.show(LocationDetailFragment.newInstance(location, tasks,plannedTasks));
+        if (viewModel.getCurrentLocation() != null && location.id.equals(viewModel.getCurrentLocation().id)) {
+
+            context.mapActions.focusLocation(location);
+
+            List<TaskItem> tasks = context.taskViewModel.getTasksForLocation(location.id);
+            List<PlannedTask> plannedTasks = context.plannedTaskViewModel.getPlansForTasks(tasks);
+
+            context.bottomSheetController.show(
+                    LocationDetailFragment.newInstance(
+                            location,
+                            tasks,
+                            plannedTasks
+                    )
+            );
+
             return;
         }
 
-        flowContext.mapActions.previewLocation(location);
+        context.mapActions.previewLocation(location);
+
         viewModel.setSelectedLocation(location);
-        flowContext.fabController.setMenu(R.menu.fab_locationactions_menu);
+
+        context.fabController.setMenu(R.menu.fab_locationactions_menu);
     }
 
     @Override
     public void onRecenterClicked() {
-        if (flowContext.mapActions.isCenteredOnUser()) {
 
-            DailySession session = flowContext.sessionViewModel.getCurrentSession().getValue();
-            List<TaskItem> tasks = flowContext.taskViewModel.getTasks().getValue();
-            List<PlannedTask> plannedTasks = flowContext.plannedTaskViewModel.getPlannedTasks().getValue();
+        if (context.mapActions.isCenteredOnUser()) {
 
-            if (session == null) {session = new DailySession();}
-            if (tasks == null) {tasks = new ArrayList<>();}
-            if (plannedTasks == null) {plannedTasks = new ArrayList<>();}
+            DailySession session = context.sessionViewModel.getCurrentSession().getValue();
+            List<TaskItem> tasks = context.taskViewModel.getTasks().getValue();
+            List<PlannedTask> plannedTasks = context.plannedTaskViewModel.getPlannedTasks().getValue();
 
+            if (session == null) session = new DailySession();
+            if (tasks == null) tasks = new ArrayList<>();
+            if (plannedTasks == null) plannedTasks = new ArrayList<>();
 
             DayPlanFragment fragment = DayPlanFragment.newInstance(session, tasks, plannedTasks);
 
-            flowContext.bottomSheetController.show(fragment);
+            context.bottomSheetController.show(fragment);
 
         } else {
 
-            flowContext.mapActions.moveToUserLocation();
+            context.mapActions.moveToUserLocation();
         }
     }
 
     @Override
     public void onMapClicked(LatLng latLng) {
-        viewModel.clearSelection();
-        flowContext.bottomSheetController.hide();
-        flowContext.fabController.setMenu(R.menu.fab_defaultactions_menu);
-    }
 
-    @Override
-    public void onCancel() {
-        //TODO: ReImplement Cancel
+        viewModel.clearSelection();
+
+        context.bottomSheetController.hide();
+
+        resetToDefaultFab();
     }
 }

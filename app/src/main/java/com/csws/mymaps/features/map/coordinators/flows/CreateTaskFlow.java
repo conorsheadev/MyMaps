@@ -16,108 +16,119 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
 
-public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSelectionListener {
+public class CreateTaskFlow extends BaseFlow implements PlaceSearchFragment.PlaceSelectionListener {
 
     private final CreateTaskViewModel viewModel;
-    private final FlowContext flowContext;
 
-    public CreateTaskFlow(CreateTaskViewModel viewModel, FlowContext flowContext){
+    public CreateTaskFlow(CreateTaskViewModel viewModel, FlowContext context) {
+        super(context);
         this.viewModel = viewModel;
-        this.flowContext = flowContext;
     }
 
     @Override
     public void start() {
+
         viewModel.reset();
 
-        flowContext.fabController.setMenu(R.menu.fab_select_location_menu);
+        context.fabController.setMenu(R.menu.fab_select_location_menu);
 
-        flowContext.mapActions.setMapGesturesEnabled(true);
+        context.mapActions.setMapGesturesEnabled(true);
+    }
+
+    @Override
+    public void stop() {
+
+        resetUI();
+
+        viewModel.reset();
     }
 
     @Override
     public void onAction(int actionId) {
 
         if (actionId == R.id.fab_search_place) {
+
             PlaceSearchFragment fragment = new PlaceSearchFragment();
             fragment.setListener(this);
-            flowContext.topSheetController.show(fragment);
-        }
 
-        if (actionId == R.id.fab_confirm_task) {
-
+            context.topSheetController.show(fragment);
         }
     }
 
     @Override
     public void onLocationSelected(LocationItem location) {
-        // Existing marker selected
         onLocationChosen(location);
     }
 
     @Override
-    public void onRecenterClicked() {
-
-    }
-
-    @Override
     public void onMapClicked(LatLng latLng) {
-        // Drop pin case
-        LocationItem tempLocation = new LocationItem(
-                UUID.randomUUID().toString(),
-                "Custom Location",
-                "Task Location",
-                latLng.latitude,
-                latLng.longitude,
-                new PolygonConfig(0f, null),
-                new MarkerConfig(0f, "default")
-        );
 
-        flowContext.mapActions.renderTempLocation(latLng);
+        LocationItem tempLocation = new LocationItem(
+                        UUID.randomUUID().toString(),
+                        "Custom Location",
+                        "Task Location",
+                        latLng.latitude,
+                        latLng.longitude,
+                        new PolygonConfig(0f, null),
+                        new MarkerConfig(0f, "default")
+                );
+
+        context.mapActions.renderTempLocation(latLng);
+
         onLocationChosen(tempLocation);
     }
 
     @Override
     public void onPlaceSelected(String name, double lat, double lng) {
-        LocationItem location = new LocationItem(
-                UUID.randomUUID().toString(),
-                name,
-                "Task Location",
-                lat,
-                lng,
-                new PolygonConfig(0f, null),
-                new MarkerConfig(0f, "default")
-        );
+
+        LocationItem location =
+                new LocationItem(
+                        UUID.randomUUID().toString(),
+                        name,
+                        "Task Location",
+                        lat,
+                        lng,
+                        new PolygonConfig(0f, null),
+                        new MarkerConfig(0f, "default")
+                );
+
         onLocationChosen(location);
     }
 
     @Override
     public void onSearchCancelled() {
-        //TODO: Implement location select functionality
+
     }
-    // --- Internal Functionality ---
+
     private void onLocationChosen(LocationItem location) {
+
         viewModel.setLocation(location);
-        flowContext.mapActions.focusLocation(location);
+
+        context.mapActions.focusLocation(location);
+
         viewModel.setStage(CreateTaskViewModel.Stage.CONFIGURE_TASK);
+
         openTaskConfig();
     }
 
-    // --- Task Config ---
     private void openTaskConfig() {
+
         String locationId = viewModel.getCurrentLocation().id;
+
         TaskConfigFragment fragment = TaskConfigFragment.newInstance(locationId);
 
         fragment.setListener(task -> {
+
             viewModel.setDraftTask(task);
+
             viewModel.setStage(CreateTaskViewModel.Stage.CONFIGURE_PLAN);
+
             openPlannedTaskConfig();
         });
 
-        flowContext.bottomSheetController.show(fragment);
+        context.bottomSheetController.show(fragment);
     }
 
-    // --- PlannedTask Config ---
     private void openPlannedTaskConfig() {
 
         TaskItem task = viewModel.getDraftTask().getValue();
@@ -125,11 +136,13 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
         PlannedTaskConfigFragment fragment = PlannedTaskConfigFragment.newInstance(task.id);
 
         fragment.setListener(plannedTask -> {
+
             viewModel.setDraftPlan(plannedTask);
+
             completeFlow();
         });
 
-        flowContext.bottomSheetController.show(fragment);
+        context.bottomSheetController.show(fragment);
     }
 
     private void completeFlow() {
@@ -142,16 +155,10 @@ public class CreateTaskFlow implements ActionFlow, PlaceSearchFragment.PlaceSele
             return;
         }
 
-        flowContext.sessionActions.createNewTask(task);
-        flowContext.sessionActions.createNewPlannedTask(plannedTask);
-        flowContext.bottomSheetController.hide();
-        flowContext.flowNavigator.cancelCurrentFlow();
-    }
+        context.sessionActions.createNewTask(task);
 
-    @Override
-    public void onCancel() {
-        flowContext.mapActions.clearTemp();
-        flowContext.bottomSheetController.hide();
-        viewModel.reset();
+        context.sessionActions.createNewPlannedTask(plannedTask);
+
+        context.flowNavigator.cancelCurrentFlow();
     }
 }

@@ -15,69 +15,43 @@ import com.csws.mymaps.features.map.controllers.ui.top_sheets.SessionStartFragme
 import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.google.android.gms.maps.model.LatLng;
 
-public class InitialiseSessionFlow implements ActionFlow, SessionStartFragment.Listener {
-    //Debugging
-    private static final String TAG = "InitialiseSessionFlow";
-    private static final String FRAGMENT_TAG = "session_start";
+public class InitialiseSessionFlow extends BaseFlow implements SessionStartFragment.Listener {
 
-    private final FlowContext flowContext;
+    private final SessionStartFragment fragment;
 
-    private SessionStartFragment fragment;
+    public InitialiseSessionFlow(FlowContext context) {
 
-    public InitialiseSessionFlow(FlowContext flowContext) {
-        this.flowContext = flowContext;
-    }
-
-    @Override
-    public void start() {
-
-        Log.d(TAG, "start()");
+        super(context);
 
         fragment = new SessionStartFragment();
 
         fragment.setListener(this);
-
-        Log.d(TAG, "Fragment created");
-
-        flowContext.topSheetController.show(fragment);
-
-        Log.d(TAG, "Fragment Passed to top sheet controller");
-
-
     }
 
     @Override
-    public void onCancel() {
-
-        flowContext.topSheetController.hide();
+    public void start() {
+        context.topSheetController.show(fragment);
     }
 
-
+    @Override
+    public void stop() {
+        context.topSheetController.hide();
+    }
 
     @Override
     public void onSessionStartSelected(SessionStartType startType) {
 
-        if(startType != SessionStartType.CONTINUED) {
-            flowContext.sessionViewModel.createSession(startType);
+        if (startType != SessionStartType.CONTINUED) {
+
+            context.sessionViewModel.createSession(startType);
+
         } else {
-            flowContext.sessionViewModel.loadLatestSession();
+
+            context.sessionViewModel.loadLatestSession();
         }
 
-        flowContext.flowNavigator.cancelCurrentFlow();
-        flowContext.flowNavigator.startDefaultFlow();
+        context.flowNavigator.cancelCurrentFlow();
+
+        context.flowNavigator.startDefaultFlow();
     }
-
-    // --- Unused FAB Callbacks ---
-    @Override
-    public void onAction(int action) {
-
-    }
-
-    // --- Unused MapCallbacks ---
-    @Override
-    public void onMapClicked(LatLng latLng) {}
-    @Override
-    public void onLocationSelected(LocationItem location) {}
-    @Override
-    public void onRecenterClicked() {}
 }

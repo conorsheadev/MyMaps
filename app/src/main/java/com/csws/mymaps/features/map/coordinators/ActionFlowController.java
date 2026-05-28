@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.core.flow.ActionFlow;
 import com.csws.mymaps.core.flow.interfaces.FlowNavigator;
-import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
@@ -30,17 +29,19 @@ public class ActionFlowController implements  MapToolbarController.Listener, Map
         this.activity = activity;
         context.flowNavigator = this;
         this.context = context;
+
+        context.toolbarController.setListener(this);
+        context.mapActions.setListener(this);
+        context.fabController.setListener(this);
+        context.bottomSheetController.setListener(this);
     }
     public void bindCallbacks(MapToolbarController toolbarController, MapFragment mapFragment, MapFabController fabController, BottomSheetController bottomSheetController) {
-        toolbarController.setListener(this);
-        mapFragment.setListener(this);
-        fabController.setListener(this);
-        bottomSheetController.setListener(this);
+
     }
 
     public ActionFlow getCurrentFlow() { return currentFlow; }
     public void startFlow(ActionFlow flow) {
-        if (currentFlow != null) currentFlow.onCancel();
+        if (currentFlow != null) currentFlow.stop();
         currentFlow = flow;
         if (currentFlow != null) currentFlow.start();
     }
@@ -113,7 +114,7 @@ public class ActionFlowController implements  MapToolbarController.Listener, Map
     public void cancelCurrentFlow() {
 
         if (currentFlow != null) {
-            currentFlow.onCancel();
+            currentFlow.stop();
             currentFlow = null;
         }
 

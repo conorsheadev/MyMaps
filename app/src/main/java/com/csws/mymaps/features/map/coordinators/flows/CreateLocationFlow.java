@@ -16,51 +16,45 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
 
-public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.PlaceSelectionListener {
+public class CreateLocationFlow extends BaseFlow implements PlaceSearchFragment.PlaceSelectionListener {
 
     private final CreateLocationViewModel viewModel;
-    private final FlowContext flowContext;
 
-    public CreateLocationFlow(CreateLocationViewModel viewModel,FlowContext flowContext){
+    public CreateLocationFlow(CreateLocationViewModel viewModel, FlowContext context) {
+        super(context);
         this.viewModel = viewModel;
-        this.flowContext = flowContext;
     }
 
-    // --- MapCallbacks ---
-    @Override
-    public void onMapClicked(LatLng latLng) {
-        CreateLocationState state = viewModel.getCurrent();
-        state.polygonPoints.add(latLng);
-
-        flowContext.mapActions.renderTempPolygon(state.polygonPoints);
-    }
-    @Override
-    public void onLocationSelected(LocationItem location) {
-
-    }
-
-    @Override
-    public void onRecenterClicked() {
-
-    }
-
-
-    // --- Action Flow ---
     @Override
     public void start() {
+
         PlaceSearchFragment fragment = new PlaceSearchFragment();
         fragment.setListener(this);
-        flowContext.topSheetController.show(fragment);
+
+        context.topSheetController.show(fragment);
     }
 
     @Override
-    public void onCancel(){
+    public void stop() {
 
+        resetUI();
+
+        context.mapActions.setMapGesturesEnabled(true);
+    }
+
+    @Override
+    public void onMapClicked(LatLng latLng) {
+
+        CreateLocationState state = viewModel.getCurrent();
+
+        state.polygonPoints.add(latLng);
+
+        context.mapActions.renderTempPolygon(state.polygonPoints);
     }
 
     @Override
     public void onAction(int action) {
-        //Polygon Actions
+
         if (action == R.id.fab_confirm_polygon) {
             onConfirmPolygon();
         }
@@ -73,56 +67,67 @@ public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.Place
             onCancelPolygon();
         }
     }
-    // --- PlaceSearchCallbacks ---
+
     @Override
-    public void onPlaceSelected(String name, double lat, double lng) {
-        // Save to state
+    public void onPlaceSelected(
+            String name,
+            double lat,
+            double lng
+    ) {
+
         CreateLocationState state = viewModel.getCurrent();
+
         state.name = name;
         state.latLng = new LatLng(lat, lng);
+
         viewModel.update(state);
 
-        // Display TempMarker and set callbacks
-        flowContext.mapActions.renderTempLocation(state.latLng);
-
-        // Set Fab Menu
-        flowContext.fabController.setMenu(R.menu.fab_polyeditactions_menu);
-        Log.d("CreateLocationFlow", "onPlaceSelected: " + name + " (" + lat + ", " + lng + ")");
+        context.mapActions.renderTempLocation(state.latLng);
+        context.fabController.setMenu(R.menu.fab_polyeditactions_menu);
     }
+
     @Override
     public void onSearchCancelled() {
-        //TODO: Instead of cancelling flow when search is cancelled provide users alternative ways before cancelling
-        flowContext.flowNavigator.cancelCurrentFlow();
-    }
-    // --- Polygon Actions ---
-    public void onConfirmPolygon() {
 
-        flowContext.mapActions.setMapGesturesEnabled(false);
+        context.flowNavigator.cancelCurrentFlow();
+    }
+
+    private void onConfirmPolygon() {
+
+        context.mapActions.setMapGesturesEnabled(false);
 
         CreateLocationState state = viewModel.getCurrent();
 
-        LocationConfigFragment fragment = LocationConfigFragment.newInstance(state.name, state.type, state.markerConfig, state.polygonConfig);
+        LocationConfigFragment fragment = LocationConfigFragment.newInstance(
+                        state.name,
+                        state.type,
+                        state.markerConfig,
+                        state.polygonConfig
+                );
 
         fragment.setListener(this::onConfirmLocation);
 
-        flowContext.bottomSheetController.show(fragment);
+        context.bottomSheetController.show(fragment);
     }
 
-    public void onUndoPolygon() {
+    private void onUndoPolygon() {
+
         CreateLocationState currentState = viewModel.getCurrent();
+
         if (!currentState.polygonPoints.isEmpty()) {
+
             currentState.polygonPoints.remove(currentState.polygonPoints.size() - 1);
-            flowContext.mapActions.renderTempPolygon(currentState.polygonPoints);
+            context.mapActions.renderTempPolygon(currentState.polygonPoints);
         }
     }
 
-    public void onCancelPolygon() {
-        flowContext.mapActions.clearTemp();
-        flowContext.flowNavigator.cancelCurrentFlow();
+    private void onCancelPolygon() {
+
+        context.flowNavigator.cancelCurrentFlow();
     }
 
-    // --- Bottom Sheet Fragment ---
-    public void onConfirmLocation(String name, String type, MarkerConfig markerConfig, PolygonConfig polygonConfig) {
+    private void onConfirmLocation(String name, String type, MarkerConfig markerConfig, PolygonConfig polygonConfig) {
+
         CreateLocationState state = viewModel.getCurrent();
 
         polygonConfig.points = state.polygonPoints;
@@ -137,9 +142,8 @@ public class CreateLocationFlow implements ActionFlow, PlaceSearchFragment.Place
                 markerConfig
         );
 
-        flowContext.sessionActions.createNewLocation(item);
-        flowContext.mapActions.setMapGesturesEnabled(true);
-        flowContext.bottomSheetController.hide();
-        flowContext.flowNavigator.cancelCurrentFlow();
+        context.sessionActions.createNewLocation(item);
+
+        context.flowNavigator.cancelCurrentFlow();
     }
 }

@@ -5,9 +5,10 @@ import com.google.android.gms.maps.model.LatLng;
 
 public interface ActionFlow {
     void start();
+    void stop();
     void onAction(int action);
     void onMapClicked(LatLng latLng);
     void onLocationSelected(LocationItem location);
     void onRecenterClicked();
-    void onCancel();
+    boolean blocksUserInput();
 }
