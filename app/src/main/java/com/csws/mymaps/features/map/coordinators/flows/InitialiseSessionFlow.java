@@ -11,21 +11,20 @@ import androidx.fragment.app.FragmentManager;
 import com.csws.mymaps.core.flow.ActionFlow;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.session.SessionStartType;
-import com.csws.mymaps.features.map.controllers.ui.dialogs.SessionStartDialogFragment;
+import com.csws.mymaps.features.map.controllers.ui.top_sheets.SessionStartFragment;
 import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.google.android.gms.maps.model.LatLng;
 
-public class InitialiseSessionFlow implements ActionFlow, SessionStartDialogFragment.Listener {
+public class InitialiseSessionFlow implements ActionFlow, SessionStartFragment.Listener {
     //Debugging
     private static final String TAG = "InitialiseSessionFlow";
+    private static final String FRAGMENT_TAG = "session_start";
 
-    private final AppCompatActivity activity;
     private final FlowContext flowContext;
 
-    private SessionStartDialogFragment dialog;
+    private SessionStartFragment fragment;
 
-    public InitialiseSessionFlow(AppCompatActivity activity, FlowContext flowContext) {
-        this.activity = activity;
+    public InitialiseSessionFlow(FlowContext flowContext) {
         this.flowContext = flowContext;
     }
 
@@ -34,51 +33,23 @@ public class InitialiseSessionFlow implements ActionFlow, SessionStartDialogFrag
 
         Log.d(TAG, "start()");
 
-        FragmentManager fm = activity.getSupportFragmentManager();
+        fragment = new SessionStartFragment();
 
-        Log.d(TAG, "FragmentManager state:"
-                + " destroyed=" + fm.isDestroyed()
-                + " stateSaved=" + fm.isStateSaved());
+        fragment.setListener(this);
 
-        Log.d(TAG, "Activity state:"
-                + " destroyed=" + activity.isDestroyed()
-                + " finishing=" + activity.isFinishing());
+        Log.d(TAG, "Fragment created");
 
-        Fragment existing = fm.findFragmentByTag("session_start");
+        flowContext.topSheetController.show(fragment);
 
-        Log.d(TAG, "Existing dialog fragment = " + existing);
+        Log.d(TAG, "Fragment Passed to top sheet controller");
 
-        dialog = new SessionStartDialogFragment();
 
-        Log.d(TAG, "Dialog created");
-
-        dialog.setListener(this);
-
-        Log.d(TAG, "Calling dialog.show()");
-
-        new Handler(Looper.getMainLooper()).post(() -> {
-
-            Log.d(TAG, "Posting dialog.show()");
-
-            dialog.show(
-                    activity.getSupportFragmentManager(),
-                    "session_start"
-            );
-        });
-
-        Log.d(TAG, "dialog.show() complete");
-
-        fm.executePendingTransactions();
-
-        Log.d(TAG, "executePendingTransactions complete");
     }
 
     @Override
     public void onCancel() {
 
-        if(dialog != null) {
-            dialog.dismiss();
-        }
+        flowContext.topSheetController.hide();
     }
 
 
@@ -87,16 +58,13 @@ public class InitialiseSessionFlow implements ActionFlow, SessionStartDialogFrag
     public void onSessionStartSelected(SessionStartType startType) {
 
         if(startType != SessionStartType.CONTINUED) {
-
             flowContext.sessionViewModel.createSession(startType);
-
         } else {
-
             flowContext.sessionViewModel.loadLatestSession();
         }
 
-        //flowContext.flowNavigator.cancelCurrentFlow();
-        //flowContext.flowNavigator.startDefaultFlow();
+        flowContext.flowNavigator.cancelCurrentFlow();
+        flowContext.flowNavigator.startDefaultFlow();
     }
 
     // --- Unused FAB Callbacks ---

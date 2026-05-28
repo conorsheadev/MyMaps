@@ -3,17 +3,13 @@ package com.csws.mymaps.features.map.coordinators.flows;
 import android.util.Log;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.core.flow.interfaces.FlowNavigator;
-import com.csws.mymaps.core.flow.interfaces.SessionActions;
 import com.csws.mymaps.domain.flows.CreateLocationState;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.locations.MarkerConfig;
 import com.csws.mymaps.domain.locations.PolygonConfig;
 import com.csws.mymaps.core.flow.ActionFlow;
 import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.LocationConfigFragment;
-import com.csws.mymaps.core.flow.interfaces.MapActions;
-import com.csws.mymaps.core.flow.interfaces.ActivityActions;
-import com.csws.mymaps.features.map.controllers.ui.placesearch.PlaceSearchFragment;
+import com.csws.mymaps.features.map.controllers.ui.top_sheets.PlaceSearchFragment;
 import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
 import com.google.android.gms.maps.model.LatLng;

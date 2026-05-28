@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.controllers.ui.placesearch;
+package com.csws.mymaps.features.map.controllers.ui.top_sheets;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -53,7 +53,7 @@ public class PlaceSearchFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_placesearch, container, false);
+        return inflater.inflate(R.layout.top_sheet_place_search, container, false);
     }
 
     @Override

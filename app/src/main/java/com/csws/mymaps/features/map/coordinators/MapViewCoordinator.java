@@ -20,7 +20,6 @@ import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.session.SessionStartType;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
-import com.csws.mymaps.features.map.controllers.ui.dialogs.SessionStartDialogFragment;
 import com.csws.mymaps.features.map.coordinators.flows.InitialiseSessionFlow;
 import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
 
@@ -30,17 +29,13 @@ public class MapViewCoordinator implements SessionActions {
     //Debugging
     private static final String TAG = "MapViewCoordinator";
 
-    private final AppCompatActivity activity;
-
     // --- Flow System ---
     private final FlowContext flowContext;
 
     public final ActionFlowController flowController;
 
     public MapViewCoordinator(AppCompatActivity activity, FlowContext flowContext){
-        this.activity = activity;
         this.flowContext = flowContext;
-
         this.flowController = new ActionFlowController(activity, flowContext);
     }
 
@@ -109,7 +104,7 @@ public class MapViewCoordinator implements SessionActions {
 
             Log.d(TAG, "Starting InitialiseSessionFlow");
 
-            flowController.startFlow(new InitialiseSessionFlow(activity, flowContext));
+            flowController.startFlow(new InitialiseSessionFlow(flowContext));
         }
     }
 

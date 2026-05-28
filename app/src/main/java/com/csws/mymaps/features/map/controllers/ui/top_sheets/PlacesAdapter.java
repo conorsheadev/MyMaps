@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.controllers.ui.placesearch;
+package com.csws.mymaps.features.map.controllers.ui.top_sheets;
 
 import android.view.LayoutInflater;
 import android.view.View;
