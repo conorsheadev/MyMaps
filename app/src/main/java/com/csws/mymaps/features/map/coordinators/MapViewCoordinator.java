@@ -80,7 +80,6 @@ public class MapViewCoordinator implements SessionActions {
     }
 
     // --- Start ---
-
     public void start() {
 
         Log.d(TAG, "start()");

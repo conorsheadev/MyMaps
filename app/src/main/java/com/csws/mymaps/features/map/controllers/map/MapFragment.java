@@ -62,7 +62,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
         void onLocationSelected(LocationItem location);
         void onRecenterClicked();
     }
-    private MapCallbacks listener; public void setListener(MapCallbacks listener){this.listener = listener;}
+    private MapCallbacks listener;
+    @Override
+    public void setListener(MapCallbacks listener){this.listener = listener;}
     private MapController_InfoWindowAdapter infoWindowAdapter; public void setInfoWindowAdapter(MapController_InfoWindowAdapter adapter) {this.infoWindowAdapter = adapter;}
     private FusedLocationProviderClient fusedLocationClient;
 

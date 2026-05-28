@@ -77,6 +77,7 @@ public class MapViewActivity extends AppCompatActivity {
     public void onMapPrepared() {
 
         Log.d(TAG, "Map Prepared");
+        //coordinator.flowController.bindCallbacks(toolbarController, mapFragment, fabController, bottomSheetController);
 
         coordinator.start();
     }
