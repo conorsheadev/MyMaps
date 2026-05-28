@@ -1,8 +1,7 @@
-package com.csws.mymaps.features.map.coordinators.flows;
+package com.csws.mymaps.features.map.workflow;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.locations.LocationItem;
-import com.csws.mymaps.core.flow.ActionFlow;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.session.DailySession;
 import com.csws.mymaps.domain.tasks.TaskItem;
@@ -15,11 +14,11 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultFlow extends BaseFlow {
+public class DefaultWorkflow extends BaseWorkflow {
 
     private final DefaultFlowViewModel viewModel;
 
-    public DefaultFlow(DefaultFlowViewModel viewModel, FlowContext context) {
+    public DefaultWorkflow(DefaultFlowViewModel viewModel, FlowContext context) {
         super(context);
         this.viewModel = viewModel;
     }
@@ -33,16 +32,16 @@ public class DefaultFlow extends BaseFlow {
     public void onAction(int actionId) {
 
         if (actionId == R.id.fab_add_location) {
-            context.flowNavigator.startCreateLocationFlow();
+            context.workflowNavigator.startCreateLocationFlow();
         }
 
         else if (actionId == R.id.fab_add_task) {
-            context.flowNavigator.startCreateTaskFlow();
+            context.workflowNavigator.startCreateTaskFlow();
         }
 
         else if (actionId == R.id.fab_add_task_to_location) {
 
-            context.flowNavigator.startCreateTaskFromLocationFlow(
+            context.workflowNavigator.startCreateTaskFromLocationFlow(
                     viewModel.getCurrentLocation()
             );
         }

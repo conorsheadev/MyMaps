@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.coordinators.flows;
+package com.csws.mymaps.features.map.workflow.workflows;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.locations.LocationItem;
@@ -6,21 +6,21 @@ import com.csws.mymaps.domain.locations.MarkerConfig;
 import com.csws.mymaps.domain.locations.PolygonConfig;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
-import com.csws.mymaps.core.flow.ActionFlow;
 import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.PlannedTaskConfigFragment;
 import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.TaskConfigFragment;
 import com.csws.mymaps.features.map.controllers.ui.top_sheets.PlaceSearchFragment;
 import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
+import com.csws.mymaps.features.map.workflow.BaseWorkflow;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
 
-public class CreateTaskFlow extends BaseFlow implements PlaceSearchFragment.PlaceSelectionListener {
+public class CreateTaskWorkflow extends BaseWorkflow implements PlaceSearchFragment.PlaceSelectionListener {
 
     private final CreateTaskViewModel viewModel;
 
-    public CreateTaskFlow(CreateTaskViewModel viewModel, FlowContext context) {
+    public CreateTaskWorkflow(CreateTaskViewModel viewModel, FlowContext context) {
         super(context);
         this.viewModel = viewModel;
     }
@@ -159,6 +159,6 @@ public class CreateTaskFlow extends BaseFlow implements PlaceSearchFragment.Plac
 
         context.sessionActions.createNewPlannedTask(plannedTask);
 
-        context.flowNavigator.cancelCurrentFlow();
+        context.workflowNavigator.cancelCurrentFlow();
     }
 }

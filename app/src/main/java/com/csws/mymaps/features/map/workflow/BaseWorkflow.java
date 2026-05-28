@@ -1,16 +1,16 @@
-package com.csws.mymaps.features.map.coordinators.flows;
+package com.csws.mymaps.features.map.workflow;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.core.flow.ActionFlow;
+import com.csws.mymaps.core.flow.Workflow;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.google.android.gms.maps.model.LatLng;
 
-public abstract class BaseFlow implements ActionFlow {
+public abstract class BaseWorkflow implements Workflow {
 
     protected final FlowContext context;
 
-    public BaseFlow(FlowContext context) {
+    public BaseWorkflow(FlowContext context) {
         this.context = context;
     }
 

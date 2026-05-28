@@ -8,20 +8,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
-import com.csws.mymaps.core.flow.interfaces.ActivityActions;
-import com.csws.mymaps.core.flow.interfaces.FlowNavigator;
-import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.core.flow.interfaces.SessionActions;
-import com.csws.mymaps.core.viewmodel.LocationViewModel;
-import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
-import com.csws.mymaps.core.viewmodel.TaskViewModel;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
-import com.csws.mymaps.domain.session.SessionStartType;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
-import com.csws.mymaps.features.map.coordinators.flows.InitialiseSessionFlow;
-import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
+import com.csws.mymaps.features.map.workflow.workflows.InitialiseSessionWorkflow;
 
 import java.util.List;
 
@@ -32,11 +24,11 @@ public class MapViewCoordinator implements SessionActions {
     // --- Flow System ---
     private final FlowContext flowContext;
 
-    public final ActionFlowController flowController;
+    public final WorkflowController flowController;
 
     public MapViewCoordinator(AppCompatActivity activity, FlowContext flowContext){
         this.flowContext = flowContext;
-        this.flowController = new ActionFlowController(activity, flowContext);
+        this.flowController = new WorkflowController(activity, flowContext);
     }
 
     // --- Observers ---
@@ -103,7 +95,7 @@ public class MapViewCoordinator implements SessionActions {
 
             Log.d(TAG, "Starting InitialiseSessionFlow");
 
-            flowController.startFlow(new InitialiseSessionFlow(flowContext));
+            flowController.startWorkflow(new InitialiseSessionWorkflow(flowContext));
         }
     }
 

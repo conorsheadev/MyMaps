@@ -1,26 +1,24 @@
-package com.csws.mymaps.features.map.coordinators.flows;
-
-import android.util.Log;
+package com.csws.mymaps.features.map.workflow.workflows;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.flows.CreateLocationState;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.locations.MarkerConfig;
 import com.csws.mymaps.domain.locations.PolygonConfig;
-import com.csws.mymaps.core.flow.ActionFlow;
 import com.csws.mymaps.features.map.controllers.ui.bottom_sheets.LocationConfigFragment;
 import com.csws.mymaps.features.map.controllers.ui.top_sheets.PlaceSearchFragment;
 import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
+import com.csws.mymaps.features.map.workflow.BaseWorkflow;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
 
-public class CreateLocationFlow extends BaseFlow implements PlaceSearchFragment.PlaceSelectionListener {
+public class CreateLocationWorkflow extends BaseWorkflow implements PlaceSearchFragment.PlaceSelectionListener {
 
     private final CreateLocationViewModel viewModel;
 
-    public CreateLocationFlow(CreateLocationViewModel viewModel, FlowContext context) {
+    public CreateLocationWorkflow(CreateLocationViewModel viewModel, FlowContext context) {
         super(context);
         this.viewModel = viewModel;
     }
@@ -89,7 +87,7 @@ public class CreateLocationFlow extends BaseFlow implements PlaceSearchFragment.
     @Override
     public void onSearchCancelled() {
 
-        context.flowNavigator.cancelCurrentFlow();
+        context.workflowNavigator.cancelCurrentFlow();
     }
 
     private void onConfirmPolygon() {
@@ -123,7 +121,7 @@ public class CreateLocationFlow extends BaseFlow implements PlaceSearchFragment.
 
     private void onCancelPolygon() {
 
-        context.flowNavigator.cancelCurrentFlow();
+        context.workflowNavigator.cancelCurrentFlow();
     }
 
     private void onConfirmLocation(String name, String type, MarkerConfig markerConfig, PolygonConfig polygonConfig) {
@@ -144,6 +142,6 @@ public class CreateLocationFlow extends BaseFlow implements PlaceSearchFragment.
 
         context.sessionActions.createNewLocation(item);
 
-        context.flowNavigator.cancelCurrentFlow();
+        context.workflowNavigator.cancelCurrentFlow();
     }
 }

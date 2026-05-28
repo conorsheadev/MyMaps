@@ -1,25 +1,15 @@
-package com.csws.mymaps.features.map.coordinators.flows;
+package com.csws.mymaps.features.map.workflow.workflows;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
-import com.csws.mymaps.core.flow.ActionFlow;
-import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.session.SessionStartType;
 import com.csws.mymaps.features.map.controllers.ui.top_sheets.SessionStartFragment;
 import com.csws.mymaps.features.map.coordinators.FlowContext;
-import com.google.android.gms.maps.model.LatLng;
+import com.csws.mymaps.features.map.workflow.BaseWorkflow;
 
-public class InitialiseSessionFlow extends BaseFlow implements SessionStartFragment.Listener {
+public class InitialiseSessionWorkflow extends BaseWorkflow implements SessionStartFragment.Listener {
 
     private final SessionStartFragment fragment;
 
-    public InitialiseSessionFlow(FlowContext context) {
+    public InitialiseSessionWorkflow(FlowContext context) {
 
         super(context);
 
@@ -50,8 +40,8 @@ public class InitialiseSessionFlow extends BaseFlow implements SessionStartFragm
             context.sessionViewModel.loadLatestSession();
         }
 
-        context.flowNavigator.cancelCurrentFlow();
+        context.workflowNavigator.cancelCurrentFlow();
 
-        context.flowNavigator.startDefaultFlow();
+        context.workflowNavigator.startDefaultFlow();
     }
 }

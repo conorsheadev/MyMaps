@@ -3,7 +3,7 @@ package com.csws.mymaps.core.flow;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.google.android.gms.maps.model.LatLng;
 
-public interface ActionFlow {
+public interface Workflow {
     void start();
     void stop();
     void onAction(int action);

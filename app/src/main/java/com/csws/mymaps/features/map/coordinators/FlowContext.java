@@ -1,7 +1,6 @@
 package com.csws.mymaps.features.map.coordinators;
 
-import com.csws.mymaps.core.flow.interfaces.ActivityActions;
-import com.csws.mymaps.core.flow.interfaces.FlowNavigator;
+import com.csws.mymaps.core.flow.interfaces.WorkflowNavigator;
 import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.core.flow.interfaces.SessionActions;
 import com.csws.mymaps.core.viewmodel.LocationViewModel;
@@ -30,7 +29,7 @@ public class FlowContext {
 
 
     // --- Navigation ---
-    public FlowNavigator flowNavigator;
+    public WorkflowNavigator workflowNavigator;
     // --- Data Actions ---
     public SessionActions sessionActions;
 
@@ -47,7 +46,7 @@ public class FlowContext {
             MapFabController fabController,
             BottomSheetController bottomSheetController,
 
-            FlowNavigator flowNavigator,
+            WorkflowNavigator workflowNavigator,
             SessionActions sessionActions
     ) {
 
@@ -62,12 +61,12 @@ public class FlowContext {
         this.fabController = fabController;
         this.bottomSheetController = bottomSheetController;
 
-        this.flowNavigator = flowNavigator;
+        this.workflowNavigator = workflowNavigator;
         this.sessionActions = sessionActions;
     }
 
-    public void bootstrap(FlowNavigator flowNavigator, SessionActions sessionActions){
-        this.flowNavigator = flowNavigator;
+    public void bootstrap(WorkflowNavigator workflowNavigator, SessionActions sessionActions){
+        this.workflowNavigator = workflowNavigator;
         this.sessionActions = sessionActions;
     }
 }

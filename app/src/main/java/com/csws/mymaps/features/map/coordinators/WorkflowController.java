@@ -3,31 +3,31 @@ package com.csws.mymaps.features.map.coordinators;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.csws.mymaps.core.flow.ActionFlow;
-import com.csws.mymaps.core.flow.interfaces.FlowNavigator;
+import com.csws.mymaps.core.flow.Workflow;
+import com.csws.mymaps.core.flow.interfaces.WorkflowNavigator;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
-import com.csws.mymaps.features.map.coordinators.flows.CreateLocationFlow;
-import com.csws.mymaps.features.map.coordinators.flows.CreateTaskFlow;
-import com.csws.mymaps.features.map.coordinators.flows.DefaultFlow;
+import com.csws.mymaps.features.map.workflow.workflows.CreateLocationWorkflow;
+import com.csws.mymaps.features.map.workflow.workflows.CreateTaskWorkflow;
+import com.csws.mymaps.features.map.workflow.DefaultWorkflow;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
-public class ActionFlowController implements  MapToolbarController.Listener, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener, FlowNavigator {
+public class WorkflowController implements  MapToolbarController.Listener, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener, WorkflowNavigator {
 
     private final AppCompatActivity activity;
     private final FlowContext context;
 
-    private ActionFlow currentFlow;
+    private Workflow activeWorkflow;
 
-    public ActionFlowController(AppCompatActivity activity, FlowContext context) {
+    public WorkflowController(AppCompatActivity activity, FlowContext context) {
         this.activity = activity;
-        context.flowNavigator = this;
+        context.workflowNavigator = this;
         this.context = context;
 
         context.toolbarController.setListener(this);
@@ -39,38 +39,38 @@ public class ActionFlowController implements  MapToolbarController.Listener, Map
 
     }
 
-    public ActionFlow getCurrentFlow() { return currentFlow; }
-    public void startFlow(ActionFlow flow) {
-        if (currentFlow != null) currentFlow.stop();
-        currentFlow = flow;
-        if (currentFlow != null) currentFlow.start();
+    public Workflow getActiveWorkflow() { return activeWorkflow; }
+    public void startWorkflow(Workflow flow) {
+        if (activeWorkflow != null) activeWorkflow.stop();
+        activeWorkflow = flow;
+        if (activeWorkflow != null) activeWorkflow.start();
     }
 
 
     // --- FAB EVENTS ---
     @Override public void onFabAction(int actionId) {
 
-        if (currentFlow != null) {
-            currentFlow.onAction(actionId);
+        if (activeWorkflow != null) {
+            activeWorkflow.onAction(actionId);
         }
     }
     // --- MAP EVENTS ---
     @Override public void onMapClicked(LatLng latLng) {
 
-        if (currentFlow != null) {
-            currentFlow.onMapClicked(latLng);
+        if (activeWorkflow != null) {
+            activeWorkflow.onMapClicked(latLng);
         }
     }
     @Override public void onLocationSelected(LocationItem location) {
 
-        if (currentFlow != null) {
-            currentFlow.onLocationSelected(location);
+        if (activeWorkflow != null) {
+            activeWorkflow.onLocationSelected(location);
         }
     }
     @Override public void onRecenterClicked() {
 
-        if (currentFlow != null) {
-            currentFlow.onRecenterClicked();
+        if (activeWorkflow != null) {
+            activeWorkflow.onRecenterClicked();
         }
     }
     // --- SHEET EVENTS ---
@@ -90,32 +90,32 @@ public class ActionFlowController implements  MapToolbarController.Listener, Map
     public void startDefaultFlow() {
 
         DefaultFlowViewModel vm = new ViewModelProvider(activity).get(DefaultFlowViewModel.class);
-        startFlow(new DefaultFlow(vm, context));
+        startWorkflow(new DefaultWorkflow(vm, context));
     }
     @Override
     public void startCreateLocationFlow() {
 
         CreateLocationViewModel vm = new ViewModelProvider(activity).get(CreateLocationViewModel.class);
-        startFlow(new CreateLocationFlow(vm, context));
+        startWorkflow(new CreateLocationWorkflow(vm, context));
     }
     @Override
     public void startCreateTaskFlow() {
 
         CreateTaskViewModel vm = new ViewModelProvider(activity).get(CreateTaskViewModel.class);
-        startFlow(new CreateTaskFlow(vm, context));
+        startWorkflow(new CreateTaskWorkflow(vm, context));
     }
     @Override
     public void startCreateTaskFromLocationFlow(LocationItem location) {
 
         startCreateLocationFlow();
-        currentFlow.onLocationSelected(location);
+        activeWorkflow.onLocationSelected(location);
     }
     @Override
     public void cancelCurrentFlow() {
 
-        if (currentFlow != null) {
-            currentFlow.stop();
-            currentFlow = null;
+        if (activeWorkflow != null) {
+            activeWorkflow.stop();
+            activeWorkflow = null;
         }
 
         startDefaultFlow();
