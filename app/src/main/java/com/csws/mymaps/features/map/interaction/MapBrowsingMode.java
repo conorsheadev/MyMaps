@@ -7,7 +7,7 @@ import com.csws.mymaps.domain.session.DailySession;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
-import com.csws.mymaps.features.map.coordinators.FlowContext;
+import com.csws.mymaps.features.map.coordinators.MapViewContext;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.DayPlanFragment;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.LocationDetailFragment;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
@@ -18,10 +18,10 @@ import java.util.List;
 
 public class MapBrowsingMode implements MapFabController.FabActionListener, MapFragment.MapCallbacks {
 
-    private final FlowContext context;
+    private final MapViewContext context;
     private final DefaultFlowViewModel viewModel;
 
-    public MapBrowsingMode(FlowContext context, DefaultFlowViewModel viewModel) {
+    public MapBrowsingMode(MapViewContext context, DefaultFlowViewModel viewModel) {
         this.context = context;
         this.viewModel = viewModel;
 

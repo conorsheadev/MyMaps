@@ -7,42 +7,33 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
 import com.csws.mymaps.domain.planner.PlannedTask;
+import com.csws.mymaps.features.map.planner.PlannerPrompt;
+import com.csws.mymaps.features.map.planner.PlannerState;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PlannerCoordinator {
 
-    public static class PlannerState {
+    private final MapViewContext context;
 
-        public PlannedTask nextTask;
-        public long millisUntilNextTask;
-        public boolean shouldDisplayCountdown;
-    }
-
-    private final PlannedTaskViewModel plannedTaskViewModel;
-
-    private final MutableLiveData<PlannerState> plannerState = new MutableLiveData<>(new PlannerState());
-    public LiveData<PlannerState> getPlannerState() {
-        return plannerState;
-    }
-
-    public PlannerCoordinator(PlannedTaskViewModel plannedTaskViewModel) {
-        this.plannedTaskViewModel = plannedTaskViewModel;
-    }
-
-
-    // --- Observers ---
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable ticker;
-    public void observe(LifecycleOwner owner) {
-        plannedTaskViewModel.getPlannedTasks().observe(owner, tasks -> {
-            recalculate(tasks);
-        });
+
+    private PlannerState currentState = new PlannerState();
+    private final Set<String> shownPrompts = new HashSet<>();
+
+    public PlannerCoordinator(MapViewContext context) {
+        this.context = context;
     }
 
-    // --- Start ---
+    public void observe(LifecycleOwner owner) {
+
+        context.plannedTaskViewModel.getPlannedTasks().observe(owner, this::recalculate);
+    }
+
     public void start() {
         startTicker();
     }
@@ -53,7 +44,7 @@ public class PlannerCoordinator {
             @Override
             public void run() {
 
-                List<PlannedTask> tasks = plannedTaskViewModel.getPlannedTasks().getValue();
+                List<PlannedTask> tasks = context.plannedTaskViewModel.getPlannedTasks().getValue();
 
                 recalculate(tasks);
 
@@ -66,15 +57,24 @@ public class PlannerCoordinator {
 
     private void recalculate(List<PlannedTask> tasks) {
 
-        if (tasks == null || tasks.isEmpty()) {
+        PlannerState state = buildPlannerState(tasks);
 
-            PlannerState state = new PlannerState();
+        currentState = state;
+
+        updateCountdown(state);
+
+        dispatchPrompts(state);
+    }
+
+    private PlannerState buildPlannerState(List<PlannedTask> tasks) {
+
+        PlannerState state = new PlannerState();
+
+        if (tasks == null || tasks.isEmpty()) {
 
             state.shouldDisplayCountdown = false;
 
-            plannerState.postValue(state);
-
-            return;
+            return state;
         }
 
         long now = System.currentTimeMillis();
@@ -95,14 +95,117 @@ public class PlannerCoordinator {
             }
         }
 
-        PlannerState state = new PlannerState();
-
         state.nextTask = nextTask;
 
         state.millisUntilNextTask = smallestDelta;
 
         state.shouldDisplayCountdown = nextTask != null;
 
-        plannerState.postValue(state);
+        if (nextTask != null) {
+
+            appendPrompts(state);
+        }
+
+        return state;
+    }
+
+    private void updateCountdown(PlannerState state) {
+
+        if (state.shouldDisplayCountdown) {
+
+            context.toolbarController.showCountdown(
+                    state.millisUntilNextTask
+            );
+
+        } else {
+
+            context.toolbarController.hideCountdown();
+        }
+    }
+
+    private void dispatchPrompts(
+            PlannerState state
+    ) {
+
+        if (!context.promptHandler
+                .canDisplayPlannerPrompts()) {
+
+            return;
+        }
+
+        for (PlannerPrompt prompt : state.prompts) {
+
+            context.promptHandler
+                    .showPlannerPrompt(prompt);
+        }
+    }
+
+    private void appendPrompts(
+            PlannerState state
+    ) {
+
+        long minutes = state.millisUntilNextTask
+                        / (1000 * 60);
+
+        PlannedTask task = state.nextTask;
+
+        if (minutes <= 30 && minutes > 25) {
+
+            String id = task.id + "_PREPARE";
+
+            if (shouldShowPrompt(id)) {
+
+                PlannerPrompt prompt =
+                        new PlannerPrompt();
+
+                prompt.type =
+                        PlannerPrompt.Type
+                                .PREPARE_TO_LEAVE;
+
+                prompt.title = "Upcoming Task";
+
+                prompt.message =
+                        "You should start preparing soon.";
+
+                state.prompts.add(prompt);
+            }
+        }
+
+        if (minutes <= 10) {
+
+            String id =
+                    task.id + "_LEAVE";
+
+            if (shouldShowPrompt(id)) {
+
+                PlannerPrompt prompt =
+                        new PlannerPrompt();
+
+                prompt.type =
+                        PlannerPrompt.Type
+                                .LEAVE_NOW;
+
+                prompt.title =
+                        "Time To Leave";
+
+                prompt.message =
+                        "You should leave now.";
+
+                state.prompts.add(prompt);
+            }
+        }
+    }
+
+    private boolean shouldShowPrompt(
+            String promptId
+    ) {
+
+        if (shownPrompts.contains(promptId)) {
+            return false;
+        }
+
+        shownPrompts.add(promptId);
+
+        return true;
     }
 }

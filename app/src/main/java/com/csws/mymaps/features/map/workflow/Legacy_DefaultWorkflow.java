@@ -7,7 +7,7 @@ import com.csws.mymaps.domain.session.DailySession;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.DayPlanFragment;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.LocationDetailFragment;
-import com.csws.mymaps.features.map.coordinators.FlowContext;
+import com.csws.mymaps.features.map.coordinators.MapViewContext;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -18,7 +18,7 @@ public class Legacy_DefaultWorkflow extends BaseWorkflow {
 
     private final DefaultFlowViewModel viewModel;
 
-    public Legacy_DefaultWorkflow(DefaultFlowViewModel viewModel, FlowContext context) {
+    public Legacy_DefaultWorkflow(DefaultFlowViewModel viewModel, MapViewContext context) {
         super(context);
         this.viewModel = viewModel;
     }

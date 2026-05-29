@@ -7,7 +7,7 @@ import com.csws.mymaps.domain.locations.MarkerConfig;
 import com.csws.mymaps.domain.locations.PolygonConfig;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.LocationConfigFragment;
 import com.csws.mymaps.features.map.interaction.ui.top_sheets.PlaceSearchFragment;
-import com.csws.mymaps.features.map.coordinators.FlowContext;
+import com.csws.mymaps.features.map.coordinators.MapViewContext;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
 import com.csws.mymaps.features.map.workflow.BaseWorkflow;
 import com.google.android.gms.maps.model.LatLng;
@@ -18,7 +18,7 @@ public class CreateLocationWorkflow extends BaseWorkflow implements PlaceSearchF
 
     private final CreateLocationViewModel viewModel;
 
-    public CreateLocationWorkflow(CreateLocationViewModel viewModel, FlowContext context) {
+    public CreateLocationWorkflow(CreateLocationViewModel viewModel, MapViewContext context) {
         super(context);
         this.viewModel = viewModel;
     }

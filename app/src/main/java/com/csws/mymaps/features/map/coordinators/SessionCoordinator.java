@@ -1,6 +1,6 @@
 package com.csws.mymaps.features.map.coordinators;
 
-import com.csws.mymaps.core.flow.interfaces.SessionActions;
+import com.csws.mymaps.core.flow.interfaces.coordinator_interfaces.SessionActions;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
@@ -8,9 +8,9 @@ import com.csws.mymaps.features.map.workflow.workflows.InitialiseSessionWorkflow
 
 public class SessionCoordinator implements SessionActions {
 
-    private final FlowContext context;
+    private final MapViewContext context;
 
-    public SessionCoordinator(FlowContext context) {
+    public SessionCoordinator(MapViewContext context) {
         this.context = context;
     }
 

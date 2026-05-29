@@ -227,7 +227,7 @@ public class PlannedTaskConfigFragment extends Fragment {
         );
 
         picker.show(
-                getParentFragmentManager(),
+                getChildFragmentManager(),
                 "TIME_PICKER"
         );
     }
@@ -254,7 +254,7 @@ public class PlannedTaskConfigFragment extends Fragment {
             updateDisplayedDate(input);
         });
 
-        picker.show(getParentFragmentManager(), "DATE_PICKER");
+        picker.show(getChildFragmentManager(), "DATE_PICKER");
     }
     private void updateDisplayedDate(TextInputEditText input) {
 

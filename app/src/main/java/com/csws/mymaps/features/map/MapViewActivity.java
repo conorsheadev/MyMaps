@@ -19,7 +19,7 @@ import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.TopSheetController;
-import com.csws.mymaps.features.map.coordinators.FlowContext;
+import com.csws.mymaps.features.map.coordinators.MapViewContext;
 import com.csws.mymaps.features.map.coordinators.MapViewCoordinator;
 import com.csws.mymaps.features.map.controllers.map.MapController_InfoWindowAdapter;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
@@ -93,19 +93,6 @@ public class MapViewActivity extends AppCompatActivity {
         plannerCoordinator.start();
         workflowCoordinator.finishWorkflow();
         sessionCoordinator.start();
-
-        //Temporary
-        plannerCoordinator.getPlannerState().observe(this, state -> {
-
-            if (state.shouldDisplayCountdown) {
-
-                toolbarController.showCountdown(state.millisUntilNextTask);
-
-            } else {
-
-                toolbarController.hideCountdown();
-            }
-        });
     }
 
     // --- SETUP ---
@@ -170,7 +157,7 @@ public class MapViewActivity extends AppCompatActivity {
         PlannedTaskViewModel plannedTaskViewModel = vmProvider.get(PlannedTaskViewModel.class);
         SessionViewModel sessionViewModel = vmProvider.get(SessionViewModel.class);
 
-        FlowContext flowContext = new FlowContext(
+        MapViewContext mapViewContext = new MapViewContext(
 
                 taskViewModel,
                 plannedTaskViewModel,
@@ -184,17 +171,18 @@ public class MapViewActivity extends AppCompatActivity {
                 bottomSheetController,
 
                 null,
+                null,
                 null
         );
 
         // --- MapViewCoordinator ---
-        mapViewCoordinator = new MapViewCoordinator(flowContext);
-        plannerCoordinator = new PlannerCoordinator(plannedTaskViewModel);
-        workflowCoordinator = new WorkflowCoordinator(this, flowContext);
-        sessionCoordinator = new SessionCoordinator(flowContext);
+        mapViewCoordinator = new MapViewCoordinator(mapViewContext);
+        plannerCoordinator = new PlannerCoordinator(mapViewContext);
+        workflowCoordinator = new WorkflowCoordinator(this, mapViewContext);
+        sessionCoordinator = new SessionCoordinator(mapViewContext);
 
         // inject session actions after creation
-        flowContext.bindWorkflowServices(workflowCoordinator, sessionCoordinator);
+        mapViewContext.bindWorkflowServices(workflowCoordinator, sessionCoordinator, mapViewCoordinator);
 
     }
 

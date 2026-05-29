@@ -9,7 +9,7 @@ import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.PlannedTaskConfigFragment;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.TaskConfigFragment;
 import com.csws.mymaps.features.map.interaction.ui.top_sheets.PlaceSearchFragment;
-import com.csws.mymaps.features.map.coordinators.FlowContext;
+import com.csws.mymaps.features.map.coordinators.MapViewContext;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
 import com.csws.mymaps.features.map.workflow.BaseWorkflow;
 import com.google.android.gms.maps.model.LatLng;
@@ -20,7 +20,7 @@ public class CreateTaskWorkflow extends BaseWorkflow implements PlaceSearchFragm
 
     private final CreateTaskViewModel viewModel;
 
-    public CreateTaskWorkflow(CreateTaskViewModel viewModel, FlowContext context) {
+    public CreateTaskWorkflow(CreateTaskViewModel viewModel, MapViewContext context) {
         super(context);
         this.viewModel = viewModel;
     }

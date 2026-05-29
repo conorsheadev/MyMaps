@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.core.flow.Workflow;
-import com.csws.mymaps.core.flow.interfaces.WorkflowNavigator;
+import com.csws.mymaps.core.flow.interfaces.coordinator_interfaces.WorkflowNavigator;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
@@ -21,11 +21,11 @@ import com.google.android.gms.maps.model.LatLng;
 public class WorkflowCoordinator implements  MapToolbarController.Listener, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener, WorkflowNavigator {
 
     private final AppCompatActivity activity;
-    private final FlowContext context;
+    private final MapViewContext context;
     private final MapBrowsingMode browsingController;
     private Workflow activeWorkflow;
 
-    public WorkflowCoordinator(AppCompatActivity activity, FlowContext context) {
+    public WorkflowCoordinator(AppCompatActivity activity, MapViewContext context) {
         this.activity = activity;
         context.workflowNavigator = this;
         this.context = context;
@@ -108,6 +108,10 @@ public class WorkflowCoordinator implements  MapToolbarController.Listener, MapF
         if (activeWorkflow != null) activeWorkflow.stop();
         activeWorkflow = flow;
         if (activeWorkflow != null) activeWorkflow.start();
+    }
+    @Override
+    public boolean hasActiveWorkflow() {
+        return activeWorkflow != null;
     }
     @Override
     public void startCreateLocationFlow() {
