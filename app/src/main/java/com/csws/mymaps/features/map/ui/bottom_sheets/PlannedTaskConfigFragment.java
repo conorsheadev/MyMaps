@@ -1,9 +1,12 @@
 package com.csws.mymaps.features.map.ui.bottom_sheets;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,8 +15,11 @@ import androidx.fragment.app.Fragment;
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
@@ -49,8 +55,21 @@ public class PlannedTaskConfigFragment extends Fragment {
 
     private String taskId;
 
-    private long startTimeMillis = 0;
-    private long endTimeMillis = 0;
+    private Calendar selectedDate = Calendar.getInstance();
+
+    private int startHour = 9;
+    private int startMinute = 0;
+
+    private int endHour = 10;
+    private int endMinute = 0;
+
+    private boolean useDurationMode = true;
+
+    LinearLayout durationContainer;
+    TextInputEditText durationHoursInput;
+    TextInputEditText durationMinutesInput;
+    TextInputLayout endTimeContainer;
+    MaterialAutoCompleteTextView travelModeSelector;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -61,17 +80,29 @@ public class PlannedTaskConfigFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        taskId = getArguments() != null
-                ? getArguments().getString(ARG_TASK_ID)
-                : null;
+        taskId = getArguments() != null ? getArguments().getString(ARG_TASK_ID) : null;
 
-        // --- Views ---
-        MaterialButton startTimeButton = view.findViewById(R.id.startTimeButton);
-        MaterialButton endTimeButton = view.findViewById(R.id.endTimeButton);
+
+        // INIT UI
+        MaterialButtonToggleGroup toggleGroup = view.findViewById(R.id.schedulingModeToggle);
+        durationContainer = view.findViewById(R.id.durationContainer);
+        endTimeContainer = view.findViewById(R.id.endTimeContainer);
+        TextInputEditText dateInput = view.findViewById(R.id.dateInput);
+        TextInputEditText startTimeInput = view.findViewById(R.id.startTimeInput);
+        TextInputEditText endTimeInput = view.findViewById(R.id.endTimeInput);
+        durationHoursInput = view.findViewById(R.id.durationHoursInput);
+        durationMinutesInput = view.findViewById(R.id.durationMinutesInput);
         MaterialButton confirmButton = view.findViewById(R.id.confirmButton);
-        MaterialAutoCompleteTextView travelModeSelector = view.findViewById(R.id.travelModeSelector);
+        travelModeSelector = view.findViewById(R.id.travelModeSelector);
 
-        // --- Travel Modes ---
+        // DEFAULT STATE
+        toggleGroup.check(R.id.modeDurationButton);
+        updateDisplayedDate(dateInput);
+        updateDisplayedTime(startTimeInput, startHour, startMinute);
+        updateDisplayedTime(endTimeInput, endHour, endMinute);
+
+
+        // TRAVEL MODES
         String[] travelModes = {
                 "WALKING",
                 "DRIVING"
@@ -79,88 +110,170 @@ public class PlannedTaskConfigFragment extends Fragment {
         travelModeSelector.setSimpleItems(travelModes);
         travelModeSelector.setText("WALKING", false);
 
-        // --- Start Time ---
-        startTimeButton.setOnClickListener(v ->
-                pickDateTime(result -> {
+        // MODE TOGGLE
+        toggleGroup.addOnButtonCheckedListener(this::toggleMode);
 
-                    startTimeMillis = result;
-                    startTimeButton.setText("Start: " + formatDateTime(result));
+        // DATE PICKER
+        dateInput.setOnClickListener(v -> openDatePicker(dateInput));
 
-                })
+        // START TIME
+        startTimeInput.setOnClickListener(v ->
+
+                openTimePicker(
+                        startHour,
+                        startMinute,
+                        (hour, minute) -> {
+
+                            startHour = hour;
+                            startMinute = minute;
+
+                            updateDisplayedTime(
+                                    startTimeInput,
+                                    hour,
+                                    minute
+                            );
+                        }
+                )
         );
 
-        // --- End Time ---
-        endTimeButton.setOnClickListener(v ->
-                pickDateTime(result -> {
+        // END TIME
+        endTimeInput.setOnClickListener(v ->
 
-                    endTimeMillis = result;
-                    endTimeButton.setText("End: " + formatDateTime(result));
+                openTimePicker(
+                        endHour,
+                        endMinute,
+                        (hour, minute) -> {
 
-                })
+                            endHour = hour;
+                            endMinute = minute;
+
+                            updateDisplayedTime(
+                                    endTimeInput,
+                                    hour,
+                                    minute
+                            );
+                        }
+                )
         );
 
-        // --- Confirm ---
-        confirmButton.setOnClickListener(v -> {
-
-            PlannedTask plannedTask = new PlannedTask(UUID.randomUUID().toString(), taskId);
-
-            plannedTask.startTimeMillis = startTimeMillis;
-
-            plannedTask.endTimeMillis = endTimeMillis;
-
-            plannedTask.travelMode = travelModeSelector.getText().toString();
-
-            if (listener != null) {
-                listener.onPlannedTaskConfirmed(plannedTask);
-            }
-        });
+        // CONFIRM
+        confirmButton.setOnClickListener(v -> confirm());
     }
 
-    // ----------------------------------------------------
-    // HELPERS
-    // ----------------------------------------------------
+    // --- Internal Lifecycle ---
+    private void toggleMode(MaterialButtonToggleGroup group, int checkedId, boolean isChecked){
+        if (!isChecked) return;
 
-    private String formatDateTime(long millis) {
-        //TODO: Setup DateTime Utils for Formatting
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE, HH:mm", Locale.getDefault());
-        return sdf.format(new Date(millis));
+        useDurationMode = checkedId == R.id.modeDurationButton;
+
+        durationContainer.setVisibility(useDurationMode ? View.VISIBLE : View.GONE);
+        endTimeContainer.setVisibility(useDurationMode ? View.GONE : View.VISIBLE);
+    }
+    private void confirm(){
+        PlannedTask plannedTask = new PlannedTask(UUID.randomUUID().toString(), taskId);
+
+        Calendar startCalendar = (Calendar) selectedDate.clone();
+        startCalendar.set(Calendar.HOUR_OF_DAY, startHour);
+        startCalendar.set(Calendar.MINUTE, startMinute);
+        startCalendar.set(Calendar.SECOND, 0);
+
+        long startMillis = startCalendar.getTimeInMillis();
+
+        long endMillis;
+
+        if (useDurationMode) {
+
+            int durationHours = parseInt(durationHoursInput.getText());
+            int durationMinutes = parseInt(durationMinutesInput.getText());
+            long durationMillis = ((durationHours * 60L) + durationMinutes) * 60_000L;
+
+            endMillis = startMillis + durationMillis;
+
+        } else {
+
+            Calendar endCalendar = (Calendar) selectedDate.clone();
+
+            endCalendar.set(Calendar.HOUR_OF_DAY, endHour);
+            endCalendar.set(Calendar.MINUTE, endMinute);
+            endCalendar.set(Calendar.SECOND, 0);
+
+            endMillis = endCalendar.getTimeInMillis();
+        }
+
+        plannedTask.startTimeMillis = startMillis;
+        plannedTask.endTimeMillis = endMillis;
+
+        plannedTask.travelMode = travelModeSelector.getText().toString();
+
+        if (listener != null) {
+            listener.onPlannedTaskConfirmed(plannedTask);
+        }
     }
 
-    private void pickDateTime(Consumer<Long> onResult) {
+    // --- Time Selection ---
+    private interface TimeSelectionListener {
+        void onTimeSelected(int hour, int minute);
+    }
+    private void openTimePicker(int initialHour, int initialMinute, TimeSelectionListener listener) {
 
-        //TODO: Clean Up (Refactor logic into custom MaterialDatePicker Designed for our purpose?)
-        MaterialDatePicker<Long> datePicker =
-                MaterialDatePicker.Builder
-                        .datePicker()
-                        .setTitleText("Select date")
+        MaterialTimePicker picker =
+                new MaterialTimePicker.Builder()
+                        .setTimeFormat(TimeFormat.CLOCK_24H)
+                        .setHour(initialHour)
+                        .setMinute(initialMinute)
+                        .setTitleText("Select Time")
                         .build();
 
-        datePicker.addOnPositiveButtonClickListener(date -> {
+        picker.addOnPositiveButtonClickListener(v ->
 
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(date);
-            MaterialTimePicker timePicker =
-                    new MaterialTimePicker.Builder()
-                            .setTimeFormat(TimeFormat.CLOCK_24H)
-                            .setHour(
-                                    calendar.get(Calendar.HOUR_OF_DAY)
-                            )
-                            .setMinute(
-                                    calendar.get(Calendar.MINUTE)
-                            )
-                            .setTitleText("Select time")
-                            .build();
+                listener.onTimeSelected(picker.getHour(), picker.getMinute())
+        );
 
-            timePicker.addOnPositiveButtonClickListener(v -> {
-                calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
-                calendar.set(Calendar.MINUTE, timePicker.getMinute());
-                calendar.set(Calendar.SECOND, 0);
-                onResult.accept(calendar.getTimeInMillis());
-            });
+        picker.show(
+                getParentFragmentManager(),
+                "TIME_PICKER"
+        );
+    }
+    private void updateDisplayedTime(TextInputEditText input, int hour, int minute) {
 
-            timePicker.show(getParentFragmentManager(), "TIME_PICKER");
+        String formatted = String.format(
+                        Locale.getDefault(),
+                        "%02d:%02d",
+                        hour,
+                        minute
+                );
+
+        input.setText(formatted);
+    }
+
+    // --- Date Selection ---
+    private void openDatePicker(TextInputEditText input) {
+
+        MaterialDatePicker<Long> picker = MaterialDatePicker.Builder.datePicker().setTitleText("Select Date").build();
+
+        picker.addOnPositiveButtonClickListener(selection -> {
+
+            selectedDate.setTimeInMillis(selection);
+            updateDisplayedDate(input);
         });
 
-        datePicker.show(getParentFragmentManager(), "DATE_PICKER");
+        picker.show(getParentFragmentManager(), "DATE_PICKER");
+    }
+    private void updateDisplayedDate(TextInputEditText input) {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy", Locale.getDefault());
+        input.setText(sdf.format(selectedDate.getTime()));
+    }
+
+    // --- Helpers ---
+    private int parseInt(Editable editable) {
+
+        if (editable == null) return 0;
+
+        String text = editable.toString().trim();
+
+        if (text.isEmpty()) return 0;
+
+        return Integer.parseInt(text);
     }
 }
