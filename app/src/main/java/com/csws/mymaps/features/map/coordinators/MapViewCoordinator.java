@@ -33,7 +33,6 @@ public class MapViewCoordinator implements SessionActions {
 
     // --- Observers ---
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-
     private Runnable pendingRefresh;
     public void observe(LifecycleOwner owner) {
 

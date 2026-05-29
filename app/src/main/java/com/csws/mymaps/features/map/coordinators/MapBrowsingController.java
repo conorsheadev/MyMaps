@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.controllers.map;
+package com.csws.mymaps.features.map.coordinators;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.locations.LocationItem;
@@ -6,7 +6,7 @@ import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.session.DailySession;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.controllers.MapFabController;
-import com.csws.mymaps.features.map.coordinators.FlowContext;
+import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.features.map.ui.bottom_sheets.DayPlanFragment;
 import com.csws.mymaps.features.map.ui.bottom_sheets.LocationDetailFragment;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;

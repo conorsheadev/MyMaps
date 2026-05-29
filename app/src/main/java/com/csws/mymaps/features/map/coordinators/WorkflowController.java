@@ -9,7 +9,6 @@ import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
-import com.csws.mymaps.features.map.controllers.map.MapBrowsingController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.features.map.workflow.workflows.CreateLocationWorkflow;
 import com.csws.mymaps.features.map.workflow.workflows.CreateTaskWorkflow;

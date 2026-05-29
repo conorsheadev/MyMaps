@@ -76,8 +76,7 @@ public class SessionRepository {
 
             FileReader reader = new FileReader(file);
 
-            DailySession session =
-                    gson.fromJson(reader, DailySession.class);
+            DailySession session = gson.fromJson(reader, DailySession.class);
 
             reader.close();
 

@@ -25,6 +25,7 @@ import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.core.viewmodel.LocationViewModel;
 import com.csws.mymaps.core.viewmodel.TaskViewModel;
 import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
+import com.csws.mymaps.features.map.coordinators.PlannerCoordinator;
 import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -43,6 +44,7 @@ public class MapViewActivity extends AppCompatActivity {
     private BottomSheetController bottomSheetController;
 
     private MapViewCoordinator coordinator;
+    private PlannerCoordinator plannerCoordinator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +71,9 @@ public class MapViewActivity extends AppCompatActivity {
 
         checkLocationPermissions();
 
-        setupCoordinator();
+        setupCoordinators();
 
+        plannerCoordinator.observe(this);
         coordinator.observe(this);
     }
 
@@ -78,6 +81,18 @@ public class MapViewActivity extends AppCompatActivity {
 
         Log.d(TAG, "Map Prepared");
         coordinator.start();
+        plannerCoordinator.start();
+
+        //Temporary
+        plannerCoordinator.getPlannerState().observe(this, state -> {
+
+            if (!state.shouldDisplayCountdown) {
+                return;
+            }
+
+            Log.d("Planner", "Next task in: "
+                    + state.millisUntilNextTask);
+        });
     }
 
     // --- SETUP ---
@@ -131,7 +146,7 @@ public class MapViewActivity extends AppCompatActivity {
         bottomSheetController = new BottomSheetController(sheet, R.id.bottom_sheet_container, getSupportFragmentManager());
     }
 
-    private void setupCoordinator(){
+    private void setupCoordinators(){
         ViewModelProvider vmProvider = new ViewModelProvider(this);
 
         LocationViewModel locationViewModel = vmProvider.get(LocationViewModel.class);
@@ -156,11 +171,13 @@ public class MapViewActivity extends AppCompatActivity {
                 null
         );
 
-        // --- Coordinator ---
+        // --- MapViewCoordinator ---
         coordinator = new MapViewCoordinator(this, flowContext);
-
         // inject session actions after creation
         flowContext.bootstrap(coordinator.flowController, coordinator);
+
+        plannerCoordinator = new PlannerCoordinator(plannedTaskViewModel);
+
     }
 
     // --- Permissions ---
