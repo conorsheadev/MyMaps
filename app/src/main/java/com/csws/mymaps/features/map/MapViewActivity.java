@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +30,7 @@ import com.csws.mymaps.features.map.coordinators.PlannerCoordinator;
 import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MapViewActivity extends AppCompatActivity {
@@ -86,19 +88,24 @@ public class MapViewActivity extends AppCompatActivity {
         //Temporary
         plannerCoordinator.getPlannerState().observe(this, state -> {
 
-            if (!state.shouldDisplayCountdown) {
-                return;
-            }
+            if (state.shouldDisplayCountdown) {
 
-            Log.d("Planner", "Next task in: "
-                    + state.millisUntilNextTask);
+                toolbarController.showCountdown(state.millisUntilNextTask);
+
+            } else {
+
+                toolbarController.hideCountdown();
+            }
         });
     }
 
     // --- SETUP ---
     private void setupToolbar() {
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
-        toolbarController = new MapToolbarController(toolbar);
+        MaterialCardView countdownCard = findViewById(R.id.plannerCountdownCard);
+        TextView countdownText = findViewById(R.id.plannerCountdownText);
+
+        toolbarController = new MapToolbarController(toolbar, countdownCard, countdownText);
     }
     private void setupTopSheet() {
 

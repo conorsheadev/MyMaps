@@ -10,13 +10,58 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <!-- TOOLBAR -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/topAppBar"
+
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="Map View"
-            app:navigationIcon="@drawable/arrow_back_24px" />
+            android:layout_height="?attr/actionBarSize">
+            <!-- TOOLBAR -->
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/topAppBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:title="Map View"
+                app:navigationIcon="@drawable/arrow_back_24px" />
+
+            <!-- TIMER -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/plannerCountdownCard"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/schedule_24px"
+                        android:contentDescription="Countdown" />
+
+                    <TextView
+                        android:id="@+id/plannerCountdownText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="00:00"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </FrameLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- TOP SHEET -->
