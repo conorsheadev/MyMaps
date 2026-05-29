@@ -27,6 +27,8 @@ import com.csws.mymaps.core.viewmodel.LocationViewModel;
 import com.csws.mymaps.core.viewmodel.TaskViewModel;
 import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
 import com.csws.mymaps.features.map.coordinators.PlannerCoordinator;
+import com.csws.mymaps.features.map.coordinators.SessionCoordinator;
+import com.csws.mymaps.features.map.coordinators.WorkflowCoordinator;
 import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -39,14 +41,19 @@ public class MapViewActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST = 1;
 
+    //Controllers
     private MapToolbarController toolbarController;
     private TopSheetController topSheetController;
     private MapFragment mapFragment;
     private MapFabController fabController;
     private BottomSheetController bottomSheetController;
 
-    private MapViewCoordinator coordinator;
+    //Coordinators
+    private MapViewCoordinator mapViewCoordinator;
+    private WorkflowCoordinator workflowCoordinator;
     private PlannerCoordinator plannerCoordinator;
+    private SessionCoordinator sessionCoordinator;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,14 +83,16 @@ public class MapViewActivity extends AppCompatActivity {
         setupCoordinators();
 
         plannerCoordinator.observe(this);
-        coordinator.observe(this);
+        mapViewCoordinator.observe(this);
     }
 
     public void onMapPrepared() {
 
         Log.d(TAG, "Map Prepared");
-        coordinator.start();
+        mapViewCoordinator.start();
         plannerCoordinator.start();
+        workflowCoordinator.finishWorkflow();
+        sessionCoordinator.start();
 
         //Temporary
         plannerCoordinator.getPlannerState().observe(this, state -> {
@@ -179,11 +188,13 @@ public class MapViewActivity extends AppCompatActivity {
         );
 
         // --- MapViewCoordinator ---
-        coordinator = new MapViewCoordinator(this, flowContext);
-        // inject session actions after creation
-        flowContext.bootstrap(coordinator.flowController, coordinator);
-
+        mapViewCoordinator = new MapViewCoordinator(flowContext);
         plannerCoordinator = new PlannerCoordinator(plannedTaskViewModel);
+        workflowCoordinator = new WorkflowCoordinator(this, flowContext);
+        sessionCoordinator = new SessionCoordinator(flowContext);
+
+        // inject session actions after creation
+        flowContext.bindWorkflowServices(workflowCoordinator, sessionCoordinator);
 
     }
 

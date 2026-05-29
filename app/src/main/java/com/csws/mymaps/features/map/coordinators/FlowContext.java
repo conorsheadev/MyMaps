@@ -65,7 +65,7 @@ public class FlowContext {
         this.sessionActions = sessionActions;
     }
 
-    public void bootstrap(WorkflowNavigator workflowNavigator, SessionActions sessionActions){
+    public void bindWorkflowServices(WorkflowNavigator workflowNavigator, SessionActions sessionActions){
         this.workflowNavigator = workflowNavigator;
         this.sessionActions = sessionActions;
     }

@@ -10,6 +10,7 @@ import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
+import com.csws.mymaps.features.map.interaction.MapBrowsingMode;
 import com.csws.mymaps.features.map.workflow.workflows.CreateLocationWorkflow;
 import com.csws.mymaps.features.map.workflow.workflows.CreateTaskWorkflow;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
@@ -17,14 +18,14 @@ import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
-public class WorkflowController implements  MapToolbarController.Listener, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener, WorkflowNavigator {
+public class WorkflowCoordinator implements  MapToolbarController.Listener, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener, WorkflowNavigator {
 
     private final AppCompatActivity activity;
     private final FlowContext context;
-    private final MapBrowsingController browsingController;
+    private final MapBrowsingMode browsingController;
     private Workflow activeWorkflow;
 
-    public WorkflowController(AppCompatActivity activity, FlowContext context) {
+    public WorkflowCoordinator(AppCompatActivity activity, FlowContext context) {
         this.activity = activity;
         context.workflowNavigator = this;
         this.context = context;
@@ -35,15 +36,11 @@ public class WorkflowController implements  MapToolbarController.Listener, MapFa
         context.bottomSheetController.setListener(this);
 
         DefaultFlowViewModel vm = new ViewModelProvider(activity).get(DefaultFlowViewModel.class);
-        browsingController = new MapBrowsingController(context, vm);
+        browsingController = new MapBrowsingMode(context, vm);
     }
 
     public Workflow getActiveWorkflow() { return activeWorkflow; }
-    public void startWorkflow(Workflow flow) {
-        if (activeWorkflow != null) activeWorkflow.stop();
-        activeWorkflow = flow;
-        if (activeWorkflow != null) activeWorkflow.start();
-    }
+
 
     // --- FAB EVENTS ---
     @Override public void onFabAction(int actionId) {
@@ -106,6 +103,12 @@ public class WorkflowController implements  MapToolbarController.Listener, MapFa
     }
 
     // --- FLOW NAVIGATION ---
+    @Override
+    public void startWorkflow(Workflow flow) {
+        if (activeWorkflow != null) activeWorkflow.stop();
+        activeWorkflow = flow;
+        if (activeWorkflow != null) activeWorkflow.start();
+    }
     @Override
     public void startCreateLocationFlow() {
 

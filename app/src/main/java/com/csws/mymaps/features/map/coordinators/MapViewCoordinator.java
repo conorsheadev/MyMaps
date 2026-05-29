@@ -17,18 +17,15 @@ import com.csws.mymaps.features.map.workflow.workflows.InitialiseSessionWorkflow
 
 import java.util.List;
 
-public class MapViewCoordinator implements SessionActions {
+public class MapViewCoordinator {
     //Debugging
     private static final String TAG = "MapViewCoordinator";
 
     // --- Flow System ---
     private final FlowContext flowContext;
 
-    public final WorkflowController flowController;
-
-    public MapViewCoordinator(AppCompatActivity activity, FlowContext flowContext){
+    public MapViewCoordinator(FlowContext flowContext){
         this.flowContext = flowContext;
-        this.flowController = new WorkflowController(activity, flowContext);
     }
 
     // --- Observers ---
@@ -75,7 +72,6 @@ public class MapViewCoordinator implements SessionActions {
 
         Log.d(TAG, "start()");
 
-        flowController.finishWorkflow();
 
         boolean hasSession = flowContext.sessionViewModel.hasSessionToday();
 
@@ -90,28 +86,10 @@ public class MapViewCoordinator implements SessionActions {
 
             Log.d(TAG, "Starting InitialiseSessionFlow");
 
-            flowController.startWorkflow(new InitialiseSessionWorkflow(flowContext));
         }
     }
 
 
 
-    // --- SessionActions ---
-    @Override
-    public void createNewLocation(LocationItem locationItem) {
 
-        flowContext.locationViewModel.addLocation(locationItem);
-    }
-
-    @Override
-    public void createNewTask(TaskItem taskItem) {
-
-        flowContext.taskViewModel.addTask(taskItem);
-    }
-
-    @Override
-    public void createNewPlannedTask(PlannedTask plannedTask) {
-
-        flowContext.plannedTaskViewModel.addPlannedTask(plannedTask);
-    }
 }

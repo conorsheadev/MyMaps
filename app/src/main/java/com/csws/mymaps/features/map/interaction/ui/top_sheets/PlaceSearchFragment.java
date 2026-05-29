@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.ui.top_sheets;
+package com.csws.mymaps.features.map.interaction.ui.top_sheets;
 
 import android.os.Bundle;
 import android.text.Editable;

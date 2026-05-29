@@ -1,8 +1,7 @@
-package com.csws.mymaps.features.map.ui.bottom_sheets;
+package com.csws.mymaps.features.map.interaction.ui.bottom_sheets;
 
 import android.os.Bundle;
 import android.text.Editable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +24,8 @@ import com.google.android.material.timepicker.TimeFormat;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class PlannedTaskConfigFragment extends Fragment {
     //TODO: Clean Up

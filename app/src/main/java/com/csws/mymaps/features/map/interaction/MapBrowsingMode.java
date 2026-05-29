@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.coordinators;
+package com.csws.mymaps.features.map.interaction;
 
 import com.csws.mymaps.R;
 import com.csws.mymaps.domain.locations.LocationItem;
@@ -7,20 +7,21 @@ import com.csws.mymaps.domain.session.DailySession;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
-import com.csws.mymaps.features.map.ui.bottom_sheets.DayPlanFragment;
-import com.csws.mymaps.features.map.ui.bottom_sheets.LocationDetailFragment;
+import com.csws.mymaps.features.map.coordinators.FlowContext;
+import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.DayPlanFragment;
+import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.LocationDetailFragment;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapBrowsingController implements MapFabController.FabActionListener, MapFragment.MapCallbacks {
+public class MapBrowsingMode implements MapFabController.FabActionListener, MapFragment.MapCallbacks {
 
     private final FlowContext context;
     private final DefaultFlowViewModel viewModel;
 
-    public MapBrowsingController(FlowContext context, DefaultFlowViewModel viewModel) {
+    public MapBrowsingMode(FlowContext context, DefaultFlowViewModel viewModel) {
         this.context = context;
         this.viewModel = viewModel;
 
