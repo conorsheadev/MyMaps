@@ -14,11 +14,11 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultWorkflow extends BaseWorkflow {
+public class Legacy_DefaultWorkflow extends BaseWorkflow {
 
     private final DefaultFlowViewModel viewModel;
 
-    public DefaultWorkflow(DefaultFlowViewModel viewModel, FlowContext context) {
+    public Legacy_DefaultWorkflow(DefaultFlowViewModel viewModel, FlowContext context) {
         super(context);
         this.viewModel = viewModel;
     }

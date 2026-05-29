@@ -159,6 +159,6 @@ public class CreateTaskWorkflow extends BaseWorkflow implements PlaceSearchFragm
 
         context.sessionActions.createNewPlannedTask(plannedTask);
 
-        context.workflowNavigator.cancelCurrentFlow();
+        context.workflowNavigator.finishWorkflow();
     }
 }

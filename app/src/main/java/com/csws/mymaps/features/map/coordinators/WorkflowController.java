@@ -9,10 +9,10 @@ import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
+import com.csws.mymaps.features.map.controllers.map.MapBrowsingController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.features.map.workflow.workflows.CreateLocationWorkflow;
 import com.csws.mymaps.features.map.workflow.workflows.CreateTaskWorkflow;
-import com.csws.mymaps.features.map.workflow.DefaultWorkflow;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
 import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
 import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
@@ -22,7 +22,7 @@ public class WorkflowController implements  MapToolbarController.Listener, MapFa
 
     private final AppCompatActivity activity;
     private final FlowContext context;
-
+    private final MapBrowsingController browsingController;
     private Workflow activeWorkflow;
 
     public WorkflowController(AppCompatActivity activity, FlowContext context) {
@@ -34,9 +34,9 @@ public class WorkflowController implements  MapToolbarController.Listener, MapFa
         context.mapActions.setListener(this);
         context.fabController.setListener(this);
         context.bottomSheetController.setListener(this);
-    }
-    public void bindCallbacks(MapToolbarController toolbarController, MapFragment mapFragment, MapFabController fabController, BottomSheetController bottomSheetController) {
 
+        DefaultFlowViewModel vm = new ViewModelProvider(activity).get(DefaultFlowViewModel.class);
+        browsingController = new MapBrowsingController(context, vm);
     }
 
     public Workflow getActiveWorkflow() { return activeWorkflow; }
@@ -46,31 +46,52 @@ public class WorkflowController implements  MapToolbarController.Listener, MapFa
         if (activeWorkflow != null) activeWorkflow.start();
     }
 
-
     // --- FAB EVENTS ---
     @Override public void onFabAction(int actionId) {
 
         if (activeWorkflow != null) {
+
             activeWorkflow.onAction(actionId);
+
+        } else {
+
+            browsingController.onFabAction(actionId);
         }
     }
     // --- MAP EVENTS ---
     @Override public void onMapClicked(LatLng latLng) {
 
         if (activeWorkflow != null) {
+
             activeWorkflow.onMapClicked(latLng);
+
+        } else {
+
+            browsingController.onMapClicked(latLng);
         }
     }
-    @Override public void onLocationSelected(LocationItem location) {
+    @Override
+    public void onLocationSelected(LocationItem location) {
 
         if (activeWorkflow != null) {
+
             activeWorkflow.onLocationSelected(location);
+
+        } else {
+
+            browsingController.onLocationSelected(location);
         }
     }
-    @Override public void onRecenterClicked() {
+    @Override
+    public void onRecenterClicked() {
 
         if (activeWorkflow != null) {
+
             activeWorkflow.onRecenterClicked();
+
+        } else {
+
+            browsingController.onRecenterClicked();
         }
     }
     // --- SHEET EVENTS ---
@@ -86,12 +107,6 @@ public class WorkflowController implements  MapToolbarController.Listener, MapFa
     }
 
     // --- FLOW NAVIGATION ---
-    @Override
-    public void startDefaultFlow() {
-
-        DefaultFlowViewModel vm = new ViewModelProvider(activity).get(DefaultFlowViewModel.class);
-        startWorkflow(new DefaultWorkflow(vm, context));
-    }
     @Override
     public void startCreateLocationFlow() {
 
@@ -111,14 +126,12 @@ public class WorkflowController implements  MapToolbarController.Listener, MapFa
         activeWorkflow.onLocationSelected(location);
     }
     @Override
-    public void cancelCurrentFlow() {
+    public void finishWorkflow() {
 
         if (activeWorkflow != null) {
             activeWorkflow.stop();
             activeWorkflow = null;
         }
-
-        startDefaultFlow();
     }
 
 }

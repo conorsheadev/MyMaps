@@ -40,8 +40,6 @@ public class InitialiseSessionWorkflow extends BaseWorkflow implements SessionSt
             context.sessionViewModel.loadLatestSession();
         }
 
-        context.workflowNavigator.cancelCurrentFlow();
-
-        context.workflowNavigator.startDefaultFlow();
+        context.workflowNavigator.finishWorkflow();
     }
 }

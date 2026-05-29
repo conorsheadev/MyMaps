@@ -76,7 +76,7 @@ public class MapViewCoordinator implements SessionActions {
 
         Log.d(TAG, "start()");
 
-        flowController.cancelCurrentFlow();
+        flowController.finishWorkflow();
 
         boolean hasSession = flowContext.sessionViewModel.hasSessionToday();
 
@@ -86,10 +86,6 @@ public class MapViewCoordinator implements SessionActions {
             Log.d(TAG, "Loading existing session");
 
             flowContext.sessionViewModel.loadTodaySession();
-
-            Log.d(TAG, "Starting default flow");
-
-            flowController.startDefaultFlow();
 
         } else {
 

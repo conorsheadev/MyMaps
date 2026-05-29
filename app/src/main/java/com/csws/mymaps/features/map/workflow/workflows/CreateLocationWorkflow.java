@@ -87,7 +87,7 @@ public class CreateLocationWorkflow extends BaseWorkflow implements PlaceSearchF
     @Override
     public void onSearchCancelled() {
 
-        context.workflowNavigator.cancelCurrentFlow();
+        context.workflowNavigator.finishWorkflow();
     }
 
     private void onConfirmPolygon() {
@@ -121,7 +121,7 @@ public class CreateLocationWorkflow extends BaseWorkflow implements PlaceSearchF
 
     private void onCancelPolygon() {
 
-        context.workflowNavigator.cancelCurrentFlow();
+        context.workflowNavigator.finishWorkflow();
     }
 
     private void onConfirmLocation(String name, String type, MarkerConfig markerConfig, PolygonConfig polygonConfig) {
@@ -142,6 +142,6 @@ public class CreateLocationWorkflow extends BaseWorkflow implements PlaceSearchF
 
         context.sessionActions.createNewLocation(item);
 
-        context.workflowNavigator.cancelCurrentFlow();
+        context.workflowNavigator.finishWorkflow();
     }
 }

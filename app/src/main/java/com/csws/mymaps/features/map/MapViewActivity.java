@@ -77,8 +77,6 @@ public class MapViewActivity extends AppCompatActivity {
     public void onMapPrepared() {
 
         Log.d(TAG, "Map Prepared");
-        //coordinator.flowController.bindCallbacks(toolbarController, mapFragment, fabController, bottomSheetController);
-
         coordinator.start();
     }
 
@@ -160,8 +158,6 @@ public class MapViewActivity extends AppCompatActivity {
 
         // --- Coordinator ---
         coordinator = new MapViewCoordinator(this, flowContext);
-
-        coordinator.flowController.bindCallbacks(toolbarController, mapFragment, fabController, bottomSheetController);
 
         // inject session actions after creation
         flowContext.bootstrap(coordinator.flowController, coordinator);
