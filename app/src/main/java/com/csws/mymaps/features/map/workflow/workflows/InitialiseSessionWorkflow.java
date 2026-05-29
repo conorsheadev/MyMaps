@@ -1,7 +1,7 @@
 package com.csws.mymaps.features.map.workflow.workflows;
 
 import com.csws.mymaps.domain.session.SessionStartType;
-import com.csws.mymaps.features.map.controllers.ui.top_sheets.SessionStartFragment;
+import com.csws.mymaps.features.map.ui.top_sheets.SessionStartFragment;
 import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.csws.mymaps.features.map.workflow.BaseWorkflow;
 

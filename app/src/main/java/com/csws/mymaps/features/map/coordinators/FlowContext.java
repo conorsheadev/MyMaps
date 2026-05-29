@@ -9,7 +9,7 @@ import com.csws.mymaps.core.viewmodel.TaskViewModel;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
-import com.csws.mymaps.features.map.controllers.ui.TopSheetController;
+import com.csws.mymaps.features.map.controllers.TopSheetController;
 import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
 
 public class FlowContext {

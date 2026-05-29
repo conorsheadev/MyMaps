@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.controllers.ui;
+package com.csws.mymaps.features.map.controllers;
 
 import android.view.View;
 

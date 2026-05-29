@@ -17,7 +17,7 @@ import com.csws.mymaps.R;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
-import com.csws.mymaps.features.map.controllers.ui.TopSheetController;
+import com.csws.mymaps.features.map.controllers.TopSheetController;
 import com.csws.mymaps.features.map.coordinators.FlowContext;
 import com.csws.mymaps.features.map.coordinators.MapViewCoordinator;
 import com.csws.mymaps.features.map.controllers.map.MapController_InfoWindowAdapter;
