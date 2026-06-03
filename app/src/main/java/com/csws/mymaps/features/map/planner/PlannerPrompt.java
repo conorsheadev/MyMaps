@@ -10,11 +10,10 @@ public class PlannerPrompt {
         TASK_STARTING
     }
 
+    public String taskId;
+
     public Type type;
 
     public String title;
-
     public String message;
-
-    public boolean isDismissed;
 }

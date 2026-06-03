@@ -171,19 +171,13 @@ public class MapViewCoordinator implements PromptHandler {
 
             case PREPARE_TO_LEAVE:
 
-                Log.d(
-                        TAG,
-                        "PREPARE_TO_LEAVE selected"
-                );
+                Log.d(TAG, "PREPARE_TO_LEAVE selected");
 
                 break;
 
             case LEAVE_NOW:
 
-                Log.d(
-                        TAG,
-                        "LEAVE_NOW selected"
-                );
+                Log.d(TAG, "LEAVE_NOW selected");
 
                 break;
         }
