@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.viewmodel.TaskCollectionViewModel;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
@@ -152,13 +153,15 @@ public class MapViewActivity extends AppCompatActivity {
     private void setupCoordinators(){
         ViewModelProvider vmProvider = new ViewModelProvider(this);
 
-        LocationViewModel locationViewModel = vmProvider.get(LocationViewModel.class);
+        TaskCollectionViewModel taskCollectionViewModel = vmProvider.get(TaskCollectionViewModel.class);
         TaskViewModel taskViewModel = vmProvider.get(TaskViewModel.class);
         PlannedTaskViewModel plannedTaskViewModel = vmProvider.get(PlannedTaskViewModel.class);
+        LocationViewModel locationViewModel = vmProvider.get(LocationViewModel.class);
         SessionViewModel sessionViewModel = vmProvider.get(SessionViewModel.class);
 
         MapViewContext mapViewContext = new MapViewContext(
 
+                taskCollectionViewModel,
                 taskViewModel,
                 plannedTaskViewModel,
                 locationViewModel,

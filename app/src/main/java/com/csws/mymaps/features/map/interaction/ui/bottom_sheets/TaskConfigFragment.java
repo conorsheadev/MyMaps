@@ -89,6 +89,7 @@ public class TaskConfigFragment extends Fragment {
 
             TaskItem task = new TaskItem(
                     UUID.randomUUID().toString(),
+                    "",
                     name,
                     desc,
                     locationId,

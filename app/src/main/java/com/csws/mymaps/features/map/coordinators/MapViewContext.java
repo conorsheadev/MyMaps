@@ -6,6 +6,7 @@ import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.core.flow.interfaces.coordinator_interfaces.SessionActions;
 import com.csws.mymaps.core.viewmodel.LocationViewModel;
 import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
+import com.csws.mymaps.core.viewmodel.TaskCollectionViewModel;
 import com.csws.mymaps.core.viewmodel.TaskViewModel;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
@@ -16,6 +17,7 @@ import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
 public class MapViewContext {
 
     // --- ViewModels ---
+    public final TaskCollectionViewModel taskCollectionViewModel;
     public final TaskViewModel taskViewModel;
     public final PlannedTaskViewModel plannedTaskViewModel;
     public final LocationViewModel locationViewModel;
@@ -37,6 +39,7 @@ public class MapViewContext {
     public PromptHandler promptHandler;
 
     public MapViewContext(
+            TaskCollectionViewModel taskCollectionViewModel,
             TaskViewModel taskViewModel,
             PlannedTaskViewModel plannedTaskViewModel,
             LocationViewModel locationViewModel,
@@ -53,6 +56,7 @@ public class MapViewContext {
             PromptHandler promptHandler
     ) {
 
+        this.taskCollectionViewModel = taskCollectionViewModel;
         this.taskViewModel = taskViewModel;
         this.plannedTaskViewModel = plannedTaskViewModel;
         this.locationViewModel = locationViewModel;
