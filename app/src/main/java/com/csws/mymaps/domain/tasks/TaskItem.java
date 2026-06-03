@@ -23,36 +23,45 @@ public class TaskItem implements Parcelable {
     public String title;
     public String description;
 
-    // Linking
-    public String locationId;
+    // Presentation
+    public String iconName;
 
-    // Classification
+    // Behaviour
     public TaskType type;
 
-    // Metadata
-    public List<String> prerequisites;
-
-    public TaskItem(String id, String collectionId, String title, String description, String locationId, TaskType type) {
-
+    public TaskItem(
+            String id,
+            String collectionId,
+            String title,
+            String description,
+            String iconName,
+            TaskType type
+    ) {
         this.id = id;
+        this.collectionId = collectionId;
 
         this.title = title;
         this.description = description;
 
-        this.locationId = locationId;
-        this.collectionId = collectionId;
+        this.iconName = iconName;
 
         this.type = type;
-
-        this.prerequisites = new ArrayList<>();
     }
 
-    // --- Helpers ---
     public boolean hasCollection() {
-        return collectionId != null && !collectionId.isEmpty();
+        return collectionId != null
+                && !collectionId.isEmpty();
     }
 
-    // --- Parcelable ---
+    public boolean hasCustomIcon() {
+        return iconName != null
+                && !iconName.isEmpty();
+    }
+
+    // --------------------------------------------------
+    // Parcelable
+    // --------------------------------------------------
+
     protected TaskItem(Parcel in) {
 
         id = in.readString();
@@ -61,16 +70,13 @@ public class TaskItem implements Parcelable {
         title = in.readString();
         description = in.readString();
 
-        locationId = in.readString();
+        iconName = in.readString();
 
-        String typeString = in.readString();
+        String typeName = in.readString();
 
-        if (typeString != null) {
-            type = TaskType.valueOf(typeString);
+        if (typeName != null) {
+            type = TaskType.valueOf(typeName);
         }
-
-        prerequisites = new ArrayList<>();
-        in.readStringList(prerequisites);
     }
 
     @Override
@@ -82,15 +88,13 @@ public class TaskItem implements Parcelable {
         dest.writeString(title);
         dest.writeString(description);
 
-        dest.writeString(locationId);
+        dest.writeString(iconName);
 
         dest.writeString(
                 type != null
                         ? type.name()
                         : null
         );
-
-        dest.writeStringList(prerequisites);
     }
 
     @Override

@@ -252,12 +252,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, MapActi
         //plannedTasks grouped by location
         Map<String, List<PlannedTask>> grouped = new HashMap<>();
         for (PlannedTask plannedTask : plannedTasks) {
-            TaskItem task = taskLookup.get(plannedTask.taskId);
-            if (task == null || task.locationId == null) { continue;}
-            if (!grouped.containsKey(task.locationId)) {
-                grouped.put(task.locationId, new ArrayList<>());
+
+            if (plannedTask.locationId == null) {continue;}
+            if (!grouped.containsKey(plannedTask.locationId)) {
+
+                grouped.put(plannedTask.locationId, new ArrayList<>());
             }
-            grouped.get(task.locationId).add(plannedTask);
+
+            grouped.get(plannedTask.locationId).add(plannedTask);
         }
 
         //Adapter refresh

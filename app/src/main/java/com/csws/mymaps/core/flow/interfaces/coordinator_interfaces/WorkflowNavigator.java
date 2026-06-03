@@ -7,6 +7,7 @@ public interface WorkflowNavigator {
     void startWorkflow(Workflow workflow);
     boolean hasActiveWorkflow();
     void startCreateLocationFlow();
+    void startCreatePlannedTaskFlow();
     void startCreateTaskFlow();
     void startCreateCollectionFlow();
     void startCreateTaskFromLocationFlow(LocationItem location);

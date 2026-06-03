@@ -38,19 +38,23 @@ public class PlannedTaskConfigFragment extends Fragment {
     }
 
     private static final String ARG_TASK_ID = "task_id";
+    private static final String ARG_LOCATION_ID = "location_id";
 
-    public static PlannedTaskConfigFragment newInstance(String taskId) {
+    public static PlannedTaskConfigFragment newInstance(String taskId, String locationId) {
 
         PlannedTaskConfigFragment fragment = new PlannedTaskConfigFragment();
-
         Bundle args = new Bundle();
+
         args.putString(ARG_TASK_ID, taskId);
+        args.putString(ARG_LOCATION_ID, locationId);
+
         fragment.setArguments(args);
 
         return fragment;
     }
 
     private String taskId;
+    private String locationId;
 
     private Calendar selectedDate = Calendar.getInstance();
 
@@ -77,8 +81,12 @@ public class PlannedTaskConfigFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        taskId = getArguments() != null ? getArguments().getString(ARG_TASK_ID) : null;
+        if (getArguments() != null) {
 
+            taskId = getArguments().getString(ARG_TASK_ID);
+
+            locationId = getArguments().getString(ARG_LOCATION_ID);
+        }
 
         // INIT UI
         MaterialButtonToggleGroup toggleGroup = view.findViewById(R.id.schedulingModeToggle);
@@ -167,7 +175,7 @@ public class PlannedTaskConfigFragment extends Fragment {
         endTimeContainer.setVisibility(useDurationMode ? View.GONE : View.VISIBLE);
     }
     private void confirm(){
-        PlannedTask plannedTask = new PlannedTask(UUID.randomUUID().toString(), taskId);
+        PlannedTask plannedTask = new PlannedTask(UUID.randomUUID().toString(), taskId, locationId);
 
         Calendar startCalendar = (Calendar) selectedDate.clone();
         startCalendar.set(Calendar.HOUR_OF_DAY, startHour);

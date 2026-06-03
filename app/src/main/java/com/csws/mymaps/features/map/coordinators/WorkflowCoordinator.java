@@ -12,7 +12,9 @@ import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.features.map.interaction.MapBrowsingMode;
 import com.csws.mymaps.features.map.viewmodels.CreateCollectionViewModel;
+import com.csws.mymaps.features.map.viewmodels.CreatePlannedTaskViewModel;
 import com.csws.mymaps.features.map.workflow.workflows.CreateLocationWorkflow;
+import com.csws.mymaps.features.map.workflow.workflows.CreatePlannedTaskWorkflow;
 import com.csws.mymaps.features.map.workflow.workflows.CreateTaskCollectionWorkflow;
 import com.csws.mymaps.features.map.workflow.workflows.CreateTaskWorkflow;
 import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
@@ -120,6 +122,12 @@ public class WorkflowCoordinator implements  MapToolbarController.Listener, MapF
 
         CreateLocationViewModel vm = new ViewModelProvider(activity).get(CreateLocationViewModel.class);
         startWorkflow(new CreateLocationWorkflow(vm, context));
+    }
+    @Override
+    public void startCreatePlannedTaskFlow() {
+
+        CreatePlannedTaskViewModel vm = new ViewModelProvider(activity).get(CreatePlannedTaskViewModel.class);
+        startWorkflow(new CreatePlannedTaskWorkflow(vm, context));
     }
     @Override
     public void startCreateTaskFlow() {

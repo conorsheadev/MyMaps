@@ -51,9 +51,11 @@ public class LocationTasksFragment extends BaseTasksFragment<LocationTasks> {
 
             for (PlannedTask plannedTask : plannedTasks) {
 
+                if (!location.id.equals(plannedTask.locationId)) {continue;}
+
                 TaskItem task = taskMap.get(plannedTask.taskId);
 
-                if (task == null || !location.id.equals(task.locationId)) {continue;}
+                if (task == null) {continue;}
 
                 plansForLocation.add(plannedTask);
 

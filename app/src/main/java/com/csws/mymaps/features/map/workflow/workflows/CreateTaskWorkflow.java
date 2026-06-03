@@ -16,7 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
 
-public class CreateTaskWorkflow extends BaseWorkflow implements PlaceSearchFragment.PlaceSelectionListener {
+public class CreateTaskWorkflow extends BaseWorkflow {
 
     private final CreateTaskViewModel viewModel;
 
@@ -30,9 +30,7 @@ public class CreateTaskWorkflow extends BaseWorkflow implements PlaceSearchFragm
 
         viewModel.reset();
 
-        context.fabController.setMenu(R.menu.fab_select_location_menu);
-
-        context.mapActions.setMapGesturesEnabled(true);
+        openTaskConfig();
     }
 
     @Override
@@ -43,101 +41,14 @@ public class CreateTaskWorkflow extends BaseWorkflow implements PlaceSearchFragm
         viewModel.reset();
     }
 
-    @Override
-    public void onAction(int actionId) {
-
-        if (actionId == R.id.fab_search_place) {
-
-            PlaceSearchFragment fragment = new PlaceSearchFragment();
-            fragment.setListener(this);
-
-            context.topSheetController.show(fragment);
-        }
-    }
-
-    @Override
-    public void onLocationSelected(LocationItem location) {
-        onLocationChosen(location);
-    }
-
-    @Override
-    public void onMapClicked(LatLng latLng) {
-
-        LocationItem tempLocation = new LocationItem(
-                        UUID.randomUUID().toString(),
-                        "Custom Location",
-                        "Task Location",
-                        latLng.latitude,
-                        latLng.longitude,
-                        new PolygonConfig(0f, null),
-                        new MarkerConfig(0f, "default")
-                );
-
-        context.mapActions.renderTempLocation(latLng);
-
-        onLocationChosen(tempLocation);
-    }
-
-    @Override
-    public void onPlaceSelected(String name, double lat, double lng) {
-
-        LocationItem location =
-                new LocationItem(
-                        UUID.randomUUID().toString(),
-                        name,
-                        "Task Location",
-                        lat,
-                        lng,
-                        new PolygonConfig(0f, null),
-                        new MarkerConfig(0f, "default")
-                );
-
-        onLocationChosen(location);
-    }
-
-    @Override
-    public void onSearchCancelled() {
-
-    }
-
-    private void onLocationChosen(LocationItem location) {
-
-        viewModel.setLocation(location);
-
-        context.mapActions.focusLocation(location);
-
-        viewModel.setStage(CreateTaskViewModel.Stage.CONFIGURE_TASK);
-
-        openTaskConfig();
-    }
-
     private void openTaskConfig() {
 
-        String locationId = viewModel.getCurrentLocation().id;
-
-        TaskConfigFragment fragment = TaskConfigFragment.newInstance(locationId);
+        TaskConfigFragment fragment =
+                new TaskConfigFragment();
 
         fragment.setListener(task -> {
 
             viewModel.setDraftTask(task);
-
-            viewModel.setStage(CreateTaskViewModel.Stage.CONFIGURE_PLAN);
-
-            openPlannedTaskConfig();
-        });
-
-        context.bottomSheetController.show(fragment);
-    }
-
-    private void openPlannedTaskConfig() {
-
-        TaskItem task = viewModel.getDraftTask().getValue();
-
-        PlannedTaskConfigFragment fragment = PlannedTaskConfigFragment.newInstance(task.id);
-
-        fragment.setListener(plannedTask -> {
-
-            viewModel.setDraftPlan(plannedTask);
 
             completeFlow();
         });
@@ -147,16 +58,14 @@ public class CreateTaskWorkflow extends BaseWorkflow implements PlaceSearchFragm
 
     private void completeFlow() {
 
-        TaskItem task = viewModel.getCurrentTask();
-        PlannedTask plannedTask = viewModel.getCurrentPlan();
+        TaskItem task =
+                viewModel.getCurrentTask();
 
-        if (task == null || plannedTask == null) {
+        if (task == null) {
             return;
         }
 
         context.sessionActions.createNewTask(task);
-
-        context.sessionActions.createNewPlannedTask(plannedTask);
 
         context.workflowNavigator.finishWorkflow();
     }

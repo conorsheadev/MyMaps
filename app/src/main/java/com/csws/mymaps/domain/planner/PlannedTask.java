@@ -14,43 +14,60 @@ public class PlannedTask implements Parcelable {
 
     public String id;
 
-    // Reference to reusable task
+    // References
     public String taskId;
+    public String locationId;
 
-    // Planned date
+    // Planning
     public String date;
 
-    // Schedule
     public Long startTimeMillis;
     public Long endTimeMillis;
 
-    // Planning metadata
     public Integer estimatedTravelMinutes;
     public String travelMode;
 
     // State
     public Status status;
 
-    public PlannedTask(String id, String taskId) {
+    public PlannedTask(
+            String id,
+            String taskId,
+            String locationId
+    ) {
         this.id = id;
         this.taskId = taskId;
+        this.locationId = locationId;
+
+        this.status = Status.PLANNED;
     }
 
-    public PlannedTask(String id, String taskId, String date) {
+    public PlannedTask(
+            String id,
+            String taskId,
+            String locationId,
+            String date
+    ) {
         this.id = id;
         this.taskId = taskId;
+        this.locationId = locationId;
         this.date = date;
 
         this.status = Status.PLANNED;
     }
 
-    // --- Parcelable ---
-    protected PlannedTask(Parcel in) {
-        id = in.readString();
-        taskId = in.readString();
-        date = in.readString();
+    // ----------------------------------------------------
+    // Parcelable
+    // ----------------------------------------------------
 
-        //TODO:Clean Up
+    protected PlannedTask(Parcel in) {
+
+        id = in.readString();
+
+        taskId = in.readString();
+        locationId = in.readString();
+
+        date = in.readString();
 
         // startTimeMillis
         if (in.readByte() == 0) {
@@ -58,61 +75,80 @@ public class PlannedTask implements Parcelable {
         } else {
             startTimeMillis = in.readLong();
         }
+
         // endTimeMillis
         if (in.readByte() == 0) {
             endTimeMillis = null;
         } else {
             endTimeMillis = in.readLong();
         }
+
         // estimatedTravelMinutes
         if (in.readByte() == 0) {
             estimatedTravelMinutes = null;
         } else {
             estimatedTravelMinutes = in.readInt();
         }
-        //TravelMode
+
         travelMode = in.readString();
-        //Status
+
         String statusName = in.readString();
+
         if (statusName != null) {
+
             status = Status.valueOf(statusName);
+
         } else {
+
             status = Status.PLANNED;
         }
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(taskId);
-        dest.writeString(date);
 
-        //TODO:Clean Up
+        dest.writeString(id);
+
+        dest.writeString(taskId);
+        dest.writeString(locationId);
+
+        dest.writeString(date);
 
         // startTimeMillis
         if (startTimeMillis == null) {
+
             dest.writeByte((byte) 0);
+
         } else {
+
             dest.writeByte((byte) 1);
             dest.writeLong(startTimeMillis);
         }
+
         // endTimeMillis
         if (endTimeMillis == null) {
+
             dest.writeByte((byte) 0);
+
         } else {
+
             dest.writeByte((byte) 1);
             dest.writeLong(endTimeMillis);
         }
+
         // estimatedTravelMinutes
         if (estimatedTravelMinutes == null) {
+
             dest.writeByte((byte) 0);
+
         } else {
+
             dest.writeByte((byte) 1);
             dest.writeInt(estimatedTravelMinutes);
         }
-        //TravelMode
+
         dest.writeString(travelMode);
-        //Status
+
         dest.writeString(
                 status != null
                         ? status.name()
@@ -139,4 +175,3 @@ public class PlannedTask implements Parcelable {
                 }
             };
 }
-

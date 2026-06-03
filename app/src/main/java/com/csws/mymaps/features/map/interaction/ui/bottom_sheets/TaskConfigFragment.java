@@ -102,7 +102,8 @@ public class TaskConfigFragment extends Fragment {
                 String[] items = prereqText.split(",");
 
                 for (String item : items) {
-                    task.prerequisites.add(item.trim());
+                    //TODO: Reimplement Prerequisites?
+                    //task.prerequisites.add(item.trim());
                 }
             }
 

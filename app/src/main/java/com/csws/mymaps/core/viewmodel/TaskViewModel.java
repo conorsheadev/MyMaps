@@ -12,6 +12,7 @@ import com.csws.mymaps.data.TaskRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class TaskViewModel extends AndroidViewModel {
     private final TaskRepository repository;
@@ -49,16 +50,39 @@ public class TaskViewModel extends AndroidViewModel {
         tasks.setValue(current);
     }
 
-    public List<TaskItem> getTasksForLocation(String locationId) {
-        List<TaskItem> current = tasks.getValue();
-        if (current == null) return new ArrayList<>();
+    public TaskItem getTask(String taskId) {
 
-        List<TaskItem> result = new ArrayList<>();
+        List<TaskItem> current = tasks.getValue();
+
+        if (current == null) {
+            return null;
+        }
+
         for (TaskItem task : current) {
-            if (task.locationId.equals(locationId)) {
+
+            if (task.id.equals(taskId)) {
+                return task;
+            }
+        }
+
+        return null;
+    }
+    public List<TaskItem> getTasksByIds(Set<String> taskIds) {
+
+        List<TaskItem> current = tasks.getValue();
+        List<TaskItem> result = new ArrayList<>();
+
+        if (current == null) {
+            return result;
+        }
+
+        for (TaskItem task : current) {
+
+            if (taskIds.contains(task.id)) {
                 result.add(task);
             }
         }
+
         return result;
     }
 

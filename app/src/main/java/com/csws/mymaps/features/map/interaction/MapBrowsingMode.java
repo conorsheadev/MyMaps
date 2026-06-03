@@ -14,7 +14,9 @@ import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MapBrowsingMode implements MapFabController.FabActionListener, MapFragment.MapCallbacks {
 
@@ -43,6 +45,11 @@ public class MapBrowsingMode implements MapFabController.FabActionListener, MapF
         if (actionId == R.id.fab_add_location) {
 
             context.workflowNavigator.startCreateLocationFlow();
+        }
+
+        else if (actionId == R.id.fab_add_plan){
+
+            context.workflowNavigator.startCreatePlannedTaskFlow();
         }
 
         else if (actionId == R.id.fab_add_task) {
@@ -77,9 +84,16 @@ public class MapBrowsingMode implements MapFabController.FabActionListener, MapF
 
             context.mapActions.focusLocation(location);
 
-            List<TaskItem> tasks = context.taskViewModel.getTasksForLocation(location.id);
+            List<PlannedTask> plannedTasks = context.plannedTaskViewModel.getPlansForLocation(location.id);
+            Set<String> taskIds = new HashSet<>();
 
-            List<PlannedTask> plannedTasks = context.plannedTaskViewModel.getPlansForTasks(tasks);
+            for (PlannedTask plan : plannedTasks) {
+
+                if (plan.taskId != null) {
+                    taskIds.add(plan.taskId);
+                }
+            }
+            List<TaskItem> tasks = context.taskViewModel.getTasksByIds(taskIds);
 
             context.bottomSheetController.show(
                     LocationDetailFragment.newInstance(

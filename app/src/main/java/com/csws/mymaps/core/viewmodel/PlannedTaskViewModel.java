@@ -130,4 +130,47 @@ public class PlannedTaskViewModel extends AndroidViewModel {
 
         return result;
     }
+
+    public List<PlannedTask> getPlansForLocation(String locationId) {
+
+        List<PlannedTask> current = plannedTasks.getValue();
+        List<PlannedTask> result = new ArrayList<>();
+
+        if (current == null) {
+            return result;
+        }
+
+        for (PlannedTask plan : current) {
+
+            if (locationId.equals(plan.locationId)) {
+                result.add(plan);
+            }
+        }
+
+        return result;
+    }
+
+    public List<PlannedTask> getPlansForLocationAndDate(
+            String locationId,
+            String date
+    ) {
+
+        List<PlannedTask> current = plannedTasks.getValue();
+        List<PlannedTask> result = new ArrayList<>();
+
+        if (current == null) {
+            return result;
+        }
+
+        for (PlannedTask plan : current) {
+
+            if (locationId.equals(plan.locationId)
+                    && date.equals(plan.date)) {
+
+                result.add(plan);
+            }
+        }
+
+        return result;
+    }
 }
