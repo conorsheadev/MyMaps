@@ -148,7 +148,6 @@ public class CreateTaskWorkflow extends BaseWorkflow implements PlaceSearchFragm
     private void completeFlow() {
 
         TaskItem task = viewModel.getCurrentTask();
-
         PlannedTask plannedTask = viewModel.getCurrentPlan();
 
         if (task == null || plannedTask == null) {

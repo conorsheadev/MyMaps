@@ -3,6 +3,7 @@ package com.csws.mymaps.features.map.coordinators;
 import com.csws.mymaps.core.flow.interfaces.coordinator_interfaces.SessionActions;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
+import com.csws.mymaps.domain.tasks.TaskCollection;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.workflow.workflows.InitialiseSessionWorkflow;
 
@@ -45,5 +46,11 @@ public class SessionCoordinator implements SessionActions {
     public void createNewPlannedTask(PlannedTask plannedTask) {
 
         context.plannedTaskViewModel.addPlannedTask(plannedTask);
+    }
+
+    @Override
+    public void createTaskCollection(TaskCollection collection) {
+
+        context.taskCollectionViewModel.addCollection(collection);
     }
 }

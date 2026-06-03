@@ -50,6 +50,11 @@ public class MapBrowsingMode implements MapFabController.FabActionListener, MapF
             context.workflowNavigator.startCreateTaskFlow();
         }
 
+        else if (actionId == R.id.fab_add_collection) {
+
+            context.workflowNavigator.startCreateCollectionFlow();
+        }
+
         else if (actionId == R.id.fab_add_task_to_location) {
 
             context.workflowNavigator.startCreateTaskFromLocationFlow(viewModel.getCurrentLocation());
