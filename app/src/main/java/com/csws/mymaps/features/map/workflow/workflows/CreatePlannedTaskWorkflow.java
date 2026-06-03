@@ -8,7 +8,7 @@ import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.coordinators.MapViewContext;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.PlannedTaskConfigFragment;
-import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.TaskPickerFragment;
+import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.pickers.TaskPickerFragment;
 import com.csws.mymaps.features.map.interaction.ui.top_sheets.PlaceSearchFragment;
 import com.csws.mymaps.features.map.viewmodels.CreatePlannedTaskViewModel;
 import com.csws.mymaps.features.map.workflow.BaseWorkflow;

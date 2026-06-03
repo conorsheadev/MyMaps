@@ -29,8 +29,22 @@
             android:textSize="20sp"
             android:textStyle="bold"/>
 
-        <!-- TASK NAME -->
+        <!-- COLLECTION -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
 
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editCollection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Collection"
+                android:focusable="false"
+                android:clickable="true"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- TASK NAME -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,6 +55,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Task name"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- IconField -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editIcon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Icon Name"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- DESCRIPTION -->
@@ -71,20 +98,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- PREREQUISITES -->
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editPrerequisites"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Prerequisites (comma separated)"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- CONFIRM -->

@@ -1,4 +1,4 @@
-package com.csws.mymaps.features.map.interaction.ui.bottom_sheets;
+package com.csws.mymaps.features.map.interaction.ui.bottom_sheets.pickers;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

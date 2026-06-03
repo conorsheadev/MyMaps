@@ -18,6 +18,7 @@ public class TaskCollectionViewModel extends AndroidViewModel {
     private final TaskCollectionRepository repository;
     private final MutableLiveData<List<TaskCollection>> collections = new MutableLiveData<>();
 
+
     public TaskCollectionViewModel(@NonNull Application application) {
         super(application);
         repository = new TaskCollectionRepository(application);
