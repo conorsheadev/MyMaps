@@ -7,7 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.csws.mymaps.data.ConfigRepository;
+import com.csws.mymaps.data.repositories.ConfigRepository;
 import com.csws.mymaps.domain.planner.PlannerConfig;
 
 import java.time.DayOfWeek;

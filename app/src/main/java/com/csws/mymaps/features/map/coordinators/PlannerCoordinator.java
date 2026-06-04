@@ -6,9 +6,9 @@ import android.os.Looper;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.csws.mymaps.domain.planner.PlannedTask;
-import com.csws.mymaps.features.map.planner.PlannerEngine;
-import com.csws.mymaps.features.map.planner.PlannerPrompt;
-import com.csws.mymaps.features.map.planner.PlannerState;
+import com.csws.mymaps.domain.planner.engine.PlannerEngine;
+import com.csws.mymaps.domain.planner.engine.PlannerPrompt;
+import com.csws.mymaps.domain.planner.engine.PlannerState;
 
 import java.util.List;
 

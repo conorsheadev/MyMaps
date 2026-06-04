@@ -132,7 +132,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:fillViewport="true">
-        <com.csws.mymaps.core.ui.TimelineView
+        <com.csws.mymaps.core.ui.timeline.TimelineView
             android:id="@+id/timelineView"
             android:layout_width="match_parent"
             android:layout_height="0dp"

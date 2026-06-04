@@ -57,7 +57,7 @@
         app:cardElevation="2dp">
 
         <!-- TimelineRenderer -->
-        <com.csws.mymaps.core.ui.TimelineView
+        <com.csws.mymaps.core.ui.timeline.TimelineView
             android:id="@+id/timeline_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

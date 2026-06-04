@@ -1,6 +1,6 @@
 package com.csws.mymaps.core.flow.interfaces.coordinator_interfaces;
 
-import com.csws.mymaps.features.map.planner.PlannerPrompt;
+import com.csws.mymaps.domain.planner.engine.PlannerPrompt;
 
 public interface PromptHandler {
 

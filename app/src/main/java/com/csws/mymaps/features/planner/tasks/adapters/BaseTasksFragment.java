@@ -12,9 +12,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.core.viewmodel.LocationViewModel;
-import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
-import com.csws.mymaps.core.viewmodel.TaskViewModel;
+import com.csws.mymaps.core.state.LocationViewModel;
+import com.csws.mymaps.core.state.PlannedTaskViewModel;
+import com.csws.mymaps.core.state.TaskViewModel;
 import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;

@@ -10,16 +10,16 @@ import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
-import com.csws.mymaps.features.map.interaction.MapBrowsingMode;
-import com.csws.mymaps.features.map.viewmodels.CreateCollectionViewModel;
-import com.csws.mymaps.features.map.viewmodels.CreatePlannedTaskViewModel;
-import com.csws.mymaps.features.map.workflow.workflows.CreateLocationWorkflow;
-import com.csws.mymaps.features.map.workflow.workflows.CreatePlannedTaskWorkflow;
-import com.csws.mymaps.features.map.workflow.workflows.CreateTaskCollectionWorkflow;
-import com.csws.mymaps.features.map.workflow.workflows.CreateTaskWorkflow;
-import com.csws.mymaps.features.map.viewmodels.CreateLocationViewModel;
-import com.csws.mymaps.features.map.viewmodels.CreateTaskViewModel;
-import com.csws.mymaps.features.map.viewmodels.DefaultFlowViewModel;
+import com.csws.mymaps.features.map.modes.MapBrowsingMode;
+import com.csws.mymaps.features.map.workflows.create_collection.CreateCollectionViewModel;
+import com.csws.mymaps.features.map.workflows.create_plan.CreatePlannedTaskViewModel;
+import com.csws.mymaps.features.map.workflows.create_location.CreateLocationWorkflow;
+import com.csws.mymaps.features.map.workflows.create_plan.CreatePlannedTaskWorkflow;
+import com.csws.mymaps.features.map.workflows.create_collection.CreateTaskCollectionWorkflow;
+import com.csws.mymaps.features.map.workflows.create_task.CreateTaskWorkflow;
+import com.csws.mymaps.features.map.workflows.create_location.CreateLocationViewModel;
+import com.csws.mymaps.features.map.workflows.create_task.CreateTaskViewModel;
+import com.csws.mymaps.features.map.modes.DefaultFlowViewModel;
 import com.google.android.gms.maps.model.LatLng;
 
 public class WorkflowCoordinator implements  MapToolbarController.Listener, MapFabController.FabActionListener, MapFragment.MapCallbacks, BottomSheetController.Listener, WorkflowNavigator {

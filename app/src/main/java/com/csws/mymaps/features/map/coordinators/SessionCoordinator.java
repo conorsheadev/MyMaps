@@ -5,7 +5,7 @@ import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskCollection;
 import com.csws.mymaps.domain.tasks.TaskItem;
-import com.csws.mymaps.features.map.workflow.workflows.InitialiseSessionWorkflow;
+import com.csws.mymaps.features.map.workflows.sessionflows.InitialiseSessionWorkflow;
 
 public class SessionCoordinator implements SessionActions {
 

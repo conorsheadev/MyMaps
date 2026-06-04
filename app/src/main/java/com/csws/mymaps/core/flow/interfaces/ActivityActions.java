@@ -3,7 +3,7 @@ package com.csws.mymaps.core.flow.interfaces;
 import androidx.annotation.MenuRes;
 import androidx.fragment.app.Fragment;
 
-import com.csws.mymaps.features.map.interaction.ui.top_sheets.PlaceSearchFragment;
+import com.csws.mymaps.core.ui.pickers.PlaceSearchFragment;
 
 public interface ActivityActions {
     //UI ACTIONS

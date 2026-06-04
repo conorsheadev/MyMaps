@@ -15,7 +15,6 @@ import androidx.fragment.app.FragmentContainerView;
 import com.csws.mymaps.R;
 import com.csws.mymaps.features.map.MapViewActivity;
 import com.csws.mymaps.features.planner.config.ConfigFragment;
-import com.csws.mymaps.features.planner.planner.PlannerFragment;
 import com.csws.mymaps.features.planner.tasks.TasksFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;

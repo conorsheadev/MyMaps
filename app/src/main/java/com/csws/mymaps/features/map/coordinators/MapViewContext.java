@@ -4,15 +4,15 @@ import com.csws.mymaps.core.flow.interfaces.coordinator_interfaces.PromptHandler
 import com.csws.mymaps.core.flow.interfaces.coordinator_interfaces.WorkflowNavigator;
 import com.csws.mymaps.core.flow.interfaces.MapActions;
 import com.csws.mymaps.core.flow.interfaces.coordinator_interfaces.SessionActions;
-import com.csws.mymaps.core.viewmodel.LocationViewModel;
-import com.csws.mymaps.core.viewmodel.PlannedTaskViewModel;
-import com.csws.mymaps.core.viewmodel.TaskCollectionViewModel;
-import com.csws.mymaps.core.viewmodel.TaskViewModel;
+import com.csws.mymaps.core.state.LocationViewModel;
+import com.csws.mymaps.core.state.PlannedTaskViewModel;
+import com.csws.mymaps.core.state.TaskCollectionViewModel;
+import com.csws.mymaps.core.state.TaskViewModel;
 import com.csws.mymaps.features.map.controllers.BottomSheetController;
 import com.csws.mymaps.features.map.controllers.MapFabController;
 import com.csws.mymaps.features.map.controllers.MapToolbarController;
 import com.csws.mymaps.features.map.controllers.TopSheetController;
-import com.csws.mymaps.features.map.viewmodels.SessionViewModel;
+import com.csws.mymaps.features.map.workflows.sessionflows.SessionViewModel;
 
 public class MapViewContext {
 

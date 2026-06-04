@@ -1,10 +1,8 @@
 package com.csws.mymaps.features.map.coordinators;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
@@ -13,8 +11,8 @@ import com.csws.mymaps.core.flow.interfaces.coordinator_interfaces.PromptHandler
 import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
-import com.csws.mymaps.features.map.interaction.ui.top_sheets.PlannerPromptFragment;
-import com.csws.mymaps.features.map.planner.PlannerPrompt;
+import com.csws.mymaps.features.map.ui.top_sheets.PlannerPromptFragment;
+import com.csws.mymaps.domain.planner.engine.PlannerPrompt;
 
 import java.util.LinkedList;
 import java.util.List;
