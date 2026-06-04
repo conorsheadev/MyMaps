@@ -38,6 +38,12 @@ public class CreatePlannedTaskWorkflow extends BaseWorkflow implements PlannedTa
 
         openPlanConfig();
     }
+    @Override
+    public void stop() {
+
+        resetUI();
+        viewModel.reset();
+    }
 
     private void openPlanConfig() {
 
@@ -161,8 +167,7 @@ public class CreatePlannedTaskWorkflow extends BaseWorkflow implements PlannedTa
 
     private void completeFlow() {
 
-        PlannedTask plan =
-                viewModel.getCurrentPlan();
+        PlannedTask plan = viewModel.getCurrentPlan();
 
         if (plan == null) {
             return;
