@@ -8,6 +8,7 @@ import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.coordinators.MapViewContext;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.PlannedTaskConfigFragment;
+import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.pickers.LocationPickerFragment;
 import com.csws.mymaps.features.map.interaction.ui.bottom_sheets.pickers.TaskPickerFragment;
 import com.csws.mymaps.features.map.interaction.ui.top_sheets.PlaceSearchFragment;
 import com.csws.mymaps.features.map.viewmodels.CreatePlannedTaskViewModel;
@@ -16,8 +17,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.UUID;
 
-public class CreatePlannedTaskWorkflow extends BaseWorkflow implements PlaceSearchFragment.PlaceSelectionListener {
+public class CreatePlannedTaskWorkflow extends BaseWorkflow implements PlannedTaskConfigFragment.Listener, PlaceSearchFragment.PlaceSelectionListener {
     private final CreatePlannedTaskViewModel viewModel;
+    private PlannedTaskConfigFragment configFragment;
 
     public CreatePlannedTaskWorkflow(CreatePlannedTaskViewModel viewModel, MapViewContext context) {
         super(context);
@@ -30,38 +32,66 @@ public class CreatePlannedTaskWorkflow extends BaseWorkflow implements PlaceSear
 
         viewModel.reset();
 
-        context.fabController.setMenu(
-                R.menu.fab_select_location_menu
-        );
+        context.fabController.setMenu(R.menu.fab_select_location_menu);
 
         context.mapActions.setMapGesturesEnabled(true);
 
-        openTaskSelection();
-
-
+        openPlanConfig();
     }
 
-    private void openTaskSelection() {
+    private void openPlanConfig() {
 
-        TaskPickerFragment fragment =
-                new TaskPickerFragment();
+        configFragment = PlannedTaskConfigFragment.newInstance();
+
+        configFragment.setListener(this);
+        configFragment.setSelectedTask(viewModel.getCurrentTask());
+        configFragment.setSelectedLocation(viewModel.getCurrentLocation());
+
+        context.bottomSheetController.show(configFragment);
+    }
+
+    @Override
+    public void onSelectTaskRequested() {
+
+        TaskPickerFragment fragment = new TaskPickerFragment();
 
         fragment.setListener(task -> {
 
             viewModel.setTask(task);
 
-            viewModel.setStage(
-                    CreatePlannedTaskViewModel.Stage.SELECT_LOCATION
-            );
+            if (configFragment != null) {
+                configFragment.setSelectedTask(task);
+            }
+
+            openPlanConfig();
         });
 
         context.bottomSheetController.show(fragment);
     }
 
-    private void onTaskSelected(TaskItem task) {
+    @Override
+    public void onSelectLocationRequested() {
 
-        viewModel.setTask(task);
-        viewModel.setStage(CreatePlannedTaskViewModel.Stage.SELECT_LOCATION);
+        LocationPickerFragment fragment = new LocationPickerFragment();
+
+        fragment.setListener(location -> {
+
+            viewModel.setLocation(location);
+
+            if (configFragment != null) {
+                configFragment.setSelectedLocation(location);
+            }
+
+            openPlanConfig();
+        });
+
+        context.bottomSheetController.show(fragment);
+    }
+
+    @Override
+    public void onPlannedTaskConfirmed(PlannedTask plannedTask) {
+        viewModel.setDraftPlan(plannedTask);
+        completeFlow();
     }
 
     @Override
@@ -80,8 +110,7 @@ public class CreatePlannedTaskWorkflow extends BaseWorkflow implements PlaceSear
     @Override
     public void onMapClicked(LatLng latLng) {
 
-        LocationItem location =
-                new LocationItem(
+        LocationItem location = new LocationItem(
                         UUID.randomUUID().toString(),
                         "Custom Location",
                         "Task Location",
@@ -103,11 +132,7 @@ public class CreatePlannedTaskWorkflow extends BaseWorkflow implements PlaceSear
     }
 
     @Override
-    public void onPlaceSelected(
-            String name,
-            double lat,
-            double lng
-    ) {
+    public void onPlaceSelected(String name, double lat, double lng) {
 
         LocationItem location =
                 new LocationItem(
@@ -131,31 +156,7 @@ public class CreatePlannedTaskWorkflow extends BaseWorkflow implements PlaceSear
 
         context.mapActions.focusLocation(location);
 
-        viewModel.setStage(
-                CreatePlannedTaskViewModel.Stage.CONFIGURE_PLAN
-        );
-
         openPlanConfig();
-    }
-
-    private void openPlanConfig() {
-
-        TaskItem task = viewModel.getCurrentTask();
-
-        LocationItem location = viewModel.getCurrentLocation();
-
-        PlannedTaskConfigFragment fragment = PlannedTaskConfigFragment.newInstance(task.id, location.id);
-
-        fragment.setListener(plannedTask -> {
-
-            plannedTask.locationId = location.id;
-
-            viewModel.setDraftPlan(plannedTask);
-
-            completeFlow();
-        });
-
-        context.bottomSheetController.show(fragment);
     }
 
     private void completeFlow() {

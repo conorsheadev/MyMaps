@@ -12,7 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.domain.locations.LocationItem;
 import com.csws.mymaps.domain.planner.PlannedTask;
+import com.csws.mymaps.domain.tasks.TaskItem;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -31,30 +33,22 @@ public class PlannedTaskConfigFragment extends Fragment {
     //TODO: Clean Up
     public interface Listener {
         void onPlannedTaskConfirmed(PlannedTask plannedTask);
+        void onSelectTaskRequested();
+        void onSelectLocationRequested();
     }
     private Listener listener;
     public void setListener(Listener listener) {
         this.listener = listener;
     }
 
-    private static final String ARG_TASK_ID = "task_id";
-    private static final String ARG_LOCATION_ID = "location_id";
 
-    public static PlannedTaskConfigFragment newInstance(String taskId, String locationId) {
 
-        PlannedTaskConfigFragment fragment = new PlannedTaskConfigFragment();
-        Bundle args = new Bundle();
-
-        args.putString(ARG_TASK_ID, taskId);
-        args.putString(ARG_LOCATION_ID, locationId);
-
-        fragment.setArguments(args);
-
-        return fragment;
+    public static PlannedTaskConfigFragment newInstance() {
+        return new PlannedTaskConfigFragment();
     }
 
-    private String taskId;
-    private String locationId;
+    private TaskItem selectedTask;
+    private LocationItem selectedLocation;
 
     private Calendar selectedDate = Calendar.getInstance();
 
@@ -66,6 +60,8 @@ public class PlannedTaskConfigFragment extends Fragment {
 
     private boolean useDurationMode = true;
 
+    private TextInputEditText editTask;
+    private TextInputEditText editLocation;
     LinearLayout durationContainer;
     TextInputEditText durationHoursInput;
     TextInputEditText durationMinutesInput;
@@ -81,14 +77,9 @@ public class PlannedTaskConfigFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (getArguments() != null) {
-
-            taskId = getArguments().getString(ARG_TASK_ID);
-
-            locationId = getArguments().getString(ARG_LOCATION_ID);
-        }
-
         // INIT UI
+        editTask = view.findViewById(R.id.editTask);
+        editLocation = view.findViewById(R.id.editLocation);
         MaterialButtonToggleGroup toggleGroup = view.findViewById(R.id.schedulingModeToggle);
         durationContainer = view.findViewById(R.id.durationContainer);
         endTimeContainer = view.findViewById(R.id.endTimeContainer);
@@ -99,6 +90,24 @@ public class PlannedTaskConfigFragment extends Fragment {
         durationMinutesInput = view.findViewById(R.id.durationMinutesInput);
         MaterialButton confirmButton = view.findViewById(R.id.confirmButton);
         travelModeSelector = view.findViewById(R.id.travelModeSelector);
+
+        //Task Selector
+        if (selectedTask != null) {editTask.setText(selectedTask.title);}
+        editTask.setOnClickListener(v -> {
+
+            if (listener != null) {
+                listener.onSelectTaskRequested();
+            }
+        });
+
+        //Location Selector
+        if(selectedLocation != null) {editLocation.setText(selectedLocation.name);}
+        editLocation.setOnClickListener(v -> {
+
+            if (listener != null) {
+                listener.onSelectLocationRequested();
+            }
+        });
 
         // DEFAULT STATE
         toggleGroup.check(R.id.modeDurationButton);
@@ -165,6 +174,24 @@ public class PlannedTaskConfigFragment extends Fragment {
         confirmButton.setOnClickListener(v -> confirm());
     }
 
+    public void setSelectedTask(TaskItem task) {
+
+        selectedTask = task;
+
+        if (editTask != null && task != null) {
+            editTask.setText(task.title);
+        }
+    }
+
+    public void setSelectedLocation(LocationItem location) {
+
+        selectedLocation = location;
+
+        if (editLocation != null && location != null) {
+            editLocation.setText(location.name);
+        }
+    }
+
     // --- Internal Lifecycle ---
     private void toggleMode(MaterialButtonToggleGroup group, int checkedId, boolean isChecked){
         if (!isChecked) return;
@@ -175,7 +202,7 @@ public class PlannedTaskConfigFragment extends Fragment {
         endTimeContainer.setVisibility(useDurationMode ? View.GONE : View.VISIBLE);
     }
     private void confirm(){
-        PlannedTask plannedTask = new PlannedTask(UUID.randomUUID().toString(), taskId, locationId);
+        PlannedTask plannedTask = new PlannedTask(UUID.randomUUID().toString(), selectedTask.id, selectedLocation.id);
 
         Calendar startCalendar = (Calendar) selectedDate.clone();
         startCalendar.set(Calendar.HOUR_OF_DAY, startHour);

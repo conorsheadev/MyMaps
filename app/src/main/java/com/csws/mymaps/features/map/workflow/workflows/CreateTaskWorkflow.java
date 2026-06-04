@@ -52,9 +52,7 @@ public class CreateTaskWorkflow extends BaseWorkflow implements TaskConfigFragme
         taskConfigFragment = new TaskConfigFragment();
 
         taskConfigFragment.setListener(this);
-        taskConfigFragment.setSelectedCollection(
-                viewModel.getCurrentCollection()
-        );
+        taskConfigFragment.setSelectedCollection(viewModel.getCurrentCollection());
 
         context.bottomSheetController.show(taskConfigFragment);
     }
