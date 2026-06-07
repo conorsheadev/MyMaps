@@ -3,9 +3,9 @@ package com.csws.mymaps.domain.planner.engine;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TaskPromptState {
+public class PlanPromptState {
 
-    public String taskId;
+    public String planId; /// the Id of the associated plan
 
     // Prompt tracking
     public final Set<String> shownPrompts = new HashSet<>();

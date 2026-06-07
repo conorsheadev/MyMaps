@@ -1,18 +1,18 @@
 package com.csws.mymaps.domain.planner.rules;
 
 import com.csws.mymaps.domain.planner.PlannedTask;
-import com.csws.mymaps.domain.planner.engine.PlannerPrompt;
+import com.csws.mymaps.domain.planner.engine.prompts.PlannerPrompt;
 import com.csws.mymaps.domain.planner.engine.PlannerRule;
 import com.csws.mymaps.domain.planner.engine.PlannerState;
-import com.csws.mymaps.domain.planner.engine.TaskPromptState;
+import com.csws.mymaps.domain.planner.engine.PlanPromptState;
 
 public class PrepareToLeaveRule
         implements PlannerRule {
 
     @Override
-    public void evaluate(PlannedTask task, TaskPromptState taskState, PlannerState plannerState) {
+    public void evaluate(PlannedTask task, PlanPromptState taskState, PlannerState plannerState) {
 
-        long minutes = plannerState.millisUntilNextTask / (1000 * 60);
+        long minutes = plannerState.millisUntilNextPlan / (1000 * 60);
 
         if (minutes > 30 || minutes <= 25) {
             return;

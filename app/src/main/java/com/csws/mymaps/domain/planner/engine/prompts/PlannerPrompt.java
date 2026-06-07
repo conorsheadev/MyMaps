@@ -1,4 +1,4 @@
-package com.csws.mymaps.domain.planner.engine;
+package com.csws.mymaps.domain.planner.engine.prompts;
 
 public class PlannerPrompt {
 

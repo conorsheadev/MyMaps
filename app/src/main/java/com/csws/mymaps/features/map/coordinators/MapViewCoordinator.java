@@ -12,7 +12,7 @@ import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.tasks.TaskItem;
 import com.csws.mymaps.features.map.controllers.map.MapFragment;
 import com.csws.mymaps.features.map.ui.top_sheets.PlannerPromptFragment;
-import com.csws.mymaps.domain.planner.engine.PlannerPrompt;
+import com.csws.mymaps.domain.planner.engine.prompts.PlannerPrompt;
 
 import java.util.LinkedList;
 import java.util.List;

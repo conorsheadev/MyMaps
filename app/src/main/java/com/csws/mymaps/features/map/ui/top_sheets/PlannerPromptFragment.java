@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.domain.planner.engine.PlannerPrompt;
+import com.csws.mymaps.domain.planner.engine.prompts.PlannerPrompt;
 import com.google.android.material.button.MaterialButton;
 
 public class PlannerPromptFragment extends Fragment {

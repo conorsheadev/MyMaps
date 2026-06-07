@@ -4,88 +4,145 @@ import com.csws.mymaps.domain.planner.PlannedTask;
 import com.csws.mymaps.domain.planner.rules.LeaveNowRule;
 import com.csws.mymaps.domain.planner.rules.PrepareToLeaveRule;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PlannerEngine {
 
-    private final Map<String, TaskPromptState> taskStates = new HashMap<>();
+    private final Map<String, PlanPromptState> planStates = new HashMap<>();
     private final List<PlannerRule> rules =
             Arrays.asList(
                     new PrepareToLeaveRule(),
                     new LeaveNowRule()
             );
 
-    public PlannerState buildState(List<PlannedTask> tasks) {
+    public PlannerState buildState(List<PlannedTask> plans) {
 
         PlannerState state = new PlannerState();
 
-        if (tasks == null || tasks.isEmpty()) {
-
-            state.shouldDisplayCountdown = false;
+        if (plans == null || plans.isEmpty()) {
             return state;
         }
 
         long now = System.currentTimeMillis();
 
-        PlannedTask nextTask = null;
+        state.activePlans = findActivePlans(plans, now);
 
-        long smallestDelta = Long.MAX_VALUE;
+        state.nextPlan = findNextPlan(plans, now);
 
-        for (PlannedTask task : tasks) {
+        state.upcomingPlans = findUpcomingPlans(plans, now);
 
-            long delta = task.startTimeMillis - now;
+        state.millisUntilNextPlan = calculateCountdown(state.nextPlan, now);
 
-            if (delta > 0 && delta < smallestDelta) {
-
-                smallestDelta = delta;
-
-                nextTask = task;
-            }
-        }
-
-        state.nextTask = nextTask;
-        state.millisUntilNextTask = smallestDelta;
-
-        state.shouldDisplayCountdown = nextTask != null;
-
-        if (nextTask != null) {
-
-            TaskPromptState taskState = getState(nextTask);
-
-            for (PlannerRule rule : rules) {
-
-                rule.evaluate(nextTask, taskState, state);
-            }
-        }
+        evaluateRules(state);
 
         return state;
     }
 
-    private boolean shouldShowPrompt(TaskPromptState state, String promptId) {
+    private List<PlannedTask> findActivePlans(List<PlannedTask> plans, long now) {
 
-        if (state.shownPrompts.contains(promptId)) {
-            return false;
+        List<PlannedTask> active = new ArrayList<>();
+
+        for (PlannedTask plan : plans) {
+
+            if (plan.startTimeMillis == null || plan.endTimeMillis == null) {continue;}
+            if (plan.startTimeMillis <= now && now <= plan.endTimeMillis) {
+                active.add(plan);
+            }
         }
 
-        state.shownPrompts.add(promptId);
-
-        return true;
+        return active;
     }
 
-    private TaskPromptState getState(PlannedTask task) {
+    private PlannedTask findNextPlan(List<PlannedTask> plans, long now) {
 
-        TaskPromptState state =
-                taskStates.get(task.id);
+        PlannedTask nextPlan = null;
+
+        long smallestDelta = Long.MAX_VALUE;
+
+        for (PlannedTask plan : plans) {
+
+            if (plan.startTimeMillis == null) { continue; }
+
+            long delta = plan.startTimeMillis - now;
+
+            if (delta > 0 && delta < smallestDelta) {
+
+                smallestDelta = delta;
+                nextPlan = plan;
+            }
+        }
+
+        return nextPlan;
+    }
+
+    private List<PlannedTask> findUpcomingPlans(List<PlannedTask> plans, long now) {
+
+        List<PlannedTask> upcoming = new ArrayList<>();
+
+        for (PlannedTask plan : plans) {
+
+            if (plan.startTimeMillis == null) {
+                continue;
+            }
+
+            if (plan.startTimeMillis > now) {
+
+                upcoming.add(plan);
+            }
+        }
+
+        upcoming.sort(
+                Comparator.comparingLong(
+                        t -> t.startTimeMillis
+                )
+        );
+
+        return upcoming;
+    }
+
+    private long calculateCountdown(PlannedTask nextPlan, long now) {
+
+        if (nextPlan == null) {
+            return 0;
+        }
+
+        return Math.max(
+                0,
+                nextPlan.startTimeMillis - now
+        );
+    }
+    private void evaluateRules(PlannerState state) {
+
+        if (state.nextPlan == null) {
+            return;
+        }
+
+        PlanPromptState taskState = getState(state.nextPlan);
+
+        for (PlannerRule rule : rules) {
+
+            rule.evaluate(
+                    state.nextPlan,
+                    taskState,
+                    state
+            );
+        }
+    }
+    private PlanPromptState getState(PlannedTask plan) {
+
+        PlanPromptState state = planStates.get(plan.id);
 
         if (state == null) {
 
-            state = new TaskPromptState();
-            state.taskId = task.id;
+            state = new PlanPromptState();
+            state.planId = plan.id;
 
-            taskStates.put(task.id, state);
+            planStates.put(plan.id, state);
         }
 
         return state;
