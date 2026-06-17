@@ -10,12 +10,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.domain.tasks.TaskCollection;
-import com.csws.mymaps.domain.tasks.TaskItem;
+import com.csws.mymaps.core.ui.pickers.StagePickerView;
+import com.csws.mymaps.core.models.tasks.TaskCollection;
+import com.csws.mymaps.core.models.tasks.TaskItem;
+import com.csws.mymaps.core.models.tasks.TaskStageTemplate;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.List;
 import java.util.UUID;
 
 public class TaskConfigFragment extends Fragment {
@@ -28,8 +31,6 @@ public class TaskConfigFragment extends Fragment {
     public void setListener(Listener listener) {
         this.listener = listener;
     }
-
-
 
     public static TaskConfigFragment newInstance() {
         return new TaskConfigFragment();
@@ -54,6 +55,8 @@ public class TaskConfigFragment extends Fragment {
         TextInputEditText editIcon = view.findViewById(R.id.editIcon);
         MaterialAutoCompleteTextView typeSelector = view.findViewById(R.id.typeSelector);
         MaterialButton confirmButton = view.findViewById(R.id.confirmButton);
+        StagePickerView stagePicker = view.findViewById(R.id.stagePicker);
+
 
         // --- Edit Collection ---
         if(selectedCollection != null) { editCollection.setText(selectedCollection.title);}
@@ -73,6 +76,7 @@ public class TaskConfigFragment extends Fragment {
         typeSelector.setSimpleItems(types);
         typeSelector.setText("BASIC", false);
 
+
         // --- Confirm ---
 
         confirmButton.setOnClickListener(v -> {
@@ -84,12 +88,21 @@ public class TaskConfigFragment extends Fragment {
 
             TaskItem task = new TaskItem(
                     UUID.randomUUID().toString(),
-                    "",
+                    selectedCollection.id,
                     name,
                     desc,
                     getText(editIcon),
                     type
             );
+
+            List<TaskStageTemplate> stageTemplates = stagePicker.getStages();
+
+            for (int i = 0; i < stageTemplates.size(); i++) {
+
+                stageTemplates.get(i).order = i;
+            }
+
+            task.stageTemplates = stageTemplates;
 
             if (listener != null) {
                 listener.onTaskConfirmed(task);

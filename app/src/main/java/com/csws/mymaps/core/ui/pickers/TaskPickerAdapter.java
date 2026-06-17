@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.domain.tasks.TaskItem;
+import com.csws.mymaps.core.models.tasks.TaskItem;
 
 import java.util.List;
 

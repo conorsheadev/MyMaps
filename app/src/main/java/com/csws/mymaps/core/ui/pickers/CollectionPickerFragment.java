@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.core.state.TaskCollectionViewModel;
-import com.csws.mymaps.domain.tasks.TaskCollection;
+import com.csws.mymaps.core.viewmodels.collections.TaskCollectionViewModel;
+import com.csws.mymaps.core.models.tasks.TaskCollection;
 
 public class CollectionPickerFragment extends Fragment {
 

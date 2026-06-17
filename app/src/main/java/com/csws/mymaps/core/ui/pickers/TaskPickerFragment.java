@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.core.state.TaskViewModel;
-import com.csws.mymaps.domain.tasks.TaskItem;
+import com.csws.mymaps.core.viewmodels.tasks.TaskViewModel;
+import com.csws.mymaps.core.models.tasks.TaskItem;
 
 public class TaskPickerFragment extends Fragment {
 

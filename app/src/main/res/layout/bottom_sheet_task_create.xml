@@ -100,6 +100,13 @@
                 android:inputType="none"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- STAGES -->
+        <com.csws.mymaps.core.ui.pickers.StagePickerView
+            android:id="@+id/stagePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"/>
+
         <!-- CONFIRM -->
 
         <com.google.android.material.button.MaterialButton

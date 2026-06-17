@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.domain.locations.LocationItem;
+import com.csws.mymaps.core.models.locations.LocationItem;
 
 import java.util.List;
 

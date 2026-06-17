@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.csws.mymaps.domain.planner.PlannedTask;
-import com.csws.mymaps.domain.tasks.TaskItem;
+import com.csws.mymaps.core.models.plans.PlannedTask;
+import com.csws.mymaps.core.models.tasks.TaskItem;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.Calendar;

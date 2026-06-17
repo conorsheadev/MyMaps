@@ -23,7 +23,7 @@
             android:value="AIzaSyCL0FPqe4IgRy-QQO42y1P5xCg09LwHLuc"/>
 
         <activity
-            android:name=".features.auth.PreMenuLogin"
+            android:name=".services.activities.auth.PreMenuLogin"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,20 +31,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".features.auth.SignInActivity"
+            android:name=".services.activities.auth.SignInActivity"
             android:exported="false"/>
         <activity
-            android:name=".features.auth.SignUpActivity"
+            android:name=".services.activities.auth.SignUpActivity"
             android:exported="false"/>
 
         <activity
-            android:name=".features.map.MapViewActivity"
+            android:name=".coordinators.map.MapViewActivity"
             android:exported="false"
             android:theme="@style/Theme.MyMaps"
             android:windowSoftInputMode="adjustNothing"/>
 
         <activity
-            android:name=".features.planner.PlannerViewActivity"
+            android:name=".services.activities.planner.PlannerViewActivity"
             android:exported="false"
             android:theme="@style/Theme.MyMaps"/>
     </application>

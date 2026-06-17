@@ -4,8 +4,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
-import com.csws.mymaps.domain.planner.PlannedTask;
-import com.csws.mymaps.domain.tasks.TaskItem;
+import com.csws.mymaps.core.models.plans.PlannedTask;
+import com.csws.mymaps.core.models.tasks.TaskItem;
 
 import java.util.List;
 import java.util.Map;

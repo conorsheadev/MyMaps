@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.domain.tasks.TaskCollection;
+import com.csws.mymaps.core.models.tasks.TaskCollection;
 
 import java.util.ArrayList;
 import java.util.List;

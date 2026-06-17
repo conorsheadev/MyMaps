@@ -12,9 +12,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.domain.locations.LocationItem;
-import com.csws.mymaps.domain.planner.PlannedTask;
-import com.csws.mymaps.domain.tasks.TaskItem;
+import com.csws.mymaps.core.models.locations.LocationItem;
+import com.csws.mymaps.core.models.plans.PlannedStage;
+import com.csws.mymaps.core.models.plans.PlannedTask;
+import com.csws.mymaps.core.utils.factories.StageFactory;
+import com.csws.mymaps.core.models.tasks.TaskItem;
+import com.csws.mymaps.core.models.tasks.TaskStageTemplate;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -236,6 +239,17 @@ public class PlannedTaskConfigFragment extends Fragment {
         plannedTask.endTimeMillis = endMillis;
 
         plannedTask.travelMode = travelModeSelector.getText().toString();
+
+        for (TaskStageTemplate template : selectedTask.stageTemplates) {
+
+            if(template.type == PlannedStage.StageType.NAVIGATION){
+                template.config.put("destinationId", selectedLocation.id);
+            }
+
+            PlannedStage stage = StageFactory.create(template);
+
+            plannedTask.stages.add(stage);
+        }
 
         if (listener != null) {
             listener.onPlannedTaskConfirmed(plannedTask);

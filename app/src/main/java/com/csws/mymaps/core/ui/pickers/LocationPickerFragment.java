@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.core.state.LocationViewModel;
-import com.csws.mymaps.domain.locations.LocationItem;
+import com.csws.mymaps.core.viewmodels.locations.LocationViewModel;
+import com.csws.mymaps.core.models.locations.LocationItem;
 
 public class LocationPickerFragment extends Fragment {
 

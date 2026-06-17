@@ -10,9 +10,9 @@ import android.widget.ImageView;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
-import com.csws.mymaps.domain.locations.LocationItem;
-import com.csws.mymaps.domain.locations.MarkerConfig;
-import com.csws.mymaps.domain.locations.PolygonConfig;
+import com.csws.mymaps.core.models.locations.LocationItem;
+import com.csws.mymaps.core.models.locations.MarkerConfig;
+import com.csws.mymaps.core.models.locations.PolygonConfig;
 import com.csws.mymaps.core.utils.Utilities;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
