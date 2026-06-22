@@ -62,6 +62,9 @@ public class SchedulingManager implements PromptResultListener, PlannerScheduler
         updateCountdown();
     }
 
+    @Override
+    public void onTravelEstimateTick(){ refreshTravelEstimates(); }
+
     private void updatePlans(List<PlannedTask> updatedPlans){
         Log.d("PlannerCoordinator", "calling updatePlans()");
         long start = System.currentTimeMillis();
@@ -93,6 +96,10 @@ public class SchedulingManager implements PromptResultListener, PlannerScheduler
             context.uiCoordinator.hideToolbarCountdown();
         }
     }
+    private void refreshTravelEstimates() {
+
+
+    }
 
     private void dispatchPrompts(PlannerState state) {
 
@@ -108,6 +115,8 @@ public class SchedulingManager implements PromptResultListener, PlannerScheduler
 
         context.uiCoordinator.setNavigationSession(session);
     }
+
+
 
     @Override
     public void submitPromptResult(PlannerPromptResult result) {

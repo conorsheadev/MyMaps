@@ -32,6 +32,7 @@ public class PlannedTask implements Parcelable {
     public Long actualEndTimeMillis;
 
     public Integer estimatedTravelMinutes;
+    public Long lastTravelEstimateMillis;
     public String travelMode;
 
     // State

@@ -8,6 +8,7 @@ public class PlannerScheduler {
     public interface Listener {
         void onPlannerTick();
         void onCountdownTick();
+        void onTravelEstimateTick();
     }
 
     private final Handler handler = new Handler(Looper.getMainLooper());
