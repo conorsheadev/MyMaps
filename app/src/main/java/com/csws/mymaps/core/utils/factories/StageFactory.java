@@ -7,19 +7,46 @@ import java.util.UUID;
 
 public class StageFactory {
 
-    public static PlannedStage create(TaskStageTemplate template) {
+    public static PlannedStage create(
+            TaskStageTemplate template
+    ) {
 
-        PlannedStage stage = new PlannedStage();
+        PlannedStage stage =
+                new PlannedStage();
 
-        stage.id = UUID.randomUUID().toString();
+        stage.id =
+                UUID.randomUUID().toString();
 
-        stage.title = template.title;
-        stage.type = template.type;
-        stage.category = template.category;
+        stage.title =
+                template.title;
 
-        stage.order = template.order;
+        stage.type =
+                template.type;
 
-        stage.config.putAll(template.config);
+        stage.category =
+                template.category;
+
+        stage.order =
+                template.order;
+
+        stage.config.putAll(
+                template.config
+        );
+
+        stage.scheduledStartMillis =
+                null;
+
+        stage.scheduledEndMillis =
+                null;
+
+        stage.actualStartMillis =
+                null;
+
+        stage.actualEndMillis =
+                null;
+
+        stage.requiresScheduleCalculation =
+                stage.type == PlannedStage.StageType.NAVIGATION;
 
         return stage;
     }

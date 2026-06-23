@@ -25,20 +25,21 @@ public class PlannedTask implements Parcelable {
     // Planning
     public String date;
 
-    public Long startTimeMillis;
-    public Long endTimeMillis;
+    public Long targetStartTimeMillis;
+    public Long targetEndTimeMillis;
 
-    public Long actualStartTimeMillis;
-    public Long actualEndTimeMillis;
-
-    public Integer estimatedTravelMinutes;
-    public Long lastTravelEstimateMillis;
+    // Scheduling
+    public Long scheduleLastCalculatedMillis;
+    public boolean scheduleDirty = true;
+    // Scheduling Estimate
+    public Integer estimatedScheduleMinutes;
     public String travelMode;
 
-    // State
+    // Stages
     public List<PlannedStage> stages = new ArrayList<>();
     public int currentStageIndex = 0;
     public Status status;
+
 
     public PlannedTask(
             String id,
@@ -81,23 +82,23 @@ public class PlannedTask implements Parcelable {
 
         // startTimeMillis
         if (in.readByte() == 0) {
-            startTimeMillis = null;
+            targetStartTimeMillis = null;
         } else {
-            startTimeMillis = in.readLong();
+            targetStartTimeMillis = in.readLong();
         }
 
         // endTimeMillis
         if (in.readByte() == 0) {
-            endTimeMillis = null;
+            targetEndTimeMillis = null;
         } else {
-            endTimeMillis = in.readLong();
+            targetEndTimeMillis = in.readLong();
         }
 
         // estimatedTravelMinutes
         if (in.readByte() == 0) {
-            estimatedTravelMinutes = null;
+            estimatedScheduleMinutes = null;
         } else {
-            estimatedTravelMinutes = in.readInt();
+            estimatedScheduleMinutes = in.readInt();
         }
 
         travelMode = in.readString();
@@ -125,36 +126,36 @@ public class PlannedTask implements Parcelable {
         dest.writeString(date);
 
         // startTimeMillis
-        if (startTimeMillis == null) {
+        if (targetStartTimeMillis == null) {
 
             dest.writeByte((byte) 0);
 
         } else {
 
             dest.writeByte((byte) 1);
-            dest.writeLong(startTimeMillis);
+            dest.writeLong(targetStartTimeMillis);
         }
 
         // endTimeMillis
-        if (endTimeMillis == null) {
+        if (targetEndTimeMillis == null) {
 
             dest.writeByte((byte) 0);
 
         } else {
 
             dest.writeByte((byte) 1);
-            dest.writeLong(endTimeMillis);
+            dest.writeLong(targetEndTimeMillis);
         }
 
         // estimatedTravelMinutes
-        if (estimatedTravelMinutes == null) {
+        if (estimatedScheduleMinutes == null) {
 
             dest.writeByte((byte) 0);
 
         } else {
 
             dest.writeByte((byte) 1);
-            dest.writeInt(estimatedTravelMinutes);
+            dest.writeInt(estimatedScheduleMinutes);
         }
 
         dest.writeString(travelMode);

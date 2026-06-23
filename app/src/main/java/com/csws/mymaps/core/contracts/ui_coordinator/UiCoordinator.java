@@ -29,6 +29,7 @@ public interface UiCoordinator {
     void hideBottomSheet();
 
     // Map
+    LatLng getUserLocation();
     void previewLocation(LocationItem location);
     void focusLocation(LocationItem location);
     void moveToUserLocation();

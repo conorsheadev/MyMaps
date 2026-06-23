@@ -28,8 +28,8 @@ public class TimelineView extends RelativeLayout {
         renderer = new TimelineRenderer(context, this, new TimelineConfig());
     }
 
-    public void render(List<PlannedTask> plannedTasks, Map<String, TaskItem> tasks) {
-        renderer.render(plannedTasks, tasks);
+    public void render(List<TimelineEntry> entries) {
+        renderer.render(entries);
     }
 
     public TimelineRenderer getRenderer() {

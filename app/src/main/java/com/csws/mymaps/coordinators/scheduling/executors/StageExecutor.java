@@ -2,7 +2,7 @@ package com.csws.mymaps.coordinators.scheduling.executors;
 
 import com.csws.mymaps.core.models.plans.PlannedStage;
 import com.csws.mymaps.core.models.plans.PlannedTask;
-import com.csws.mymaps.coordinators.scheduling.engine.PlannerEngine;
+import com.csws.mymaps.coordinators.scheduling.PlannerEngine;
 import com.csws.mymaps.coordinators.scheduling.models.PlannerState;
 import com.csws.mymaps.core.models.prompts.PlannerPromptResult;
 

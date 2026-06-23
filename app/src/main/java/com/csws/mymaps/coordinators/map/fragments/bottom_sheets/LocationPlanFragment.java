@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.ui.timeline.TimelineEntry;
 import com.csws.mymaps.core.ui.timeline.TimelineRenderer;
 import com.csws.mymaps.core.ui.timeline.TimelineView;
 import com.csws.mymaps.core.models.locations.LocationItem;
@@ -84,11 +85,32 @@ public class LocationPlanFragment extends Fragment {
             title.setText(location.name);
         }
         //Timeline
-        Map<String, TaskItem> taskLookup = new HashMap<>();
-        for (TaskItem task : tasks) {
-            taskLookup.put(task.id, task);
+        List<TimelineEntry> entries = new ArrayList<>();
+
+        for (PlannedTask planned : plannedTasks) {
+
+            // find matching task
+            TaskItem task = null;
+            for (TaskItem t : tasks) {
+                if (t.id.equals(planned.taskId)) {
+                    task = t;
+                    break;
+                }
+            }
+
+            if (task == null) continue;
+
+            TimelineEntry entry = new TimelineEntry();
+            entry.id = planned.taskId;
+            entry.title = task.title;
+            entry.startMillis = planned.targetStartTimeMillis;
+            entry.endMillis = planned.targetEndTimeMillis;
+            entry.level = 0; // task level
+            entry.color = 0xFF00FF00; // you define this
+
+            entries.add(entry);
         }
 
-        timelineView.render(plannedTasks,taskLookup);
+        timelineView.render(entries);
     }
 }

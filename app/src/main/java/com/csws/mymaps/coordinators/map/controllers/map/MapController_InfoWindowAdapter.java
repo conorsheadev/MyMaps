@@ -71,7 +71,7 @@ public class MapController_InfoWindowAdapter implements GoogleMap.InfoWindowAdap
                 TaskItem task = taskLookup.get(plannedTask.taskId);
                 builder.append("• ").append(task.title);
 
-                if (plannedTask.startTimeMillis != null && plannedTask.startTimeMillis > 0) {
+                if (plannedTask.targetStartTimeMillis != null && plannedTask.targetStartTimeMillis > 0) {
                     builder.append(" (scheduled)");
                 }
 

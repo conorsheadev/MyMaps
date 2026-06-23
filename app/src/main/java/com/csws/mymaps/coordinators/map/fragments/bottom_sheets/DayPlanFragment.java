@@ -1,5 +1,6 @@
 package com.csws.mymaps.coordinators.map.fragments.bottom_sheets;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.models.plans.PlannedStage;
+import com.csws.mymaps.core.ui.timeline.TimelineEntry;
 import com.csws.mymaps.core.ui.timeline.TimelineRenderer;
 import com.csws.mymaps.core.ui.timeline.TimelineView;
 import com.csws.mymaps.core.models.plans.PlannedTask;
@@ -72,7 +75,92 @@ public class DayPlanFragment extends Fragment {
             taskLookup.put(task.id, task);
         }
 
-        timelineView.render(plannedTasks, taskLookup);
+        List<TimelineEntry> entries = buildTimelineEntries(plannedTasks, tasks);
+        timelineView.render(entries);
+    }
+
+    private List<TimelineEntry> buildTimelineEntries(
+            List<PlannedTask> plannedTasks,
+            List<TaskItem> tasks
+    ) {
+
+        List<TimelineEntry> entries = new ArrayList<>();
+
+        // Lookup tasks
+        Map<String, TaskItem> taskMap = new HashMap<>();
+        for (TaskItem t : tasks) {
+            taskMap.put(t.id, t);
+        }
+
+        for (PlannedTask pt : plannedTasks) {
+
+            TaskItem task = taskMap.get(pt.taskId);
+            if (task == null) continue;
+
+            // -------------------------
+            // 1. TASK LEVEL ENTRY
+            // -------------------------
+            if (pt.targetStartTimeMillis != null && pt.targetEndTimeMillis != null) {
+
+                TimelineEntry taskEntry = new TimelineEntry();
+                taskEntry.id = pt.id;
+                taskEntry.title = task.title;
+                taskEntry.startMillis = pt.targetStartTimeMillis;
+                taskEntry.endMillis = pt.targetEndTimeMillis;
+                taskEntry.level = 0;
+                taskEntry.color = Color.parseColor("#4CAF50");
+
+                entries.add(taskEntry);
+            }
+
+            // -------------------------
+            // 2. STAGE LEVEL ENTRIES
+            // -------------------------
+            if (pt.stages != null) {
+
+                for (PlannedStage stage : pt.stages) {
+
+                    if (stage.scheduledStartMillis == null ||
+                            stage.scheduledEndMillis == null) {
+                        continue;
+                    }
+
+                    TimelineEntry stageEntry = new TimelineEntry();
+
+                    stageEntry.id = stage.id;
+                    stageEntry.title = stage.title;
+                    stageEntry.startMillis = stage.scheduledStartMillis;
+                    stageEntry.endMillis = stage.scheduledEndMillis;
+
+                    stageEntry.level = 1;
+
+                    stageEntry.color = getStageColor(stage);
+
+                    entries.add(stageEntry);
+                }
+            }
+        }
+
+        return entries;
+    }
+
+    //TODO: Move to Utils
+    private int getStageColor(PlannedStage stage) {
+
+        switch (stage.type) {
+            case PACK_BAG:
+                return Color.parseColor("#FF9800");
+            case LEAVE:
+                return Color.parseColor("#F44336");
+            case NAVIGATION:
+                return Color.parseColor("#2196F3");
+            case REMINDER:
+                return Color.parseColor("#9C27B0");
+            case NOTES:
+                return Color.parseColor("#607D8B");
+            default:
+                return Color.GRAY;
+        }
     }
 
     private void loadArguments() {

@@ -1,5 +1,6 @@
 package com.csws.mymaps.services.activities.planner.calendar;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.models.plans.PlannedStage;
+import com.csws.mymaps.core.ui.timeline.TimelineEntry;
 import com.csws.mymaps.core.ui.timeline.TimelineView;
 import com.csws.mymaps.core.viewmodels.plans.PlannedTaskViewModel;
 import com.csws.mymaps.core.viewmodels.tasks.TaskViewModel;
@@ -133,9 +136,81 @@ public class CalendarFragment extends Fragment {
             taskLookup.put(task.id, task);
         }
 
-        timelineView.render(filtered, taskLookup);
+        List<TimelineEntry> entries = buildEntries(filtered, cachedTasks);
+        timelineView.render(entries);
     }
 
+    private List<TimelineEntry> buildEntries(
+            List<PlannedTask> plannedTasks,
+            List<TaskItem> tasks
+    ) {
+
+        List<TimelineEntry> entries = new ArrayList<>();
+
+        Map<String, TaskItem> taskMap = new HashMap<>();
+        for (TaskItem t : tasks) {
+            taskMap.put(t.id, t);
+        }
+
+        for (PlannedTask pt : plannedTasks) {
+
+            TaskItem task = taskMap.get(pt.taskId);
+            if (task == null) continue;
+
+            // ---------------- TASK ----------------
+            if (pt.targetStartTimeMillis != null && pt.targetEndTimeMillis != null) {
+
+                TimelineEntry taskEntry = new TimelineEntry();
+                taskEntry.id = pt.id;
+                taskEntry.title = task.title;
+                taskEntry.startMillis = pt.targetStartTimeMillis;
+                taskEntry.endMillis = pt.targetEndTimeMillis;
+                taskEntry.level = 0;
+                taskEntry.color = Color.parseColor("#4CAF50");
+
+                entries.add(taskEntry);
+            }
+
+            // ---------------- STAGES ----------------
+            if (pt.stages != null) {
+                for (PlannedStage stage : pt.stages) {
+
+                    if (stage.scheduledStartMillis == null ||
+                            stage.scheduledEndMillis == null) continue;
+
+                    TimelineEntry stageEntry = new TimelineEntry();
+                    stageEntry.id = stage.id;
+                    stageEntry.title = stage.title;
+                    stageEntry.startMillis = stage.scheduledStartMillis;
+                    stageEntry.endMillis = stage.scheduledEndMillis;
+                    stageEntry.level = 1;
+                    stageEntry.color = getStageColor(stage);
+
+                    entries.add(stageEntry);
+                }
+            }
+        }
+
+        return entries;
+    }
+    //TODO: Move to Utils
+    private int getStageColor(PlannedStage stage) {
+
+        switch (stage.type) {
+            case PACK_BAG:
+                return Color.parseColor("#FF9800");
+            case LEAVE:
+                return Color.parseColor("#F44336");
+            case NAVIGATION:
+                return Color.parseColor("#2196F3");
+            case REMINDER:
+                return Color.parseColor("#9C27B0");
+            case NOTES:
+                return Color.parseColor("#607D8B");
+            default:
+                return Color.GRAY;
+        }
+    }
     private List<CalendarDay> buildCalendarDays() {
 
         List<CalendarDay> days = new ArrayList<>();

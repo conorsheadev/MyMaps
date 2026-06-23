@@ -1,4 +1,4 @@
-package com.csws.mymaps.coordinators.scheduling.engine;
+package com.csws.mymaps.coordinators.scheduling;
 
 import android.util.Log;
 
@@ -21,8 +21,6 @@ import java.util.Queue;
 public class PlannerEngine {
 
     private final ExecutorRegistry registry = new ExecutorRegistry();
-
-    private final PlannerState state = new PlannerState();
 
     private NavigationSession activeNavigation; public NavigationSession getActiveNavigation() { return activeNavigation;}
     private final List<PlannerPrompt> activePrompts = new ArrayList<>(); public List<PlannerPrompt> getActivePrompts() {return new ArrayList<>(activePrompts);}
@@ -51,91 +49,13 @@ public class PlannerEngine {
     }
 
     // --- Build State ---
-    public PlannerState buildState(List<PlannedTask> plans) {
-
-        if (plans == null || plans.isEmpty()) {
-            return state;
-        }
-
-        long now = System.currentTimeMillis();
+    public void evaluate(List<PlannedTask> plans, PlannerState state) {
 
         processPromptResults(plans);
 
-        updatePlanStatuses(plans, now);
-
-        //updateStageStatuses(plans);
-
-        state.activePlans = findActivePlans(plans, now);
-
-        state.nextPlan = findNextPlan(plans, now);
-
-        state.upcomingPlans = findUpcomingPlans(plans, now);
-
-        state.millisUntilNextPlan = calculateCountdown(state.nextPlan, now);
+        updatePlanStatuses(plans, System.currentTimeMillis());
 
         evaluateActiveStages(plans, state);
-
-        return state;
-    }
-
-    private List<PlannedTask> findActivePlans(List<PlannedTask> plans, long now) {
-
-        List<PlannedTask> active = new ArrayList<>();
-
-        for (PlannedTask plan : plans) {
-
-            if (plan.startTimeMillis == null || plan.endTimeMillis == null) {continue;}
-            if (plan.startTimeMillis <= now && now <= plan.endTimeMillis) {
-                active.add(plan);
-            }
-        }
-
-        return active;
-    }
-    private PlannedTask findNextPlan(List<PlannedTask> plans, long now) {
-
-        PlannedTask nextPlan = null;
-
-        long smallestDelta = Long.MAX_VALUE;
-
-        for (PlannedTask plan : plans) {
-
-            if (plan.startTimeMillis == null) { continue; }
-
-            long delta = plan.startTimeMillis - now;
-
-            if (delta > 0 && delta < smallestDelta) {
-
-                smallestDelta = delta;
-                nextPlan = plan;
-            }
-        }
-
-        return nextPlan;
-    }
-    private List<PlannedTask> findUpcomingPlans(List<PlannedTask> plans, long now) {
-
-        List<PlannedTask> upcoming = new ArrayList<>();
-
-        for (PlannedTask plan : plans) {
-
-            if (plan.startTimeMillis == null) {
-                continue;
-            }
-
-            if (plan.startTimeMillis > now) {
-
-                upcoming.add(plan);
-            }
-        }
-
-        upcoming.sort(
-                Comparator.comparingLong(
-                        t -> t.startTimeMillis
-                )
-        );
-
-        return upcoming;
     }
     // --- Prompt Processing ---
 
@@ -188,11 +108,11 @@ public class PlannerEngine {
     }
     private void updatePlanStatus(PlannedTask plan, long now) {
 
-        if (plan.startTimeMillis == null || plan.endTimeMillis == null) {return;}
+        if (plan.targetStartTimeMillis == null || plan.targetEndTimeMillis == null) {return;}
         if (plan.status == PlannedTask.Status.COMPLETED || plan.status == PlannedTask.Status.SKIPPED) {return;}
 
         //If overdue and not completed, skip
-        if (now > plan.endTimeMillis) {
+        if (now > plan.targetEndTimeMillis) {
 
             if (plan.status != PlannedTask.Status.COMPLETED) {
 
@@ -203,34 +123,11 @@ public class PlannerEngine {
         }
 
         //If currently due update to active
-        if (plan.startTimeMillis <= now && now <= plan.endTimeMillis) {
+        if (plan.targetStartTimeMillis <= now && now <= plan.targetEndTimeMillis) {
 
             plan.status = PlannedTask.Status.ACTIVE;
         }
     }
-
-    // --- Stage Status ---
-    /// Updates each plans current stage status from PENDING to ACTIVE if necessary
-    /*private void updateStageStatuses(List<PlannedTask> plans) {
-
-        for (PlannedTask plan : plans) {
-
-            updateStageStatus(plan);
-        }
-    }
-    private void updateStageStatus(PlannedTask plan) {
-
-        PlannedStage stage = getActiveStage(plan);
-
-        if (stage == null) {
-            return;
-        }
-
-        if (stage.status == PlannedStage.StageStatus.PENDING) {
-
-            stage.status = PlannedStage.StageStatus.ACTIVE;
-        }
-    }*/
 
     // --- Plan Stages ---
     /// Retrieves executor for each plans current stage and calls the evaluate method
@@ -280,10 +177,4 @@ public class PlannerEngine {
         return null;
     }
 
-    // --- ---
-    private long calculateCountdown(PlannedTask nextPlan, long now) {
-
-        if (nextPlan == null) {return 0;}
-        return Math.max(0, nextPlan.startTimeMillis - now);
-    }
 }

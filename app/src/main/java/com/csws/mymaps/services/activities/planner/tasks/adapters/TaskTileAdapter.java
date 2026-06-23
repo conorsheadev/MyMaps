@@ -66,7 +66,7 @@ public class TaskTileAdapter extends RecyclerView.Adapter<TaskTileAdapter.TaskVi
 
         void bind(PlannedTask plannedTask, TaskItem task) {
             taskTitle.setText(task.title);
-            taskTime.setText(formatTimeRange(plannedTask.startTimeMillis , plannedTask.endTimeMillis));
+            taskTime.setText(formatTimeRange(plannedTask.targetStartTimeMillis, plannedTask.targetEndTimeMillis));
         }
 
         private String formatTimeRange(Long start, Long end) {

@@ -1,9 +1,9 @@
-package com.csws.mymaps.coordinators.scheduling.engine;
+package com.csws.mymaps.coordinators.scheduling;
 
 import android.os.Handler;
 import android.os.Looper;
 
-public class PlannerScheduler {
+public class SchedulingTicker {
 
     public interface Listener {
         void onPlannerTick();
@@ -16,8 +16,9 @@ public class PlannerScheduler {
 
     private Runnable plannerTicker;
     private Runnable countdownTicker;
+    private Runnable estimateTicker;
 
-    public PlannerScheduler(Listener listener) {
+    public SchedulingTicker(Listener listener) {
         this.listener = listener;
     }
 
@@ -25,6 +26,7 @@ public class PlannerScheduler {
 
         startCountdownTicker();
         startPlannerTicker();
+        startEstimateTicker();
     }
 
     public void stop() {
@@ -66,5 +68,20 @@ public class PlannerScheduler {
         };
 
         handler.post(plannerTicker);
+    }
+
+    private void startEstimateTicker() {
+
+        estimateTicker = new Runnable() {
+            @Override
+            public void run() {
+
+                listener.onTravelEstimateTick();
+
+                handler.postDelayed(this, 60000);
+            }
+        };
+
+        handler.post(estimateTicker);
     }
 }

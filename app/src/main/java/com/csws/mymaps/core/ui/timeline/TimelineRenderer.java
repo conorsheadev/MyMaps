@@ -31,22 +31,20 @@ public class TimelineRenderer {
         this.config = config;
     }
 
-    public void render(List<PlannedTask> plannedTasks, Map<String, TaskItem> tasks) {
+    public void render(List<TimelineEntry> entries) {
         container.removeAllViews();
+
         ensureContainerHeight();
         drawTimeline();
 
-        for (PlannedTask plannedTask : plannedTasks) {
-            if (shouldRender(plannedTask)) {
-                TaskItem task = tasks.get(plannedTask.taskId);
-                if (task != null) {
-                    drawTask(plannedTask, task);
-                }
+        for (TimelineEntry entry : entries) {
+            if (shouldRender(entry)) {
+                drawEntry(entry);
             }
         }
     }
-    private boolean shouldRender(PlannedTask plannedTask) {
-        return plannedTask.startTimeMillis > 0 && plannedTask.endTimeMillis > 0;
+    private boolean shouldRender(TimelineEntry entry) {
+        return entry.startMillis > 0 && entry.endMillis > 0;
     }
 
     // --- TIMELINE CREATION ---
@@ -58,48 +56,56 @@ public class TimelineRenderer {
         container.setLayoutParams(params);
     }
 
-    private void drawTimeline(){
+    private void drawTimeline() {
+
         for (int hour = config.startHour; hour <= config.endHour; hour++) {
 
             int top = (hour - config.startHour) * config.hourHeight;
 
-            //Label
             TextView label = new TextView(context);
-            label.setText(String.format("%02d:00", hour));//TODO: Setup DateTime Utils for Formatting
+            label.setText(String.format("%02d:00", hour));
 
-            RelativeLayout.LayoutParams labelParams = new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-            labelParams.topMargin = (hour - config.startHour) * config.hourHeight;
+            RelativeLayout.LayoutParams labelParams =
+                    new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+
+            labelParams.topMargin = top;
 
             container.addView(label, labelParams);
 
-            //Line
             View line = new View(context);
             line.setBackgroundColor(Color.LTGRAY);
 
-            RelativeLayout.LayoutParams lineParams = new RelativeLayout.LayoutParams(MATCH_PARENT, 2);
+            RelativeLayout.LayoutParams lineParams =
+                    new RelativeLayout.LayoutParams(MATCH_PARENT, 2);
+
             lineParams.topMargin = top + 40;
             lineParams.leftMargin = config.leftPadding;
 
             container.addView(line, lineParams);
         }
     }
-    private void drawTask(PlannedTask plannedTask, TaskItem task) {
-        int startMinutes = getMinutesFromStartOfTimeline(plannedTask.startTimeMillis);
-        int endMinutes = getMinutesFromStartOfTimeline(plannedTask.endTimeMillis);
-        Log.d("TimelineRenderer", "Task start: " + plannedTask.startTimeMillis + ", end: " + plannedTask.endTimeMillis);
-        Log.d("TimelineRenderer", "Task start: " + startMinutes + ", end: " + endMinutes);
+
+    // --- ENTRY RENDERING ---
+
+    private void drawEntry(TimelineEntry entry) {
+
+        int startMinutes = getMinutesFromStartOfTimeline(entry.startMillis);
+        int endMinutes = getMinutesFromStartOfTimeline(entry.endMillis);
+
         int top = (startMinutes * config.hourHeight) / 60;
         int height = ((endMinutes - startMinutes) * config.hourHeight) / 60;
 
-        View taskView = createTaskBlock(task);
+        View view = createEntryView(entry);
 
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(MATCH_PARENT,height);
+        RelativeLayout.LayoutParams params =
+                new RelativeLayout.LayoutParams(MATCH_PARENT, height);
 
         params.topMargin = top;
         params.leftMargin = 100;
 
-        container.addView(taskView, params);
+        container.addView(view, params);
     }
+
     private int getMinutesFromStartOfTimeline(long millis) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(millis);
@@ -108,17 +114,18 @@ public class TimelineRenderer {
         return minutes - (config.startHour * 60);
     }
 
-    //UI CREATION
-    private View createTaskBlock(TaskItem task) {
+    // --- UI ---
+
+    private View createEntryView(TimelineEntry entry) {
 
         MaterialCardView card = new MaterialCardView(context);
         card.setRadius(16f);
         card.setCardElevation(4f);
 
-        card.setCardBackgroundColor(context.getColor(android.R.color.darker_gray));
+        card.setCardBackgroundColor(entry.color);
 
         TextView text = new TextView(context);
-        text.setText(task.title);
+        text.setText(entry.title);
         text.setPadding(16, 16, 16, 16);
 
         card.addView(text);

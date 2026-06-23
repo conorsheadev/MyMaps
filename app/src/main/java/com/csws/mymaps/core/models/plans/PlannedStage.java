@@ -6,21 +6,20 @@ import java.util.Map;
 public class PlannedStage {
 
     public enum StageCategory {
-
         PREPARATION,
         ACTIVE,
         COMPLETION
     }
-    public enum StageType {
 
+    public enum StageType {
         PACK_BAG,
         LEAVE,
         NAVIGATION,
         REMINDER,
         NOTES
     }
-    public enum StageStatus {
 
+    public enum StageStatus {
         PENDING,
         ACTIVE,
         COMPLETED,
@@ -39,10 +38,26 @@ public class PlannedStage {
 
     public StageStatus status;
 
+    // Calculated schedule
+    public Long scheduledStartMillis;
+    public Long scheduledDurationMillis;
+    public Long scheduledEndMillis;
+    // Scheduling metadata
+    public Long lastCalculatedMillis;
+    public boolean requiresScheduleCalculation;
+    // Actual execution
+    public Long actualStartMillis;
+    public Long actualEndMillis;
+
+
+
+    // Arbitrary configuration
     public Map<String, String> config = new HashMap<>();
 
     public PlannedStage() {
 
         status = StageStatus.PENDING;
+
+        requiresScheduleCalculation = false;
     }
 }

@@ -235,8 +235,8 @@ public class PlannedTaskConfigFragment extends Fragment {
             endMillis = endCalendar.getTimeInMillis();
         }
 
-        plannedTask.startTimeMillis = startMillis;
-        plannedTask.endTimeMillis = endMillis;
+        plannedTask.targetStartTimeMillis = startMillis;
+        plannedTask.targetEndTimeMillis = endMillis;
 
         plannedTask.travelMode = travelModeSelector.getText().toString();
 

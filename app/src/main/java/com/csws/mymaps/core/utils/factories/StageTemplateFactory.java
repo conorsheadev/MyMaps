@@ -8,34 +8,55 @@ import java.util.UUID;
 public class StageTemplateFactory {
 
     public static TaskStageTemplate createLeaveReminder() {
-        TaskStageTemplate stage = new TaskStageTemplate();
 
-        stage.id = UUID.randomUUID().toString();
+        TaskStageTemplate stage =
+                new TaskStageTemplate();
 
-        stage.title = "Leave Reminder";
+        stage.id =
+                UUID.randomUUID().toString();
 
-        stage.type = PlannedStage.StageType.LEAVE;
+        stage.title =
+                "Leave";
 
-        stage.category = PlannedStage.StageCategory.ACTIVE;
+        stage.type =
+                PlannedStage.StageType.LEAVE;
 
-        stage.config.put("minutesBefore", "5");
+        stage.category =
+                PlannedStage.StageCategory.PREPARATION;
+
+        stage.config.put(
+                "durationMinutes",
+                "5"
+        );
 
         return stage;
     }
     public static TaskStageTemplate createPackBag() {
 
-        TaskStageTemplate stage = new TaskStageTemplate();
+        TaskStageTemplate stage =
+                new TaskStageTemplate();
 
-        stage.id = UUID.randomUUID().toString();
+        stage.id =
+                UUID.randomUUID().toString();
 
-        stage.title = "Pack Bag";
+        stage.title =
+                "Pack Bag";
 
-        stage.type = PlannedStage.StageType.PACK_BAG;
+        stage.type =
+                PlannedStage.StageType.PACK_BAG;
 
-        stage.category = PlannedStage.StageCategory.PREPARATION;
+        stage.category =
+                PlannedStage.StageCategory.PREPARATION;
 
-        stage.config.put("items", "Laptop,Charger,Notepad,Pen");
+        stage.config.put(
+                "durationMinutes",
+                "10"
+        );
 
+        stage.config.put(
+                "items",
+                "Laptop,Charger,Notepad,Pen"
+        );
 
         return stage;
     }
@@ -58,13 +79,13 @@ public class StageTemplateFactory {
                 PlannedStage.StageCategory.ACTIVE;
 
         stage.config.put(
-                "destinationId",
-                ""
+                "travelMode",
+                "DRIVE"
         );
 
         stage.config.put(
-                "travelMode",
-                "DRIVE"
+                "dynamicDuration",
+                "true"
         );
 
         return stage;

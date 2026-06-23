@@ -1,5 +1,6 @@
 package com.csws.mymaps.services.activities.planner.daily;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.core.models.plans.PlannedStage;
+import com.csws.mymaps.core.ui.timeline.TimelineEntry;
 import com.csws.mymaps.core.ui.timeline.TimelineView;
 import com.csws.mymaps.core.viewmodels.plans.PlannedTaskViewModel;
 import com.csws.mymaps.core.viewmodels.tasks.TaskViewModel;
@@ -87,9 +90,78 @@ public class DailyPlannerFragment extends Fragment {
             taskLookup.put(task.id, task);
         }
 
-        timelineView.render(cachedPlannedTasks, taskLookup);
+        List<TimelineEntry> entries = buildEntries(cachedPlannedTasks, cachedTasks);
+        timelineView.render(entries);
     }
+    private List<TimelineEntry> buildEntries(
+            List<PlannedTask> plannedTasks,
+            List<TaskItem> tasks
+    ) {
 
+        List<TimelineEntry> entries = new ArrayList<>();
+
+        Map<String, TaskItem> taskMap = new HashMap<>();
+        for (TaskItem t : tasks) {
+            taskMap.put(t.id, t);
+        }
+
+        for (PlannedTask pt : plannedTasks) {
+
+            TaskItem task = taskMap.get(pt.taskId);
+            if (task == null) continue;
+
+            if (pt.targetStartTimeMillis != null && pt.targetEndTimeMillis != null) {
+
+                TimelineEntry entry = new TimelineEntry();
+                entry.id = pt.id;
+                entry.title = task.title;
+                entry.startMillis = pt.targetStartTimeMillis;
+                entry.endMillis = pt.targetEndTimeMillis;
+                entry.level = 0;
+                entry.color = Color.parseColor("#4CAF50");
+
+                entries.add(entry);
+            }
+
+            if (pt.stages != null) {
+                for (PlannedStage stage : pt.stages) {
+
+                    if (stage.scheduledStartMillis == null ||
+                            stage.scheduledEndMillis == null) continue;
+
+                    TimelineEntry entry = new TimelineEntry();
+                    entry.id = stage.id;
+                    entry.title = stage.title;
+                    entry.startMillis = stage.scheduledStartMillis;
+                    entry.endMillis = stage.scheduledEndMillis;
+                    entry.level = 1;
+                    entry.color = getStageColor(stage);
+
+                    entries.add(entry);
+                }
+            }
+        }
+
+        return entries;
+    }
+    //TODO: Move to Utils
+    private int getStageColor(PlannedStage stage) {
+
+        switch (stage.type) {
+            case PACK_BAG:
+                return Color.parseColor("#FF9800");
+            case LEAVE:
+                return Color.parseColor("#F44336");
+            case NAVIGATION:
+                return Color.parseColor("#2196F3");
+            case REMINDER:
+                return Color.parseColor("#9C27B0");
+            case NOTES:
+                return Color.parseColor("#607D8B");
+            default:
+                return Color.GRAY;
+        }
+    }
     private List<PlannedTask> filterToday(List<PlannedTask> plannedTasks) {
 
         List<PlannedTask> result = new ArrayList<>();

@@ -258,6 +258,8 @@ public class MapViewCoordinator  implements MapToolbarController.Listener,MapFab
 
     // Map
     @Override
+    public LatLng getUserLocation() { return mapController.getUserLocation(); }
+    @Override
     public void previewLocation(LocationItem location) {
         mapController.previewLocation(location);
     }

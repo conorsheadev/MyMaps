@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.csws.mymaps.core.models.plans.PlannedStage;
 import com.csws.mymaps.core.models.plans.PlannedTask;
-import com.csws.mymaps.coordinators.scheduling.engine.PlannerEngine;
+import com.csws.mymaps.coordinators.scheduling.PlannerEngine;
 import com.csws.mymaps.coordinators.scheduling.models.PlannerState;
 import com.csws.mymaps.core.models.prompts.PlannerPrompt;
 import com.csws.mymaps.core.models.prompts.PlannerPromptResult;
@@ -25,7 +25,7 @@ public class LeaveExecutor implements StageExecutor {
         }
 
         int minutesBefore = StageConfigUtils.getMinutesBefore(stage, 5);
-        long triggerTime = plan.startTimeMillis - (minutesBefore * 60_000L);
+        long triggerTime = plan.targetStartTimeMillis - (minutesBefore * 60_000L);
 
         long now = System.currentTimeMillis();
         Log.d("LeaveExecutor", "Calculated Trigger Time: " + triggerTime + " Current Time: "+ now);
