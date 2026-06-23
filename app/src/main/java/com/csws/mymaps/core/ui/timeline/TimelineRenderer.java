@@ -6,6 +6,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -13,8 +14,10 @@ import android.widget.TextView;
 
 import com.csws.mymaps.core.models.plans.PlannedTask;
 import com.csws.mymaps.core.models.tasks.TaskItem;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,8 @@ public class TimelineRenderer {
 
     private final Context context;
     private final RelativeLayout container;
+
+    private List<TimelineEntry> currentEntries = new ArrayList<>();
     private final TimelineConfig config;
 
     public TimelineRenderer(Context context, RelativeLayout container, TimelineConfig config) {
@@ -32,6 +37,9 @@ public class TimelineRenderer {
     }
 
     public void render(List<TimelineEntry> entries) {
+
+        currentEntries = new ArrayList<>(entries);
+
         container.removeAllViews();
 
         ensureContainerHeight();
@@ -45,6 +53,9 @@ public class TimelineRenderer {
     }
     private boolean shouldRender(TimelineEntry entry) {
         return entry.startMillis > 0 && entry.endMillis > 0;
+    }
+    public void setHourHeight(int hourHeight) {
+        config.hourHeight = hourHeight;
     }
 
     // --- TIMELINE CREATION ---
