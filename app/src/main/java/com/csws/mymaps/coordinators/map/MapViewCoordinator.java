@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.coordinators.scheduling.models.PlannerState;
 import com.csws.mymaps.core.contracts.map.MapController;
 import com.csws.mymaps.core.contracts.ui_coordinator.BrowsingActions;
 import com.csws.mymaps.core.contracts.services.RouteService;
@@ -299,7 +300,14 @@ public class MapViewCoordinator  implements MapToolbarController.Listener,MapFab
         DailySession session = mapViewContext.sessionManager.getCurrentSession();
         List<TaskItem> tasks = mapViewContext.sessionManager.getAllTasks();
         List<PlannedTask> plans = mapViewContext.sessionManager.getAllPlans();
-        bottomSheetController.show(DayPlanFragment.newInstance(session, tasks, plans));
+        DayPlanFragment dayPlanFragment = DayPlanFragment.newInstance(session, tasks, plans);
+
+        PlannerState plannerState = mapViewContext.promptResultListener.getCurrentState();
+        dayPlanFragment.setPlannerState(plannerState);
+
+        bottomSheetController.show(dayPlanFragment);
+
+
     }
 
 

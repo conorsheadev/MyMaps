@@ -1,5 +1,6 @@
 package com.csws.mymaps.core.contracts;
 
+import com.csws.mymaps.coordinators.scheduling.models.PlannerState;
 import com.csws.mymaps.core.models.prompts.PlannerPromptResult;
 /**
  * Receives user responses generated from planner prompts.
@@ -7,6 +8,8 @@ import com.csws.mymaps.core.models.prompts.PlannerPromptResult;
  * Implementations are responsible for updating scheduling state
  * in response to prompt actions.
  */
-public interface PromptResultListener {
+public interface Planner {
+    PlannerState getCurrentState();
     void submitPromptResult(PlannerPromptResult result);
+
 }

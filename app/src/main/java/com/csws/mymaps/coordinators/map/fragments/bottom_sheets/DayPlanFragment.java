@@ -12,7 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.csws.mymaps.R;
+import com.csws.mymaps.coordinators.scheduling.models.PlannerState;
 import com.csws.mymaps.core.models.plans.PlannedStage;
+import com.csws.mymaps.core.ui.plannerstate.PlannerStateView;
 import com.csws.mymaps.core.ui.timeline.TimelineEntry;
 import com.csws.mymaps.core.ui.timeline.TimelineRenderer;
 import com.csws.mymaps.core.ui.timeline.TimelineView;
@@ -34,6 +36,11 @@ public class DayPlanFragment extends Fragment {
     private DailySession session;
     private List<TaskItem> tasks;
     private List<PlannedTask> plannedTasks;
+    private PlannerState plannerState;
+
+    public void setPlannerState(PlannerState plannerState) {
+        this.plannerState = plannerState;
+    }
 
     private TimelineRenderer timelineRenderer;
 
@@ -64,11 +71,13 @@ public class DayPlanFragment extends Fragment {
 
         TextView title = view.findViewById(R.id.dayPlanTitle);
         TimelineView timelineView = view.findViewById(R.id.timeline_view);
+        PlannerStateView plannerStateView = view.findViewById(R.id.plannerStateView);
 
         if (session != null) {
             title.setText("Today's Plan");
         }
 
+        //Timeline
         Map<String, TaskItem> taskLookup = new HashMap<>();
 
         for (TaskItem task : tasks) {
@@ -77,6 +86,9 @@ public class DayPlanFragment extends Fragment {
 
         List<TimelineEntry> entries = buildTimelineEntries(plannedTasks, tasks);
         timelineView.render(entries);
+
+        //PlannerState
+        plannerStateView.render(plannerState, taskLookup);
     }
 
     private List<TimelineEntry> buildTimelineEntries(

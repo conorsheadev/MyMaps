@@ -1,6 +1,6 @@
 package com.csws.mymaps.coordinators.map;
 
-import com.csws.mymaps.core.contracts.PromptResultListener;
+import com.csws.mymaps.core.contracts.Planner;
 import com.csws.mymaps.core.contracts.WorkflowManager;
 import com.csws.mymaps.core.contracts.services.EntityCreationService;
 import com.csws.mymaps.core.contracts.ui_coordinator.UiCoordinator;
@@ -14,7 +14,7 @@ public class MapViewContext {
     // --- Coordinators ---
     public WorkflowManager workflowManager; //Workflow Coordinator
     public UiCoordinator uiCoordinator; //MapView Coordinator
-    public PromptResultListener promptResultListener; //Scheduling Coordinator
+    public Planner promptResultListener; //Scheduling Coordinator
     public SessionManager sessionManager; //SessionManager
 
     // --- Services ---
@@ -26,7 +26,7 @@ public class MapViewContext {
             WorkflowManager workflowManager,
             EntityCreationService entityCreationService,
             UiCoordinator uiCoordinator,
-            PromptResultListener promptResultListener,
+            Planner promptResultListener,
             RouteService routeService
     ) {
 
@@ -37,7 +37,7 @@ public class MapViewContext {
         this.routeService = routeService;
     }
 
-    public void bindCoordinators(WorkflowManager workflowManager, UiCoordinator uiCoordinator, PromptResultListener promptResultListener, SessionManager sessionManager){
+    public void bindCoordinators(WorkflowManager workflowManager, UiCoordinator uiCoordinator, Planner promptResultListener, SessionManager sessionManager){
         this.workflowManager = workflowManager;
         this.uiCoordinator = uiCoordinator;
         this.promptResultListener = promptResultListener;

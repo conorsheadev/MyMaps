@@ -1,5 +1,6 @@
 package com.csws.mymaps.coordinators.map.controllers;
 
+import android.util.TypedValue;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -37,7 +38,7 @@ public class BottomSheetController extends BottomSheetCallback {
     private void setup() {
         behavior.setHideable(true);
 
-        behavior.setFitToContents(true);
+        behavior.setFitToContents(false);
         behavior.setSkipCollapsed(false);
 
         behavior.addBottomSheetCallback(this);

@@ -42,7 +42,8 @@
             android:id="@+id/timelineScrollView"
             android:layout_width="match_parent"
             android:layout_height="400dp"
-            android:layout_below="@id/zoomControls">
+            android:layout_below="@id/zoomControls"
+            android:nestedScrollingEnabled="true">
 
             <RelativeLayout
                 android:id="@+id/timelineContainer"

@@ -6,7 +6,7 @@ import android.util.Log;
 
 import androidx.lifecycle.LifecycleOwner;
 
-import com.csws.mymaps.core.contracts.PromptResultListener;
+import com.csws.mymaps.core.contracts.Planner;
 import com.csws.mymaps.core.contracts.services.RouteService;
 import com.csws.mymaps.core.models.locations.LocationItem;
 import com.csws.mymaps.core.models.navigation.NavigationEstimate;
@@ -32,7 +32,7 @@ import java.util.List;
  *
  * Acts as the bridge between PlannerEngine and the UI layer.
  */
-public class SchedulingManager implements PromptResultListener, SchedulingTicker.Listener{
+public class SchedulingManager implements Planner, SchedulingTicker.Listener{
 
     private final MapViewContext context;
 
@@ -42,7 +42,7 @@ public class SchedulingManager implements PromptResultListener, SchedulingTicker
     private final PlannerEngine plannerEngine;
     private final PlannerStateBuilder plannerStateBuilder;
 
-    private PlannerState currentState;
+    private PlannerState currentState; @Override public PlannerState getCurrentState(){return currentState;}
 
     public SchedulingManager(MapViewContext context) {
 
