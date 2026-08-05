@@ -13,12 +13,16 @@ import com.csws.mymaps.core.models.navigation.NavigationEstimate;
 import com.csws.mymaps.core.models.plans.PlannedStage;
 import com.csws.mymaps.core.models.plans.PlannedTask;
 import com.csws.mymaps.coordinators.scheduling.models.PlannerState;
+import com.csws.mymaps.core.models.prompts.PlannerPrompt;
 import com.csws.mymaps.core.models.prompts.PlannerPromptResult;
 import com.csws.mymaps.core.models.navigation.NavigationSession;
-import com.csws.mymaps.coordinators.map.MapViewContext;
+import com.csws.mymaps.coordinators.CoordinatorContext;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 /**
  * Coordinates scheduling operations for the application.
  *
@@ -34,7 +38,7 @@ import java.util.List;
  */
 public class SchedulingManager implements Planner, SchedulingTicker.Listener{
 
-    private final MapViewContext context;
+    private final CoordinatorContext context;
 
     private final SchedulingTicker ticker;
 
@@ -44,7 +48,7 @@ public class SchedulingManager implements Planner, SchedulingTicker.Listener{
 
     private PlannerState currentState; @Override public PlannerState getCurrentState(){return currentState;}
 
-    public SchedulingManager(MapViewContext context) {
+    public SchedulingManager(CoordinatorContext context) {
 
         this.context = context;
 
@@ -298,7 +302,11 @@ public class SchedulingManager implements Planner, SchedulingTicker.Listener{
         );
     }
 
+    private final Set<String> notifiedPromptIds = new HashSet<>();
     private void dispatchPrompts(PlannerState state) {
+
+        notifyPrompts();
+        cleanupPromptNotifications();
 
         if (!context.uiCoordinator.canDisplayPlannerPrompts()) {
 
@@ -307,7 +315,41 @@ public class SchedulingManager implements Planner, SchedulingTicker.Listener{
 
         context.uiCoordinator.setPlannerPrompts(plannerEngine.getActivePrompts());
     }
+    private void notifyPrompts() {
 
+        List<PlannerPrompt> prompts = plannerEngine.getActivePrompts();
+
+        for (PlannerPrompt prompt : prompts) {
+
+            if (prompt == null) {
+                continue;
+            }
+
+            if (notifiedPromptIds.contains(prompt.id)) {
+                continue;
+            }
+
+            context.notificationService.showPrompt(
+                    prompt.title,
+                    prompt.message
+            );
+
+            notifiedPromptIds.add(prompt.id);
+        }
+    }
+    private void cleanupPromptNotifications() {
+
+        Set<String> activePromptIds =
+                new HashSet<>();
+
+        for (PlannerPrompt prompt :
+                plannerEngine.getActivePrompts()) {
+
+            activePromptIds.add(prompt.id);
+        }
+
+        notifiedPromptIds.retainAll(activePromptIds);
+    }
     private void dispatchNavigation(NavigationSession session){
 
         context.uiCoordinator.setNavigationSession(session);

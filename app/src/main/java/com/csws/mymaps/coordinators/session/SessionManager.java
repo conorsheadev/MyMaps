@@ -15,7 +15,7 @@ import com.csws.mymaps.core.viewmodels.sessions.SessionViewModel;
 import com.csws.mymaps.core.viewmodels.tasks.TaskViewModel;
 import com.csws.mymaps.core.models.sessions.DailySession;
 import com.csws.mymaps.core.models.sessions.SessionStartType;
-import com.csws.mymaps.coordinators.map.MapViewContext;
+import com.csws.mymaps.coordinators.CoordinatorContext;
 import com.csws.mymaps.coordinators.session.workflows.InitialiseSessionWorkflow;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class SessionManager implements com.csws.mymaps.core.contracts.SessionMan
 
 
     private final AppCompatActivity activity;
-    private final MapViewContext context;
+    private final CoordinatorContext context;
 
     private TaskCollectionViewModel taskCollectionViewModel;
     private TaskViewModel taskViewModel;
@@ -35,7 +35,7 @@ public class SessionManager implements com.csws.mymaps.core.contracts.SessionMan
     private LocationViewModel locationViewModel;
     private SessionViewModel sessionViewModel;
 
-    public SessionManager(AppCompatActivity activity, MapViewContext context) {
+    public SessionManager(AppCompatActivity activity, CoordinatorContext context) {
         this.activity = activity;
         this.context = context;
 

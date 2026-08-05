@@ -1,15 +1,15 @@
 package com.csws.mymaps.coordinators.session.workflows;
 
 import com.csws.mymaps.core.models.sessions.SessionStartType;
-import com.csws.mymaps.coordinators.map.fragments.top_sheets.SessionStartFragment;
-import com.csws.mymaps.coordinators.map.MapViewContext;
-import com.csws.mymaps.coordinators.workflows.workflows.BaseWorkflow;
+import com.csws.mymaps.activities.map.fragments.top_sheets.SessionStartFragment;
+import com.csws.mymaps.coordinators.CoordinatorContext;
+import com.csws.mymaps.coordinators.workflows.BaseWorkflow;
 
 public class InitialiseSessionWorkflow extends BaseWorkflow implements SessionStartFragment.Listener {
 
     private final SessionStartFragment fragment;
 
-    public InitialiseSessionWorkflow(MapViewContext context) {
+    public InitialiseSessionWorkflow(CoordinatorContext context) {
 
         super(context);
 

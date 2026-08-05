@@ -12,6 +12,10 @@ public class Utilities {
                 return R.drawable.work_64px;
             case "school":
                 return R.drawable.school_64px;
+            case "train":
+                return R.drawable.train_64px;
+            case "travel":
+                return R.drawable.travel_64px;
             default:
                 return R.drawable.location_on_64px;
         }
@@ -25,6 +29,10 @@ public class Utilities {
                 return R.drawable.work_24px;
             case "school":
                 return R.drawable.school_24px;
+            case "train":
+                return R.drawable.train_24px;
+            case "travel":
+                return R.drawable.travel_24px;
             default:
                 return R.drawable.location_on_24px;
         }

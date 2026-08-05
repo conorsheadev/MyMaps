@@ -4,16 +4,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.csws.mymaps.core.models.locations.LocationItem;
-import com.csws.mymaps.coordinators.map.MapViewContext;
-import com.csws.mymaps.coordinators.workflows.workflows.Workflow;
-import com.csws.mymaps.coordinators.workflows.workflows.create_collection.CreateCollectionViewModel;
-import com.csws.mymaps.coordinators.workflows.workflows.create_plan.CreatePlannedTaskViewModel;
-import com.csws.mymaps.coordinators.workflows.workflows.create_location.CreateLocationWorkflow;
-import com.csws.mymaps.coordinators.workflows.workflows.create_plan.CreatePlannedTaskWorkflow;
-import com.csws.mymaps.coordinators.workflows.workflows.create_collection.CreateTaskCollectionWorkflow;
-import com.csws.mymaps.coordinators.workflows.workflows.create_task.CreateTaskWorkflow;
-import com.csws.mymaps.coordinators.workflows.workflows.create_location.CreateLocationViewModel;
-import com.csws.mymaps.coordinators.workflows.workflows.create_task.CreateTaskViewModel;
+import com.csws.mymaps.coordinators.CoordinatorContext;
+import com.csws.mymaps.coordinators.workflows.create_collection.CreateCollectionViewModel;
+import com.csws.mymaps.coordinators.workflows.create_plan.CreatePlannedTaskViewModel;
+import com.csws.mymaps.coordinators.workflows.create_location.CreateLocationWorkflow;
+import com.csws.mymaps.coordinators.workflows.create_plan.CreatePlannedTaskWorkflow;
+import com.csws.mymaps.coordinators.workflows.create_collection.CreateTaskCollectionWorkflow;
+import com.csws.mymaps.coordinators.workflows.create_task.CreateTaskWorkflow;
+import com.csws.mymaps.coordinators.workflows.create_location.CreateLocationViewModel;
+import com.csws.mymaps.coordinators.workflows.create_task.CreateTaskViewModel;
 
 /**
  * Central coordinator for workflow execution within the map screen.
@@ -30,10 +29,10 @@ import com.csws.mymaps.coordinators.workflows.workflows.create_task.CreateTaskVi
 public class WorkflowManager implements com.csws.mymaps.core.contracts.WorkflowManager {
 
     private final AppCompatActivity activity;
-    private final MapViewContext context;
+    private final CoordinatorContext context;
     private Workflow activeWorkflow;
 
-    public WorkflowManager(AppCompatActivity activity, MapViewContext context) {
+    public WorkflowManager(AppCompatActivity activity, CoordinatorContext context) {
         this.activity = activity;
         context.workflowManager = this;
         this.context = context;
@@ -81,7 +80,7 @@ public class WorkflowManager implements com.csws.mymaps.core.contracts.WorkflowM
     @Override
     public void startCreateTaskFromLocationFlow(LocationItem location) {
 
-        startCreateLocationFlow();
+        startCreatePlannedTaskFlow();
         activeWorkflow.onLocationSelected(location);
     }
     @Override

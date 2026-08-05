@@ -260,7 +260,7 @@ public class GoogleRouteService implements RouteService {
 
             body.put("origin", originObj);
             body.put("destination", destinationObj);
-            body.put("travelMode", "DRIVE");
+            body.put("travelMode", "WALK");
 
             Request request =
                     new Request.Builder()

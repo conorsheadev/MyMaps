@@ -2,6 +2,7 @@ package com.csws.mymaps.core.ui.forms;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,7 +83,8 @@ public class LocationConfigFragment extends Fragment {
         if (args != null) {
             name = args.getString(ARG_NAME);
             type = args.getString(ARG_TYPE);
-
+            lat = args.getDouble(ARG_LAT);
+            lng = args.getDouble(ARG_LNG);
             markerConfig = args.getParcelable(ARG_MARKER);
             polygonConfig = args.getParcelable(ARG_POLYGON);
 
@@ -111,7 +113,7 @@ public class LocationConfigFragment extends Fragment {
         typeSelector.setSimpleItems(types);
         typeSelector.setText(type, false);
 
-        String[] icons = {"default", "home", "school", "work"};
+        String[] icons = {"default", "home", "school", "work", "train"};
         iconSelector.setSimpleItems(icons);
         iconSelector.setText(markerIcon, false);
 
@@ -123,6 +125,7 @@ public class LocationConfigFragment extends Fragment {
         // --- Icon change ---
         iconSelector.setOnItemClickListener((parent, v, position, id) -> {
             markerIcon = iconSelector.getText().toString();
+            Log.d("LocationConfigFragment", "icon selector:" + markerIcon);
             updatePreview(iconPreview, markerIcon, markerColor);
         });
 

@@ -97,7 +97,8 @@ public class TaskCollectionConfigFragment extends Fragment {
                 "science",
                 "book",
                 "computer",
-                "event"
+                "event",
+                "travel"
         };
 
         selector.setSimpleItems(icons);

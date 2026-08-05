@@ -2,7 +2,7 @@ package com.csws.mymaps.core.contracts.map;
 
 import com.csws.mymaps.core.models.locations.LocationItem;
 import com.csws.mymaps.core.models.navigation.NavigationRoute;
-import com.csws.mymaps.coordinators.map.controllers.map.MapFragment;
+import com.csws.mymaps.activities.map.controllers.map.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;

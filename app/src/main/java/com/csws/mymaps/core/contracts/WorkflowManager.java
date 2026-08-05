@@ -1,6 +1,6 @@
 package com.csws.mymaps.core.contracts;
 
-import com.csws.mymaps.coordinators.workflows.workflows.Workflow;
+import com.csws.mymaps.coordinators.workflows.Workflow;
 import com.csws.mymaps.core.models.locations.LocationItem;
 
 /**
